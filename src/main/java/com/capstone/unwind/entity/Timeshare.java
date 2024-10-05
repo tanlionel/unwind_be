@@ -15,6 +15,7 @@ import java.time.LocalDate;
 public class Timeshare {
     @Id
     @Column(name = "timeshare_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "status", length = 45)

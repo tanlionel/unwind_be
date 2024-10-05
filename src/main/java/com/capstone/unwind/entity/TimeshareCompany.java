@@ -11,6 +11,7 @@ import lombok.Setter;
 public class TimeshareCompany {
     @Id
     @Column(name = "timeshare_company_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "timeshare_company_name", length = 45)

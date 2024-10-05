@@ -11,6 +11,7 @@ import lombok.Setter;
 public class ExchangePackageDetail {
     @Id
     @Column(name = "exchange_package_detail_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "name", length = 45)

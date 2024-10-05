@@ -15,6 +15,7 @@ import java.time.LocalDate;
 public class ExchangeRequest {
     @Id
     @Column(name = "exchange_request_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)

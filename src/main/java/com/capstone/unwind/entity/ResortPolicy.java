@@ -11,6 +11,7 @@ import lombok.Setter;
 public class ResortPolicy {
     @Id
     @Column(name = "resort_policy_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "description", length = 500)

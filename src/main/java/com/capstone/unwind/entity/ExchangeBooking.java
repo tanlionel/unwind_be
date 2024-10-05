@@ -15,6 +15,7 @@ import java.time.LocalDate;
 public class ExchangeBooking {
     @Id
     @Column(name = "exchange_booking_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)

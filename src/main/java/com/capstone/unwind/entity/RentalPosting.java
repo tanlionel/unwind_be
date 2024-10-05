@@ -15,6 +15,7 @@ import java.time.LocalDate;
 public class RentalPosting {
     @Id
     @Column(name = "rental_posting_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "name", length = 45)

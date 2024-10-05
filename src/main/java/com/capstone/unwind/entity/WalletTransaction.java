@@ -14,6 +14,7 @@ import java.time.Instant;
 public class WalletTransaction {
     @Id
     @Column(name = "wallet_transaction_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)

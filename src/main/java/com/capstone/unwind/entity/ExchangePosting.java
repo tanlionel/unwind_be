@@ -15,6 +15,7 @@ import java.time.LocalDate;
 public class ExchangePosting {
     @Id
     @Column(name = "exchange_posting_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "nights")

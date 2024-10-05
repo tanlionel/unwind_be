@@ -11,6 +11,7 @@ import lombok.Setter;
 public class UnitTypeAmenity {
     @Id
     @Column(name = "unit_type_amenities_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "name", length = 45)

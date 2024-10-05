@@ -11,6 +11,7 @@ import lombok.Setter;
 public class ExchangePostingPreferResort {
     @Id
     @Column(name = "exchange_posting_prefer_resort_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
