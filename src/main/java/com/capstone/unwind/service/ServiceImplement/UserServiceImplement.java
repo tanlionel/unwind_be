@@ -4,11 +4,17 @@ import com.capstone.unwind.entity.Role;
 import com.capstone.unwind.entity.User;
 import com.capstone.unwind.exception.*;
 import com.capstone.unwind.model.AuthDTO.RegisterRequestDTO;
+import com.capstone.unwind.model.UserDTO.UserDto;
+import com.capstone.unwind.model.UserDTO.UserMapper;
 import com.capstone.unwind.repository.RoleRepository;
 import com.capstone.unwind.repository.UserRepository;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +31,8 @@ public class UserServiceImplement implements UserService {
     private final RoleRepository roleRepository;
     @Autowired
     private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private final UserMapper userMapper;
     @Override
     public User login(String email, String password) throws UserDoesNotExistException, AccountSuspendedException, InvalidateException {
         User loginUser = userRepository.findUserByEmail(email);
@@ -78,4 +86,13 @@ public class UserServiceImplement implements UserService {
         }
         return user;
     }
+
+    @Override
+    public Page<UserDto> getPageableUser(Integer pageNo, Integer pageSize, String userName, Integer roleId) {
+        Pageable pageable = PageRequest.of(pageNo,pageSize, Sort.by("id").ascending());
+        Page<User> users = userRepository.findAllByUserNameContainingAndRoleId(userName,roleId,pageable);
+        Page<UserDto> userDtos = users.map(userMapper::toDto);
+        return userDtos;
+    }
+
 }

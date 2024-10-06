@@ -39,6 +39,8 @@ public class SecurityConfiguration {
                                 .permitAll()
                                 .requestMatchers("api/test/unsecured")
                                 .permitAll()
+                                .requestMatchers("api/admin/**")
+                                .hasAuthority("ADMIN")
                                 .anyRequest()
                                 .authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
