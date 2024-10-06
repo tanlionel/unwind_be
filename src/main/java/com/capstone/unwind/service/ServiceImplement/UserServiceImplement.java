@@ -46,10 +46,10 @@ public class UserServiceImplement implements UserService {
 
     @Override
     public User registerUser(RegisterRequestDTO registerUser) throws Exception {
+        if (registerUser.getRoleId() != 1 ) throw new RoleDoesNotAcceptException();
         boolean isExistUser = userRepository.findUserByEmail(registerUser.getEmail()) != null;
-
         Optional<Role> existRole = roleRepository.findById(registerUser.getRoleId());
-        if (existRole.isEmpty()) throw new RoleDoesNotExistException();
+        if (existRole.isEmpty()) throw new RoleDoesNotAcceptException();
         Role role = existRole.get();
         if (isExistUser) throw new UserAlreadyExistsException();
         boolean isExistUserName = userRepository.findUserByUserName(registerUser.getUsername()) != null;
@@ -93,6 +93,37 @@ public class UserServiceImplement implements UserService {
         Page<User> users = userRepository.findAllByUserNameContainingAndRoleId(userName,roleId,pageable);
         Page<UserDto> userDtos = users.map(userMapper::toDto);
         return userDtos;
+    }
+
+    @Override
+    public UserDto getUserByUserId(Integer userId) throws UserDoesNotExistException {
+        User user = userRepository.findUserById(userId);
+        if (user==null) throw new UserDoesNotExistException();
+        UserDto userDto = userMapper.toDto(user);
+        return userDto;
+    }
+
+    @Override
+    public UserDto createUser(RegisterRequestDTO registerRequestDTO) throws Exception {
+        boolean isExistUser = userRepository.findUserByEmail(registerRequestDTO.getEmail()) != null;
+        Optional<Role> existRole = roleRepository.findById(registerRequestDTO.getRoleId());
+        if (existRole.isEmpty()) throw new RoleDoesNotAcceptException();
+        Role role = existRole.get();
+        if (isExistUser) throw new UserAlreadyExistsException();
+        boolean isExistUserName = userRepository.findUserByUserName(registerRequestDTO.getUsername()) != null;
+        if (isExistUserName) throw  new UserAlreadyExistsException();
+
+        User user = User.builder()
+                .userName(registerRequestDTO.getUsername())
+                .email(registerRequestDTO.getEmail())
+                .password(passwordEncoder.encode(registerRequestDTO.getPassword()).trim())
+                .isActive(true)
+                .role(role)
+                .build();
+
+        User result = userRepository.save(user);
+        UserDto userDto = userMapper.toDto(result);
+        return userDto;
     }
 
 }

@@ -27,8 +27,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleTokenExpiredException(TokenExpiredException ex){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
-    @ExceptionHandler(RoleDoesNotExistException.class)
-    public ResponseEntity<?> handleRoleDoesNotExistException(RoleDoesNotExistException ex){
+    @ExceptionHandler(RoleDoesNotAcceptException.class)
+    public ResponseEntity<?> handleRoleDoesNotExistException(RoleDoesNotAcceptException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(EntityAlreadyExist.class)
+    public ResponseEntity<?> handleEntityAlreadyExistException(EntityAlreadyExist ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+    @ExceptionHandler(EntityDoesNotExistException.class)
+    public ResponseEntity<?> handleEntityDoesNotExistException(EntityDoesNotExistException ex){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 }

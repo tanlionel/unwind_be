@@ -24,4 +24,7 @@ public class Message {
     public static final String msgDrugDoesNotExist = "Drug does not exist!";
     public static final String msgInvalidAction = "Invalid action!";
     public static final String msgInvalidPermission = "User does not have permission!";
+    public static final String getMsgInvalidRole = "Role does not accept here!";
+    public static final String msgEntityAlreadyExist = "Entity already exist!";
+    public static final String msgEntityDoesNotExist = "Entity does not exist!";
 }

@@ -14,4 +14,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Page<User> findAllByUserNameContainingAndRoleId(@Param("userName") String userName,
                                                     @Param("roleId") Integer roleId,
                                                     Pageable pageable);
+
+    User findUserById(Integer userId);
 }

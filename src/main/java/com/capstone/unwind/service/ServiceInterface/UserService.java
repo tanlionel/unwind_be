@@ -15,4 +15,6 @@ public interface UserService {
     User getLoginUser();
     User getUserByUserName(String Username) throws UserDoesNotExistException, InvalidateException;
     Page<UserDto> getPageableUser(Integer pageNo, Integer pageSize, String userName, Integer roleId);
+    UserDto getUserByUserId(Integer userId) throws UserDoesNotExistException;
+    UserDto createUser(RegisterRequestDTO registerRequestDTO) throws Exception;
 }

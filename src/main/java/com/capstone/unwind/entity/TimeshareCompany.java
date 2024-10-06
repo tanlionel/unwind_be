@@ -1,12 +1,13 @@
 package com.capstone.unwind.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "timeshare_company")
 public class TimeshareCompany {
     @Id
@@ -26,9 +27,9 @@ public class TimeshareCompany {
     @Column(name = "description", length = 500)
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
-    private Customer owner;
+    private User owner;
 
     @Column(name = "contact", length = 45)
     private String contact;
