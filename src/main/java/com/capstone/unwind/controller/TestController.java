@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @CrossOrigin
 public class TestController {
-    @GetMapping("unsecured")
+/*    @GetMapping("unsecured")
     private String getFromUnsecured(){
         return "hello from un-secured";
-    }
+    }*/
     @GetMapping("secured")
     private String getFromSecured(){
         return "hello from secured";
