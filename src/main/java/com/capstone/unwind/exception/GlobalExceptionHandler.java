@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(RoleDoesNotAcceptException.class)
     public ResponseEntity<?> handleRoleDoesNotExistException(RoleDoesNotAcceptException ex){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
     @ExceptionHandler(EntityAlreadyExist.class)
@@ -38,6 +38,6 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(EntityDoesNotExistException.class)
     public ResponseEntity<?> handleEntityDoesNotExistException(EntityDoesNotExistException ex){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }

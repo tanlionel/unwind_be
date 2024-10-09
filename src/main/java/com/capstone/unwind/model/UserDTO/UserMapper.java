@@ -3,14 +3,15 @@ package com.capstone.unwind.model.UserDTO;
 import com.capstone.unwind.entity.User;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
     @Mapping(source = "roleRoleName", target = "role.roleName")
     @Mapping(source = "roleId", target = "role.id")
     User toEntity(UserDto userDto);
 
-    @InheritInverseConfiguration(name = "toEntity")
+    //@Mapping(source = "userName", target = "userName")
+    @Mapping(source = "username", target = "userName")
     UserDto toDto(User user);
 
     @InheritConfiguration(name = "toEntity")
