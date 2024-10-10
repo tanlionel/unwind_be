@@ -17,6 +17,7 @@ public class ResortDetailResponseDTO {
     String status;
     String address;
     Integer timeshareCompanyId;
+    String description;
     List<ResortAmenity> resortAmenityList;
     Boolean isActive;
     List<UnitTypeDto> unitTypeDtoList;

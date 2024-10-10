@@ -16,6 +16,7 @@ public class ResortRequestDTO {
     String status;
     String address;
     Integer timeshareCompanyId;
+    String description;
     List<ResortAmenity> resortAmenityList;
 
     @Data

@@ -43,7 +43,6 @@ public class JwtServiceImplement implements JwtService {
     @Override
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
-
         return claimsResolver.apply(claims);
     }
 
@@ -107,6 +106,7 @@ public class JwtServiceImplement implements JwtService {
     public String generateAccessToken(String refreshToken) throws TokenExpiredException, UserDoesNotExistException, InvalidateException {
         String username = extractUsername(refreshToken);
         User user = userService.getUserByUserName(username);
+
         if (isValidToken(refreshToken, user)) {
             return generateAccessToken(user);
         } else {

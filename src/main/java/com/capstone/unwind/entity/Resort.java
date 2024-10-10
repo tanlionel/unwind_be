@@ -33,6 +33,9 @@ public class Resort {
     @Column(name = "address", length = 200)
     private String address;
 
+    @Column(name = "description",length = 500)
+    private String description;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "timeshare_company_id")
     private TimeshareCompany timeshareCompany;

@@ -3,9 +3,11 @@ package com.capstone.unwind.service.ServiceImplement;
 import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
+import com.capstone.unwind.exception.UserDoesNotHavePermission;
 import com.capstone.unwind.model.ResortDTO.*;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.ResortService;
+import com.capstone.unwind.service.ServiceInterface.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,11 +36,16 @@ public class ResortServiceImplement implements ResortService {
     private final UnitTypeMapper unitTypeMapper;
     @Autowired
     private final UnitTypeRepository unitTypeRepository;
+    @Autowired
+    private final UserService userService;
 
     @Override
-    public ResortDetailResponseDTO createResort(ResortRequestDTO resortDto) throws EntityDoesNotExistException, ErrMessageException {
-        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyById(resortDto.getTimeshareCompanyId());
-        if (timeshareCompany == null) throw new EntityDoesNotExistException();
+    public ResortDetailResponseDTO createResort(ResortRequestDTO resortDto) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission {
+
+        User tsCompany = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
+        if (timeshareCompany==null) throw new UserDoesNotHavePermission();
+
         Resort resort = Resort.builder()
                 .resortName(resortDto.getResortName())
                 .logo(resortDto.getLogo())
@@ -48,9 +55,12 @@ public class ResortServiceImplement implements ResortService {
                 .address(resortDto.getAddress())
                 .timeshareCompany(timeshareCompany)
                 .status(resortDto.getStatus())
+                .description(resortDto.getDescription())
                 .isActive(true)
                 .build();
+
         Resort resortInDb = resortRepository.save(resort);
+
         try{
             for (ResortRequestDTO.ResortAmenity tmp: resortDto.getResortAmenityList()){
                 ResortAmenity resortAmenity = ResortAmenity.builder()
@@ -64,6 +74,7 @@ public class ResortServiceImplement implements ResortService {
         }catch (Exception e) {
             throw new ErrMessageException("Error when save amenities");
         };
+
         List<ResortAmenity> resortAmenities = resortAmenityRepository.findAllByResortId(resortInDb.getId());
         ResortDetailResponseDTO resortDetailResponseDTO = ResortDetailResponseDTO.builder()
                 .id(resortInDb.getId())
@@ -74,6 +85,7 @@ public class ResortServiceImplement implements ResortService {
                 .status(resortInDb.getStatus())
                 .address(resortInDb.getAddress())
                 .timeshareCompanyId(resortInDb.getTimeshareCompany().getId())
+                .description(resortInDb.getDescription())
                 .status(resortInDb.getStatus())
                 .resortAmenityList( resortAmenities.stream()
                         .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
@@ -87,12 +99,17 @@ public class ResortServiceImplement implements ResortService {
     }
 
     @Override
-    public ResortDetailResponseDTO getResortById(Integer resortId) throws EntityDoesNotExistException {
+    public ResortDetailResponseDTO getResortById(Integer resortId) throws EntityDoesNotExistException, UserDoesNotHavePermission {
+        User tsCompany = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
+        if (timeshareCompany==null) throw new UserDoesNotHavePermission();
+
         Optional<Resort> resort = resortRepository.findById(resortId);
         if (!resort.isPresent()) throw new EntityDoesNotExistException();
         Resort resortInDb = resort.get();
         List<ResortAmenity> resortAmenityList = resortAmenityRepository.findAllByResortId(resortId);
         List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortId(resortInDb.getId()).stream().map(unitTypeMapper::toDto).toList();
+
         ResortDetailResponseDTO resortDetailResponseDTO = ResortDetailResponseDTO.builder()
                 .id(resortInDb.getId())
                 .resortName(resortInDb.getResortName())
@@ -103,6 +120,7 @@ public class ResortServiceImplement implements ResortService {
                 .address(resortInDb.getAddress())
                 .timeshareCompanyId(resortInDb.getTimeshareCompany().getId())
                 .status(resortInDb.getStatus())
+                .description(resortInDb.getDescription())
                 .resortAmenityList( resortAmenityList.stream()
                         .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
                                 .name(p.getName())
@@ -116,15 +134,24 @@ public class ResortServiceImplement implements ResortService {
     }
 
     @Override
-    public Page<ResortDto> getPageableResort(Integer pageNo, Integer pageSize, String resortName) {
+    public Page<ResortDto> getPageableResort(Integer pageNo, Integer pageSize, String resortName) throws UserDoesNotHavePermission {
         Pageable pageable = PageRequest.of(pageNo,pageSize, Sort.by("id"));
-        Page<Resort> resortPage = resortRepository.findAllByResortNameContainingAndIsActive(resortName,true,pageable);
+        User tsCompany = userService.getLoginUser();
+
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
+        if (timeshareCompany==null) throw new UserDoesNotHavePermission();
+
+        Page<Resort> resortPage = resortRepository.findAllByResortNameContainingAndIsActiveAndTimeshareCompanyId(resortName,true,timeshareCompany.getId(),pageable);
         Page<ResortDto> resortDtoPage = resortPage.map(resortMapper::toDto);
         return resortDtoPage;
     }
 
     @Override
-    public List<UnitTypeDto> createUnitType(ResortUnitTypeRequestDTO resortUnitTypeRequestDTO) throws EntityDoesNotExistException, ErrMessageException {
+    public List<UnitTypeDto> createUnitType(ResortUnitTypeRequestDTO resortUnitTypeRequestDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission {
+        User tsCompany = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
+        if (timeshareCompany==null) throw new UserDoesNotHavePermission();
+
         Resort resort = resortRepository.findById(resortUnitTypeRequestDTO.getResortId()).orElseThrow(EntityDoesNotExistException::new);
         try{
             List<UnitTypeDto> unitTypeDtoList = resortUnitTypeRequestDTO.getUnitTypeDtoList();

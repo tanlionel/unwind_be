@@ -4,6 +4,7 @@ import com.capstone.unwind.entity.TimeshareCompany;
 import com.capstone.unwind.entity.User;
 import com.capstone.unwind.exception.EntityAlreadyExist;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
+import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.UserDoesNotExistException;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyMapper;
@@ -32,9 +33,12 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
     @Autowired
     private final UserRepository userRepository;
     @Override
-    public TimeshareCompanyDto createTimeshareCompany(TimeshareCompanyDto timeshareCompanyDto) throws EntityAlreadyExist, UserDoesNotExistException {
+    public TimeshareCompanyDto createTimeshareCompany(TimeshareCompanyDto timeshareCompanyDto) throws EntityAlreadyExist, UserDoesNotExistException, ErrMessageException {
         User user = userRepository.findUserById(timeshareCompanyDto.getOwnerId());
         if (user==null) throw new UserDoesNotExistException();
+        if (user.getRole().getId() != 2) throw new ErrMessageException("Must be timeshare company role");
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(user.getId());
+        if (timeshareCompany!= null) throw new ErrMessageException("User already exist in another timeshare company");
         TimeshareCompany timeshareCompanyRequest = TimeshareCompany.builder()
                 .timeshareCompanyName(timeshareCompanyDto.getTimeshareCompanyName())
                 .logo(timeshareCompanyDto.getLogo())

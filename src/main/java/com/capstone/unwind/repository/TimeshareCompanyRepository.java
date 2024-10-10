@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface TimeshareCompanyRepository extends JpaRepository<TimeshareCompany, Integer> {
     Page<TimeshareCompany> findAllByTimeshareCompanyNameContaining(String tsName, Pageable pageable);
     TimeshareCompany findTimeshareCompanyById(Integer tsId);
+    TimeshareCompany findTimeshareCompanyByOwnerId(Integer ownerId);
 }
