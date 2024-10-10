@@ -19,6 +19,7 @@ public class ResortDetailResponseDTO {
     Integer timeshareCompanyId;
     List<ResortAmenity> resortAmenityList;
     Boolean isActive;
+    List<UnitTypeDto> unitTypeDtoList;
 
     @Data
     @Getter

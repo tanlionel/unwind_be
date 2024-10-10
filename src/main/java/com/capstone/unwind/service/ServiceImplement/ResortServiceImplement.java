@@ -1,16 +1,10 @@
 package com.capstone.unwind.service.ServiceImplement;
 
-import com.capstone.unwind.entity.Resort;
-import com.capstone.unwind.entity.ResortAmenity;
-import com.capstone.unwind.entity.ResortPolicy;
-import com.capstone.unwind.entity.TimeshareCompany;
+import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.model.ResortDTO.*;
-import com.capstone.unwind.repository.ResortAmenityRepository;
-import com.capstone.unwind.repository.ResortPolicyRepository;
-import com.capstone.unwind.repository.ResortRepository;
-import com.capstone.unwind.repository.TimeshareCompanyRepository;
+import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.ResortService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +30,10 @@ public class ResortServiceImplement implements ResortService {
     private final ResortMapper resortMapper;
     @Autowired
     private final ResortAmenityRepository resortAmenityRepository;
+    @Autowired
+    private final UnitTypeMapper unitTypeMapper;
+    @Autowired
+    private final UnitTypeRepository unitTypeRepository;
 
     @Override
     public ResortDetailResponseDTO createResort(ResortRequestDTO resortDto) throws EntityDoesNotExistException, ErrMessageException {
@@ -94,6 +92,7 @@ public class ResortServiceImplement implements ResortService {
         if (!resort.isPresent()) throw new EntityDoesNotExistException();
         Resort resortInDb = resort.get();
         List<ResortAmenity> resortAmenityList = resortAmenityRepository.findAllByResortId(resortId);
+        List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortId(resortInDb.getId()).stream().map(unitTypeMapper::toDto).toList();
         ResortDetailResponseDTO resortDetailResponseDTO = ResortDetailResponseDTO.builder()
                 .id(resortInDb.getId())
                 .resortName(resortInDb.getResortName())
@@ -111,6 +110,7 @@ public class ResortServiceImplement implements ResortService {
                                 .build())
                         .toList())
                 .isActive(resortInDb.getIsActive())
+                .unitTypeDtoList(unitTypeDtoListResponse)
                 .build();
         return resortDetailResponseDTO;
     }
@@ -123,8 +123,22 @@ public class ResortServiceImplement implements ResortService {
         return resortDtoPage;
     }
 
-
-
+    @Override
+    public List<UnitTypeDto> createUnitType(ResortUnitTypeRequestDTO resortUnitTypeRequestDTO) throws EntityDoesNotExistException, ErrMessageException {
+        Resort resort = resortRepository.findById(resortUnitTypeRequestDTO.getResortId()).orElseThrow(EntityDoesNotExistException::new);
+        try{
+            List<UnitTypeDto> unitTypeDtoList = resortUnitTypeRequestDTO.getUnitTypeDtoList();
+            for (UnitTypeDto tmp:unitTypeDtoList){
+                UnitType unitType = unitTypeMapper.toEntity(tmp);
+                unitType.setResort(resort);
+                unitTypeRepository.save(unitType);
+            }
+        }catch (Exception e){
+            throw new ErrMessageException("Error when save unit type");
+        }
+        List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortId(resort.getId()).stream().map(unitTypeMapper::toDto).toList();
+        return unitTypeDtoListResponse;
+    }
 
 
 }

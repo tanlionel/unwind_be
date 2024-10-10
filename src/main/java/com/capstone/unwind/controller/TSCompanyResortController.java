@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/timeshare-company/resort")
 @RequiredArgsConstructor
@@ -35,5 +37,9 @@ public class TSCompanyResortController {
         ResortDetailResponseDTO resortDtoResponse = resortService.createResort(resortDto);
         return resortDtoResponse;
     }
-
+    @PostMapping("unit-type")
+    public List<UnitTypeDto> createUnitType(@RequestBody ResortUnitTypeRequestDTO resortUnitTypeRequestDTO) throws ErrMessageException, EntityDoesNotExistException {
+        List<UnitTypeDto> unitTypeDtoList = resortService.createUnitType(resortUnitTypeRequestDTO);
+        return unitTypeDtoList;
+    }
 }
