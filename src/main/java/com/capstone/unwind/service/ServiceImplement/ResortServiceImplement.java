@@ -5,6 +5,7 @@ import com.capstone.unwind.entity.ResortAmenity;
 import com.capstone.unwind.entity.ResortPolicy;
 import com.capstone.unwind.entity.TimeshareCompany;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
+import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.model.ResortDTO.*;
 import com.capstone.unwind.repository.ResortAmenityRepository;
 import com.capstone.unwind.repository.ResortPolicyRepository;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,35 +36,81 @@ public class ResortServiceImplement implements ResortService {
     private final ResortMapper resortMapper;
     @Autowired
     private final ResortAmenityRepository resortAmenityRepository;
-    @Autowired
-    private final ResortPolicyRepository resortPolicyRepository;
+
     @Override
-    public ResortDto createResort(ResortDto resortDto) throws EntityDoesNotExistException {
+    public ResortDetailResponseDTO createResort(ResortRequestDTO resortDto) throws EntityDoesNotExistException, ErrMessageException {
         TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyById(resortDto.getTimeshareCompanyId());
         if (timeshareCompany == null) throw new EntityDoesNotExistException();
-        Resort resort = resortMapper.toEntity(resortDto);
-        Resort resortDb = resortRepository.save(resort);
-        return resortMapper.toDto(resortDb);
+        Resort resort = Resort.builder()
+                .resortName(resortDto.getResortName())
+                .logo(resortDto.getLogo())
+                .minPrice(resortDto.getMinPrice())
+                .maxPrice(resortDto.getMaxPrice())
+                .status(resortDto.getStatus())
+                .address(resortDto.getAddress())
+                .timeshareCompany(timeshareCompany)
+                .status(resortDto.getStatus())
+                .isActive(true)
+                .build();
+        Resort resortInDb = resortRepository.save(resort);
+        try{
+            for (ResortRequestDTO.ResortAmenity tmp: resortDto.getResortAmenityList()){
+                ResortAmenity resortAmenity = ResortAmenity.builder()
+                        .resort(resortInDb)
+                        .type(tmp.getType())
+                        .name(tmp.getName())
+                        .isActive(true)
+                        .build();
+                resortAmenityRepository.save(resortAmenity);
+            }
+        }catch (Exception e) {
+            throw new ErrMessageException("Error when save amenities");
+        };
+        List<ResortAmenity> resortAmenities = resortAmenityRepository.findAllByResortId(resortInDb.getId());
+        ResortDetailResponseDTO resortDetailResponseDTO = ResortDetailResponseDTO.builder()
+                .id(resortInDb.getId())
+                .resortName(resortInDb.getResortName())
+                .logo(resortInDb.getLogo())
+                .minPrice(resortInDb.getMinPrice())
+                .maxPrice(resortInDb.getMaxPrice())
+                .status(resortInDb.getStatus())
+                .address(resortInDb.getAddress())
+                .timeshareCompanyId(resortInDb.getTimeshareCompany().getId())
+                .status(resortInDb.getStatus())
+                .resortAmenityList( resortAmenities.stream()
+                        .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
+                                .name(p.getName())
+                                .type(p.getType())
+                                .build())
+                        .toList())
+                .isActive(resortInDb.getIsActive())
+                .build();
+        return resortDetailResponseDTO;
     }
 
     @Override
     public ResortDetailResponseDTO getResortById(Integer resortId) throws EntityDoesNotExistException {
         Optional<Resort> resort = resortRepository.findById(resortId);
         if (!resort.isPresent()) throw new EntityDoesNotExistException();
+        Resort resortInDb = resort.get();
         List<ResortAmenity> resortAmenityList = resortAmenityRepository.findAllByResortId(resortId);
-        List<ResortPolicy> resortPolicyList = resortPolicyRepository.findAllByResortId(resortId);
-        ResortDetailResponseDTO  resortDetailResponseDTO = ResortDetailResponseDTO.builder()
-                .id(resortId)
-                .resortName(resort.get().getResortName())
-                .logo(resort.get().getResortName())
-                .minPrice(resort.get().getMinPrice())
-                .maxPrice(resort.get().getMaxPrice())
-                .status(resort.get().getStatus())
-                .timeshareCompanyId(resort.get().getTimeshareCompany().getId())
-                .address(resort.get().getAddress())
-                .isActive(resort.get().getIsActive())
-                .resortAmenityList(convertToResortAmenities(resortAmenityList))
-                .resortPolicyList(convertToResortPolicies(resortPolicyList))
+        ResortDetailResponseDTO resortDetailResponseDTO = ResortDetailResponseDTO.builder()
+                .id(resortInDb.getId())
+                .resortName(resortInDb.getResortName())
+                .logo(resortInDb.getLogo())
+                .minPrice(resortInDb.getMinPrice())
+                .maxPrice(resortInDb.getMaxPrice())
+                .status(resortInDb.getStatus())
+                .address(resortInDb.getAddress())
+                .timeshareCompanyId(resortInDb.getTimeshareCompany().getId())
+                .status(resortInDb.getStatus())
+                .resortAmenityList( resortAmenityList.stream()
+                        .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
+                                .name(p.getName())
+                                .type(p.getType())
+                                .build())
+                        .toList())
+                .isActive(resortInDb.getIsActive())
                 .build();
         return resortDetailResponseDTO;
     }
@@ -75,62 +123,8 @@ public class ResortServiceImplement implements ResortService {
         return resortDtoPage;
     }
 
-    @Override
-    public Boolean createResortAmenities(ResortAmenitiesRequestDTO resortAmenitiesRequestDTO) throws EntityDoesNotExistException {
 
-        Resort resort = resortRepository.findById(resortAmenitiesRequestDTO.resortId()).orElseThrow(EntityDoesNotExistException::new);
-        try{
-            for (ResortAmenitiesRequestDTO.ResortAmenity tmp : resortAmenitiesRequestDTO.resortAmenityList()){
-                ResortAmenity resortAmenity = ResortAmenity.builder()
-                        .type(tmp.type())
-                        .name(tmp.name())
-                        .isActive(true)
-                        .resort(resort)
-                        .build();
-                resortAmenityRepository.save(resortAmenity);
-            }
-        }catch (Exception e){
-            return false;
-        }
 
-        return true;
-    }
 
-    @Override
-    public Boolean createResortPolicies(ResortPoliciesRequestDto resortPoliciesRequestDto) throws EntityDoesNotExistException {
-        Resort resort = resortRepository.findById(resortPoliciesRequestDto.resortId()).orElseThrow(EntityDoesNotExistException::new);
-        try{
-            for (ResortPoliciesRequestDto.ResortPolicy tmp : resortPoliciesRequestDto.resortPolicyList()){
-                ResortPolicy resortPolicy = ResortPolicy.builder()
-                        .description(tmp.description())
-                        .attachmentUrl(tmp.attachmentURl())
-                        .isActive(true)
-                        .resort(resort)
-                        .build();
-                resortPolicyRepository.save(resortPolicy);
-            }
-        }catch (Exception e){
-            return false;
-        }
-
-        return true;
-    }
-
-    public List<ResortDetailResponseDTO.ResortAmenity> convertToResortAmenities(List<ResortAmenity> resortAmenityList) {
-        return resortAmenityList.stream()
-                .map(resortAmenity -> new ResortDetailResponseDTO.ResortAmenity(
-                        resortAmenity.getName(),
-                        resortAmenity.getType()
-                ))
-                .collect(Collectors.toList());
-    }
-    public List<ResortDetailResponseDTO.ResortPolicy> convertToResortPolicies(List<ResortPolicy> resortPolicyList) {
-        return resortPolicyList.stream()
-                .map(resortPolicy -> new ResortDetailResponseDTO.ResortPolicy(
-                        resortPolicy.getDescription(),
-                        resortPolicy.getAttachmentUrl()
-                ))
-                .collect(Collectors.toList());
-    }
 
 }

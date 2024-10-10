@@ -1,10 +1,8 @@
 package com.capstone.unwind.controller;
 
 import com.capstone.unwind.exception.EntityDoesNotExistException;
-import com.capstone.unwind.model.ResortDTO.ResortAmenitiesRequestDTO;
-import com.capstone.unwind.model.ResortDTO.ResortDetailResponseDTO;
-import com.capstone.unwind.model.ResortDTO.ResortDto;
-import com.capstone.unwind.model.ResortDTO.ResortPoliciesRequestDto;
+import com.capstone.unwind.exception.ErrMessageException;
+import com.capstone.unwind.model.ResortDTO.*;
 import com.capstone.unwind.service.ServiceInterface.ResortService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,20 +31,9 @@ public class TSCompanyResortController {
         return resortDetailResponseDTO;
     }
     @PostMapping()
-    public ResortDto createResort(@RequestBody ResortDto resortDto) throws EntityDoesNotExistException {
-        ResortDto resortDtoResponse = resortService.createResort(resortDto);
+    public ResortDetailResponseDTO createResort(@RequestBody ResortRequestDTO resortDto) throws EntityDoesNotExistException, ErrMessageException {
+        ResortDetailResponseDTO resortDtoResponse = resortService.createResort(resortDto);
         return resortDtoResponse;
     }
-    @PostMapping("/resort-amenities")
-    public ResponseEntity<String> createResortAmenities(@RequestBody ResortAmenitiesRequestDTO resortAmenitiesRequestDTO) throws EntityDoesNotExistException {
-        Boolean flag = resortService.createResortAmenities(resortAmenitiesRequestDTO);
-        if (!flag) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("create fail");
-        return ResponseEntity.ok("Successful");
-    }
-    @PostMapping("/resort-policies")
-    public ResponseEntity<String> createResortPolicies(@RequestBody ResortPoliciesRequestDto resortPoliciesRequestDto) throws EntityDoesNotExistException {
-        Boolean flag = resortService.createResortPolicies(resortPoliciesRequestDto);
-        if (!flag) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("create fail");
-        return ResponseEntity.ok("Successful");
-    }
+
 }

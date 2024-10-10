@@ -8,8 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class ResortDetailResponseDTO {
-    Integer id;
+public class ResortRequestDTO {
     String resortName;
     String logo;
     Float minPrice;
@@ -18,7 +17,6 @@ public class ResortDetailResponseDTO {
     String address;
     Integer timeshareCompanyId;
     List<ResortAmenity> resortAmenityList;
-    Boolean isActive;
 
     @Data
     @Getter

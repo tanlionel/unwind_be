@@ -40,4 +40,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleEntityDoesNotExistException(EntityDoesNotExistException ex){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
+    @ExceptionHandler(ErrMessageException.class)
+    public ResponseEntity<?> handleErrMessageException(ErrMessageException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }
