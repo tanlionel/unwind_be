@@ -1,12 +1,14 @@
 package com.capstone.unwind.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "unit_type")
 public class UnitType {
     @Id

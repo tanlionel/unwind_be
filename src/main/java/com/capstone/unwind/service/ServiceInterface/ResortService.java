@@ -17,5 +17,5 @@ public interface ResortService {
 
     List<UnitTypeDto> createUnitType(ResortUnitTypeRequestDTO resortUnitTypeRequestDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission;
 
-    List<UnitTypeAmenitiesDTO> addAmenitiesToUnitType(AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission;
+    AddUnitTypeAmentiesResponseDTO addAmenitiesToUnitType(AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission;
 }

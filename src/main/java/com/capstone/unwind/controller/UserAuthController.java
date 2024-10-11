@@ -1,27 +1,17 @@
 package com.capstone.unwind.controller;
 
 import com.capstone.unwind.entity.User;
-import com.capstone.unwind.exception.EntityDoesNotExistException;
-import com.capstone.unwind.exception.ErrMessageException;
-import com.capstone.unwind.exception.UserDoesNotHavePermission;
 import com.capstone.unwind.model.AuthDTO.BasicUserResponseDTO;
 import com.capstone.unwind.model.AuthDTO.LoginRequestDTO;
 import com.capstone.unwind.model.AuthDTO.RegisterRequestDTO;
 import com.capstone.unwind.model.AuthDTO.ResponseObjectDTO;
-import com.capstone.unwind.model.ResortDTO.AddUnitTypeAmentiesDTO;
-import com.capstone.unwind.model.ResortDTO.ResortUnitTypeRequestDTO;
-import com.capstone.unwind.model.ResortDTO.UnitTypeAmenitiesDTO;
-import com.capstone.unwind.model.ResortDTO.UnitTypeDto;
 import com.capstone.unwind.service.ServiceInterface.JwtService;
-import com.capstone.unwind.service.ServiceInterface.ResortService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")

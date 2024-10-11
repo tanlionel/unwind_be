@@ -36,8 +36,6 @@ public class ResortServiceImplement implements ResortService {
     @Autowired
     private final UnitTypeMapper unitTypeMapper;
     @Autowired
-    private final UnitTypeAmentitiesMapper unitTypeAmentitiesMapper;
-    @Autowired
     private final UnitTypeRepository unitTypeRepository;
     @Autowired
     private final UnitTypeAmentitiesRepository unitTypeAmentitiesRepository;
@@ -172,26 +170,77 @@ public class ResortServiceImplement implements ResortService {
         return unitTypeDtoListResponse;
     }
     @Override
-    public List<UnitTypeAmenitiesDTO> addAmenitiesToUnitType(AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission {
+    public AddUnitTypeAmentiesResponseDTO addAmenitiesToUnitType(AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission {
         User tsCompany = userService.getLoginUser();
         TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
         if (timeshareCompany==null) throw new UserDoesNotHavePermission();
+        Resort resort = resortRepository.findById(addUnitTypeAmentiesDTO.getResortId()).orElseThrow(EntityDoesNotExistException::new);
+        UnitType unitType = UnitType.builder()
+                .area(addUnitTypeAmentiesDTO.getArea())
+                .bedrooms(addUnitTypeAmentiesDTO.getBedrooms())
+                .bedsKing(addUnitTypeAmentiesDTO.getBedsKing())
+                .bedsFull(addUnitTypeAmentiesDTO.getBedsFull())
+                .bedsMurphy(addUnitTypeAmentiesDTO.getBedsMurphy())
+                .bedsQueen(addUnitTypeAmentiesDTO.getBedsQueen())
+                .title(addUnitTypeAmentiesDTO.getTitle())
+                .bedsSofa(addUnitTypeAmentiesDTO.getBedsSofa())
+                .description(addUnitTypeAmentiesDTO.getDescription())
+                .resort(resort)
+                .bathrooms(addUnitTypeAmentiesDTO.getBathrooms())
+                .bedsTwin(addUnitTypeAmentiesDTO.getBedsTwin())
+                .price(addUnitTypeAmentiesDTO.getPrice())
+                .view(addUnitTypeAmentiesDTO.getView())
+                .kitchen(addUnitTypeAmentiesDTO.getKitchen())
+                .photos(addUnitTypeAmentiesDTO.getPhotos())
+                .sleeps(addUnitTypeAmentiesDTO.getSleeps())
+                .buildingsOption(addUnitTypeAmentiesDTO.getBuildingsOption())
+                .isActive(true)
+                .build();
 
-        UnitType unitType = unitTypeRepository.findById(addUnitTypeAmentiesDTO.getUnitTypeId())
-                .orElseThrow(() -> new ErrMessageException("Unit type not found with id: " + addUnitTypeAmentiesDTO.getUnitTypeId()));
+        UnitType unitTypeInDb = unitTypeRepository.save(unitType);
 
         try{
-            List<UnitTypeAmenitiesDTO> unitTypeAmenitiesDTOList = addUnitTypeAmentiesDTO.getUnitTypeAmenitiesDTOS();
-            for (UnitTypeAmenitiesDTO tmp:unitTypeAmenitiesDTOList){
-                UnitTypeAmenity unitTypeAmenity = unitTypeAmentitiesMapper.toEntity(tmp);
-                unitTypeAmenity.setUnitType(unitType);
-                unitTypeAmentitiesRepository.save(unitTypeAmenity);
+            for (AddUnitTypeAmentiesDTO.UnitTypeAmenitiesDTO tmp: addUnitTypeAmentiesDTO.getUnitTypeAmenitiesDTOS()){
+                UnitTypeAmenity amenity = UnitTypeAmenity.builder()
+                        .unitType(unitTypeInDb)
+                        .name(tmp.getName())
+                        .isActive(true)
+                        .build();
+                unitTypeAmentitiesRepository.save(amenity);
             }
-        }catch (Exception e){
-            throw new ErrMessageException("Error when save unit type");
-        }
-        List<UnitTypeAmenitiesDTO> unitTypeAmenitiesDTOListResponse = unitTypeAmentitiesRepository.findAllByUnitTypeId(unitType.getId()).stream().map(unitTypeAmentitiesMapper::toDto).toList();
-        return unitTypeAmenitiesDTOListResponse;
+        }catch (Exception e) {
+            throw new ErrMessageException("Error when save amenities");
+        };
+
+        List<UnitTypeAmenity> amenities = unitTypeAmentitiesRepository.findAllByUnitTypeId(unitTypeInDb.getId());
+        AddUnitTypeAmentiesResponseDTO addUnitTypeAmentiesResponseDTO = AddUnitTypeAmentiesResponseDTO.builder()
+                .id(unitTypeInDb.getId())
+                .area(unitTypeInDb.getArea())
+                .bedsFull(unitTypeInDb.getBedsFull())
+                .bedsKing(unitTypeInDb.getBedsKing())
+                .bedrooms(unitTypeInDb.getBedrooms())
+                .bedsQueen(unitTypeInDb.getBedsQueen())
+                .bedsSofa(unitTypeInDb.getBedsSofa())
+                .bedsTwin(unitTypeInDb.getBedsTwin())
+                .description(unitTypeInDb.getDescription())
+                .bathrooms(unitTypeInDb.getBathrooms())
+                .bedsMurphy(unitTypeInDb.getBedsMurphy())
+                .price(unitTypeInDb.getPrice())
+                .kitchen(unitTypeInDb.getKitchen())
+                .photos(unitTypeInDb.getPhotos())
+                .title(unitTypeInDb.getTitle())
+                .resortId(unitTypeInDb.getResort().getId())
+                .buildingsOption(unitTypeInDb.getBuildingsOption())
+                .sleeps(unitTypeInDb.getSleeps())
+                .view(unitTypeInDb.getView())
+                .unitTypeAmenitiesDTOS( amenities.stream()
+                        .map(p -> AddUnitTypeAmentiesResponseDTO.UnitTypeAmenitiesDTO.builder()
+                                .name(p.getName())
+                                .build())
+                        .toList())
+                .isActive(unitTypeInDb.getIsActive())
+                .build();
+        return addUnitTypeAmentiesResponseDTO;
     }
 
 }

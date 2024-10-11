@@ -10,7 +10,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddUnitTypeAmentiesDTO {
+public class AddUnitTypeAmentiesResponseDTO {
+    Integer id;
     String title;
     String area;
     Integer bathrooms;
@@ -36,6 +37,10 @@ public class AddUnitTypeAmentiesDTO {
     @Setter
     @Builder
     public static class UnitTypeAmenitiesDTO {
+
+        private Integer unitTypeId;
+
+        private Integer id;
 
         private String name;
 

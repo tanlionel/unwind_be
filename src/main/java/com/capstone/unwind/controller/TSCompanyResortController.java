@@ -60,9 +60,9 @@ public class TSCompanyResortController {
         return TSCompanyStaffDtoPage;
     }
     @PostMapping("unit-type_amentities")
-    public List<UnitTypeAmenitiesDTO> createUnitType(@RequestBody AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws ErrMessageException, EntityDoesNotExistException, UserDoesNotHavePermission {
-        List<UnitTypeAmenitiesDTO> unitTypeDtoList = resortService.addAmenitiesToUnitType(addUnitTypeAmentiesDTO);
-        return unitTypeDtoList;
+    public AddUnitTypeAmentiesResponseDTO createUnitType(@RequestBody AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws ErrMessageException, EntityDoesNotExistException, UserDoesNotHavePermission {
+        AddUnitTypeAmentiesResponseDTO unitTypeDetailResponseDTO = resortService.addAmenitiesToUnitType(addUnitTypeAmentiesDTO);
+        return unitTypeDetailResponseDTO;
     }
     @PutMapping("/{staffId}")
     public ResponseEntity<TimeShareCompanyStaffDTO> updateTimeshareStaff(
