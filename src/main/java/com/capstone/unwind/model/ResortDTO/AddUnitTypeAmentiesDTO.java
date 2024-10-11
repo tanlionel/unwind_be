@@ -36,10 +36,8 @@ public class AddUnitTypeAmentiesDTO {
     @Setter
     @Builder
     public static class UnitTypeAmenitiesDTO {
-
         private String name;
 
-        private Boolean isActive;
     }
 
 }
