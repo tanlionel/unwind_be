@@ -1,12 +1,13 @@
 package com.capstone.unwind.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "resort")
 public class Resort {
     @Id
@@ -31,6 +32,9 @@ public class Resort {
 
     @Column(name = "address", length = 200)
     private String address;
+
+    @Column(name = "description",length = 500)
+    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "timeshare_company_id")

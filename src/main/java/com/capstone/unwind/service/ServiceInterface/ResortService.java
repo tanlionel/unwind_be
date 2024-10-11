@@ -2,16 +2,16 @@ package com.capstone.unwind.service.ServiceInterface;
 
 import com.capstone.unwind.entity.ResortAmenity;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
-import com.capstone.unwind.model.ResortDTO.ResortAmenitiesRequestDTO;
-import com.capstone.unwind.model.ResortDTO.ResortDetailResponseDTO;
-import com.capstone.unwind.model.ResortDTO.ResortDto;
-import com.capstone.unwind.model.ResortDTO.ResortPoliciesRequestDto;
+import com.capstone.unwind.exception.ErrMessageException;
+import com.capstone.unwind.exception.UserDoesNotHavePermission;
+import com.capstone.unwind.model.ResortDTO.*;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface ResortService {
-    ResortDto createResort(ResortDto resortDto) throws EntityDoesNotExistException;
-    ResortDetailResponseDTO getResortById(Integer resortId) throws EntityDoesNotExistException;
-    Page<ResortDto> getPageableResort(Integer pageNo, Integer pageSize, String resortName);
-    Boolean createResortAmenities(ResortAmenitiesRequestDTO resortAmenitiesRequestDTO) throws EntityDoesNotExistException;
-    Boolean createResortPolicies(ResortPoliciesRequestDto resortPoliciesRequestDto) throws EntityDoesNotExistException;
+    ResortDetailResponseDTO createResort(ResortRequestDTO resortDto) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission;
+    ResortDetailResponseDTO getResortById(Integer resortId) throws EntityDoesNotExistException, UserDoesNotHavePermission;
+    Page<ResortDto> getPageableResort(Integer pageNo, Integer pageSize, String resortName) throws UserDoesNotHavePermission;
+    List<UnitTypeDto> createUnitType(ResortUnitTypeRequestDTO resortUnitTypeRequestDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission;
 }

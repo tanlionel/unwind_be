@@ -41,6 +41,8 @@ public class SecurityConfiguration {
                                 .permitAll()
                                 .requestMatchers("api/admin/**")
                                 .hasAuthority("ADMIN")
+                                .requestMatchers("api/timeshare-company/**")
+                                .hasAuthority("TIMESHARECOMPANY")
                                 .anyRequest()
                                 .authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

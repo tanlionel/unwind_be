@@ -2,6 +2,7 @@ package com.capstone.unwind.controller;
 
 import com.capstone.unwind.exception.EntityAlreadyExist;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
+import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.UserDoesNotExistException;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
 import com.capstone.unwind.repository.TimeshareCompanyRepository;
@@ -32,7 +33,7 @@ public class AdminTSController {
         return timeshareCompanyDto;
     }
     @PostMapping()
-    public TimeshareCompanyDto createTSCompany(@RequestBody TimeshareCompanyDto timeshareCompanyDto) throws EntityAlreadyExist, UserDoesNotExistException {
+    public TimeshareCompanyDto createTSCompany(@RequestBody TimeshareCompanyDto timeshareCompanyDto) throws EntityAlreadyExist, UserDoesNotExistException, ErrMessageException {
         TimeshareCompanyDto timeshareCompanyDtoResponse = timeshareCompanyService.createTimeshareCompany(timeshareCompanyDto);
         return timeshareCompanyDtoResponse;
     }

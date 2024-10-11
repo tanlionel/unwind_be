@@ -6,5 +6,5 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ResortRepository extends JpaRepository<Resort, Integer> {
-    Page<Resort> findAllByResortNameContainingAndIsActive(String resortName, Boolean isActive, Pageable pageable);
+    Page<Resort> findAllByResortNameContainingAndIsActiveAndTimeshareCompanyId(String resortName, Boolean isActive,Integer tsId, Pageable pageable);
 }
