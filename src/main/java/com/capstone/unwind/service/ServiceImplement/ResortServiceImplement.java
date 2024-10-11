@@ -10,6 +10,7 @@ import com.capstone.unwind.service.ServiceInterface.ResortService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +36,11 @@ public class ResortServiceImplement implements ResortService {
     @Autowired
     private final UnitTypeMapper unitTypeMapper;
     @Autowired
+    private final UnitTypeAmentitiesMapper unitTypeAmentitiesMapper;
+    @Autowired
     private final UnitTypeRepository unitTypeRepository;
+    @Autowired
+    private final UnitTypeAmentitiesRepository unitTypeAmentitiesRepository;
     @Autowired
     private final UserService userService;
 
@@ -166,6 +171,27 @@ public class ResortServiceImplement implements ResortService {
         List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortId(resort.getId()).stream().map(unitTypeMapper::toDto).toList();
         return unitTypeDtoListResponse;
     }
+    @Override
+    public List<UnitTypeAmenitiesDTO> addAmenitiesToUnitType(AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission {
+        User tsCompany = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
+        if (timeshareCompany==null) throw new UserDoesNotHavePermission();
 
+        UnitType unitType = unitTypeRepository.findById(addUnitTypeAmentiesDTO.getUnitTypeId())
+                .orElseThrow(() -> new ErrMessageException("Unit type not found with id: " + addUnitTypeAmentiesDTO.getUnitTypeId()));
+
+        try{
+            List<UnitTypeAmenitiesDTO> unitTypeAmenitiesDTOList = addUnitTypeAmentiesDTO.getUnitTypeAmenitiesDTOS();
+            for (UnitTypeAmenitiesDTO tmp:unitTypeAmenitiesDTOList){
+                UnitTypeAmenity unitTypeAmenity = unitTypeAmentitiesMapper.toEntity(tmp);
+                unitTypeAmenity.setUnitType(unitType);
+                unitTypeAmentitiesRepository.save(unitTypeAmenity);
+            }
+        }catch (Exception e){
+            throw new ErrMessageException("Error when save unit type");
+        }
+        List<UnitTypeAmenitiesDTO> unitTypeAmenitiesDTOListResponse = unitTypeAmentitiesRepository.findAllByUnitTypeId(unitType.getId()).stream().map(unitTypeAmentitiesMapper::toDto).toList();
+        return unitTypeAmenitiesDTOListResponse;
+    }
 
 }

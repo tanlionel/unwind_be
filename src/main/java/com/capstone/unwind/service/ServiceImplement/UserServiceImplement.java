@@ -4,6 +4,7 @@ import com.capstone.unwind.entity.Role;
 import com.capstone.unwind.entity.User;
 import com.capstone.unwind.exception.*;
 import com.capstone.unwind.model.AuthDTO.RegisterRequestDTO;
+import com.capstone.unwind.model.UserDTO.UpdateUserRequestDTO;
 import com.capstone.unwind.model.UserDTO.UserDto;
 import com.capstone.unwind.model.UserDTO.UserMapper;
 import com.capstone.unwind.repository.RoleRepository;
@@ -125,5 +126,16 @@ public class UserServiceImplement implements UserService {
         UserDto userDto = userMapper.toDto(result);
         return userDto;
     }
+    @Override
+    public UserDto updateUser(Integer userId, UpdateUserRequestDTO updateUserRequestDTO) throws Exception {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserDoesNotExistException());
+        Optional<Role> existRole = roleRepository.findById(updateUserRequestDTO.getRoleId());
+        if (existRole.isEmpty()) throw new RoleDoesNotAcceptException();
+        user.setRole(existRole.get());
+        user.setIsActive(updateUserRequestDTO.getIsActive());
 
+        User updatedUser = userRepository.save(user);
+        return userMapper.toDto(updatedUser);
+    }
 }
