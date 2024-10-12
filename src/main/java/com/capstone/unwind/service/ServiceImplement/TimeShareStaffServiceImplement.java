@@ -7,6 +7,7 @@ import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffRequestDTO;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareStaffUpdateRequestDTO;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeshareCompanyStaffMapper;
+import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
 import com.capstone.unwind.model.UserDTO.UpdateUserRequestDTO;
 import com.capstone.unwind.model.UserDTO.UserDto;
 import com.capstone.unwind.model.UserDTO.UserMapper;
@@ -106,5 +107,11 @@ public class TimeShareStaffServiceImplement implements TimeShareStaffService {
         existingStaff.setIsActive(timeShareCompanyStaffDTO.getIsActive());
         TimeshareCompanyStaff updatedStaff = timeshareCompanyStaffRepository.save(existingStaff);
         return timeshareCompanyStaffMapper.toDto(updatedStaff);
+    }
+    @Override
+    public TimeShareCompanyStaffDTO getTimeshareStaffById(Integer tsStaffId) throws EntityDoesNotExistException {
+        Optional<TimeshareCompanyStaff> timeshareCompanyStaff = timeshareCompanyStaffRepository.findById(tsStaffId);
+        if (timeshareCompanyStaff==null) throw new EntityDoesNotExistException();
+        return timeshareCompanyStaffMapper.toDto(timeshareCompanyStaff.get());
     }
 }

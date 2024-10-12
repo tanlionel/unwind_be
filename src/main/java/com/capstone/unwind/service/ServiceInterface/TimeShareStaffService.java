@@ -12,5 +12,5 @@ public interface TimeShareStaffService {
     Page<TimeShareCompanyStaffDTO> getPageableTsStaff(Integer pageNo, Integer pageSize, String StaffName) throws UserDoesNotHavePermission;
     TimeShareCompanyStaffDTO updateTimeshareStaff(Integer staffId, TimeShareStaffUpdateRequestDTO timeShareCompanyStaffDTO)
             throws EntityDoesNotExistException, ErrMessageException;
-
+    TimeShareCompanyStaffDTO getTimeshareStaffById(Integer tsStaffId) throws EntityDoesNotExistException;
 }

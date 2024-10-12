@@ -2,6 +2,7 @@ package com.capstone.unwind.model.ResortDTO;
 
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
@@ -10,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddUnitTypeAmentiesDTO {
+public class AddUnitTypeAmentiesDTO implements Serializable {
     String title;
     String area;
     Integer bathrooms;
@@ -29,12 +30,13 @@ public class AddUnitTypeAmentiesDTO {
     Integer resortId;
     Integer sleeps;
     String view;
-    Boolean isActive;
     List<UnitTypeAmenitiesDTO> unitTypeAmenitiesDTOS;
     @Data
     @Getter
     @Setter
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class UnitTypeAmenitiesDTO {
         private String name;
         private String type;

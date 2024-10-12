@@ -285,5 +285,144 @@ public class ResortServiceImplement implements ResortService {
                 .build();
         return addUnitTypeAmentiesResponseDTO;
     }
+    @Override
+    public AddUnitTypeAmentiesResponseDTO updateUnitType(Integer unitTypeId, AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO)
+            throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission {
 
+        User tsCompany = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
+        if (timeshareCompany == null) throw new UserDoesNotHavePermission();
+        Resort resort = resortRepository.findById(addUnitTypeAmentiesDTO.getResortId()).orElseThrow(EntityDoesNotExistException::new);
+        UnitType unitType = unitTypeRepository.findById(unitTypeId)
+                .orElseThrow(EntityDoesNotExistException::new);
+
+        unitType.setArea(addUnitTypeAmentiesDTO.getArea());
+        unitType.setBedrooms(addUnitTypeAmentiesDTO.getBedrooms());
+        unitType.setBedsKing(addUnitTypeAmentiesDTO.getBedsKing());
+        unitType.setBedsFull(addUnitTypeAmentiesDTO.getBedsFull());
+        unitType.setBedsMurphy(addUnitTypeAmentiesDTO.getBedsMurphy());
+        unitType.setBedsQueen(addUnitTypeAmentiesDTO.getBedsQueen());
+        unitType.setTitle(addUnitTypeAmentiesDTO.getTitle());
+        unitType.setBedsSofa(addUnitTypeAmentiesDTO.getBedsSofa());
+        unitType.setDescription(addUnitTypeAmentiesDTO.getDescription());
+        unitType.setBathrooms(addUnitTypeAmentiesDTO.getBathrooms());
+        unitType.setBedsTwin(addUnitTypeAmentiesDTO.getBedsTwin());
+        unitType.setResort(resort);
+        unitType.setPrice(addUnitTypeAmentiesDTO.getPrice());
+        unitType.setView(addUnitTypeAmentiesDTO.getView());
+        unitType.setKitchen(addUnitTypeAmentiesDTO.getKitchen());
+        unitType.setPhotos(addUnitTypeAmentiesDTO.getPhotos());
+        unitType.setSleeps(addUnitTypeAmentiesDTO.getSleeps());
+        unitType.setBuildingsOption(addUnitTypeAmentiesDTO.getBuildingsOption());
+        unitType.setIsActive(true);
+
+        UnitType updatedUnitType = unitTypeRepository.save(unitType);
+
+        unitTypeAmentitiesRepository.deleteAllByUnitTypeId(updatedUnitType.getId());
+
+        try {
+            for (AddUnitTypeAmentiesDTO.UnitTypeAmenitiesDTO tmp : addUnitTypeAmentiesDTO.getUnitTypeAmenitiesDTOS()) {
+                UnitTypeAmenity amenity = UnitTypeAmenity.builder()
+                        .unitType(updatedUnitType)
+                        .name(tmp.getName())
+                        .type(tmp.getType())
+                        .isActive(true)
+                        .build();
+                unitTypeAmentitiesRepository.save(amenity);
+            }
+        } catch (Exception e) {
+            throw new ErrMessageException("Error when saving amenities");
+        }
+
+        List<UnitTypeAmenity> amenities = unitTypeAmentitiesRepository.findAllByUnitTypeId(updatedUnitType.getId());
+
+        AddUnitTypeAmentiesResponseDTO addUnitTypeAmentiesResponseDTO = AddUnitTypeAmentiesResponseDTO.builder()
+                .id(updatedUnitType.getId())
+                .area(updatedUnitType.getArea())
+                .bedsFull(updatedUnitType.getBedsFull())
+                .bedsKing(updatedUnitType.getBedsKing())
+                .bedrooms(updatedUnitType.getBedrooms())
+                .bedsQueen(updatedUnitType.getBedsQueen())
+                .bedsSofa(updatedUnitType.getBedsSofa())
+                .bedsTwin(updatedUnitType.getBedsTwin())
+                .description(updatedUnitType.getDescription())
+                .bathrooms(updatedUnitType.getBathrooms())
+                .bedsMurphy(updatedUnitType.getBedsMurphy())
+                .price(updatedUnitType.getPrice())
+                .kitchen(updatedUnitType.getKitchen())
+                .photos(updatedUnitType.getPhotos())
+                .title(updatedUnitType.getTitle())
+                .resortId(updatedUnitType.getResort().getId())
+                .buildingsOption(updatedUnitType.getBuildingsOption())
+                .sleeps(updatedUnitType.getSleeps())
+                .view(updatedUnitType.getView())
+                .unitTypeAmenitiesDTOS(amenities.stream()
+                        .map(p -> AddUnitTypeAmentiesResponseDTO.UnitTypeAmenitiesDTO.builder()
+                                .name(p.getName())
+                                .type(p.getType())
+                                .build())
+                        .toList())
+                .isActive(updatedUnitType.getIsActive())
+                .build();
+
+        return addUnitTypeAmentiesResponseDTO;
+    }
+    @Override
+    public AddUnitTypeAmentiesResponseDTO getUnitTypeById(Integer unitTypeId)
+            throws EntityDoesNotExistException, UserDoesNotHavePermission {
+        User tsCompany = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
+        if (timeshareCompany == null) {
+            throw new UserDoesNotHavePermission();
+        }
+
+        Optional<UnitType> unitType = unitTypeRepository.findById(unitTypeId);
+        if (!unitType.isPresent()) {
+            throw new EntityDoesNotExistException();
+        }
+
+        UnitType unitTypeInDb = unitType.get();
+        List<UnitTypeAmenity> unitAmenityList = unitTypeAmentitiesRepository.findAllByUnitTypeId(unitTypeId);
+
+        List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortId(unitTypeInDb.getResort().getId())
+                .stream().map(unitTypeMapper::toDto).toList();
+
+        for (UnitTypeDto tmp : unitTypeDtoListResponse) {
+            List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeId(tmp.getId());
+            tmp.setUnitTypeAmenitiesList(unitTypeAmenities.stream().map(p ->
+                    UnitTypeDto.UnitTypeAmenities.builder()
+                            .name(p.getName())
+                            .type(p.getType())
+                            .build()).toList());
+        }
+
+        AddUnitTypeAmentiesResponseDTO responseDTO = AddUnitTypeAmentiesResponseDTO.builder()
+                .id(unitTypeInDb.getId())
+                .title(unitTypeInDb.getTitle())
+                .area(unitTypeInDb.getArea())
+                .bedrooms(unitTypeInDb.getBedrooms())
+                .bedsKing(unitTypeInDb.getBedsKing())
+                .bedsFull(unitTypeInDb.getBedsFull())
+                .bedsMurphy(unitTypeInDb.getBedsMurphy())
+                .bedsQueen(unitTypeInDb.getBedsQueen())
+                .bedsSofa(unitTypeInDb.getBedsSofa())
+                .bedsTwin(unitTypeInDb.getBedsTwin())
+                .description(unitTypeInDb.getDescription())
+                .bathrooms(unitTypeInDb.getBathrooms())
+                .price(unitTypeInDb.getPrice())
+                .kitchen(unitTypeInDb.getKitchen())
+                .photos(unitTypeInDb.getPhotos())
+                .view(unitTypeInDb.getView())
+                .sleeps(unitTypeInDb.getSleeps())
+                .unitTypeAmenitiesDTOS( unitAmenityList.stream()
+                        .map(p -> AddUnitTypeAmentiesResponseDTO.UnitTypeAmenitiesDTO.builder()
+                                .name(p.getName())
+                                .type(p.getType())
+                                .build())
+                        .toList())
+                .isActive(unitTypeInDb.getIsActive())
+                .build();
+
+        return responseDTO;
+    }
 }

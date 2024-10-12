@@ -20,4 +20,8 @@ public interface ResortService {
 
 
     AddUnitTypeAmentiesResponseDTO createUnitType(AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission;
+    AddUnitTypeAmentiesResponseDTO updateUnitType(Integer unitTypeId, AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO)
+            throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission;
+    AddUnitTypeAmentiesResponseDTO getUnitTypeById(Integer unitTypeId)
+            throws EntityDoesNotExistException, UserDoesNotHavePermission;
 }
