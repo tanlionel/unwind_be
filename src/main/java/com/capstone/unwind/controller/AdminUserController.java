@@ -4,6 +4,7 @@ import com.capstone.unwind.entity.User;
 import com.capstone.unwind.exception.UserDoesNotExistException;
 import com.capstone.unwind.model.AuthDTO.BasicUserResponseDTO;
 import com.capstone.unwind.model.AuthDTO.RegisterRequestDTO;
+import com.capstone.unwind.model.UserDTO.UpdateUserRequestDTO;
 import com.capstone.unwind.model.UserDTO.UserDto;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,13 @@ public class AdminUserController {
         UserDto user = userService.createUser(registeredUser);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
-
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable("id") Integer userId, @RequestBody UpdateUserRequestDTO updateUserRequestDTO) {
+        try {
+            UserDto updatedUser = userService.updateUser(userId, updateUserRequestDTO);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 }

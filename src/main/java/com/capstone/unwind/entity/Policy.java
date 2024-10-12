@@ -12,10 +12,10 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "faq")
-public class Faq {
+@Table(name = "policy")
+public class Policy {
     @Id
-    @Column(name = "faq_id", nullable = false)
+    @Column(name = "policy_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
@@ -30,8 +30,10 @@ public class Faq {
 
     @Column(name = "created_date")
     private Timestamp createdDate;
+
     @PrePersist
     protected void onCreate() {
         this.createdDate = Timestamp.from(Instant.now());
     }
+
 }

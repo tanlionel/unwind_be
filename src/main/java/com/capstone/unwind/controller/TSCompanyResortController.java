@@ -1,10 +1,11 @@
 package com.capstone.unwind.controller;
 
-import com.capstone.unwind.exception.EntityDoesNotExistException;
-import com.capstone.unwind.exception.ErrMessageException;
-import com.capstone.unwind.exception.UserDoesNotHavePermission;
+import com.capstone.unwind.entity.UnitType;
+import com.capstone.unwind.exception.*;
 import com.capstone.unwind.model.ResortDTO.*;
+import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
 import com.capstone.unwind.service.ServiceInterface.ResortService;
+import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,9 @@ import java.util.List;
 public class TSCompanyResortController {
     @Autowired
     private final ResortService resortService;
+    @Autowired
+    TimeShareStaffService timeshareCompanyStaffService;
+
     @GetMapping()
     public Page<ResortDto> getPageableResort(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
                                              @RequestParam(required = false,defaultValue = "10") Integer pageSize,
@@ -39,9 +43,8 @@ public class TSCompanyResortController {
         return resortDtoResponse;
     }
     @PostMapping("unit-type")
-    public List<UnitTypeDto> createUnitType(@RequestBody ResortUnitTypeRequestDTO resortUnitTypeRequestDTO) throws ErrMessageException, EntityDoesNotExistException, UserDoesNotHavePermission {
-        List<UnitTypeDto> unitTypeDtoList = resortService.createUnitType(resortUnitTypeRequestDTO);
-        return unitTypeDtoList;
+    public AddUnitTypeAmentiesResponseDTO createUnitType(@RequestBody AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws ErrMessageException, EntityDoesNotExistException, UserDoesNotHavePermission {
+        AddUnitTypeAmentiesResponseDTO unitTypeDetailResponseDTO = resortService.createUnitType(addUnitTypeAmentiesDTO);
+        return unitTypeDetailResponseDTO;
     }
-
 }

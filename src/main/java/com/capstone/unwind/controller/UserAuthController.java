@@ -22,7 +22,6 @@ public class UserAuthController {
     private final UserService userService;
     @Autowired
     private final JwtService jwtService;
-
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequestDTO registeredUser) throws Exception{
         User user = userService.registerUser(registeredUser);
@@ -48,4 +47,5 @@ public class UserAuthController {
                         .build()
         );
     }
+
 }

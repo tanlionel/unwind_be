@@ -1,11 +1,14 @@
 package com.capstone.unwind.controller;
 
+import com.capstone.unwind.entity.TimeshareCompanyStaff;
 import com.capstone.unwind.exception.EntityAlreadyExist;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.UserDoesNotExistException;
+import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
 import com.capstone.unwind.repository.TimeshareCompanyRepository;
+import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
 import com.capstone.unwind.service.ServiceInterface.TimeshareCompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminTSController {
     @Autowired
     TimeshareCompanyService timeshareCompanyService;
+
 
     @GetMapping()
     public Page<TimeshareCompanyDto> getPageableTimeshareCompany(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
@@ -37,5 +41,6 @@ public class AdminTSController {
         TimeshareCompanyDto timeshareCompanyDtoResponse = timeshareCompanyService.createTimeshareCompany(timeshareCompanyDto);
         return timeshareCompanyDtoResponse;
     }
+
 
 }

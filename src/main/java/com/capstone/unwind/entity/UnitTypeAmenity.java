@@ -1,12 +1,14 @@
 package com.capstone.unwind.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "unit_type_amenities")
 public class UnitTypeAmenity {
     @Id
@@ -19,6 +21,9 @@ public class UnitTypeAmenity {
 
     @Column(name = "is_active")
     private Boolean isActive;
+
+    @Column(name = "type")
+    private String type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unit_type_id")
