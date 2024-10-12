@@ -37,7 +37,7 @@ public class AddUnitTypeAmentiesDTO {
     @Builder
     public static class UnitTypeAmenitiesDTO {
         private String name;
-
+        private String type;
     }
 
 }

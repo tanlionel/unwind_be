@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/auth/")
+@RequestMapping("api/system-staff/")
 @RequiredArgsConstructor
 @CrossOrigin
 public class SystemStaffController {

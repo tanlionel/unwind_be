@@ -22,6 +22,9 @@ public class UnitTypeAmenity {
     @Column(name = "is_active")
     private Boolean isActive;
 
+    @Column(name = "type")
+    private String type;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unit_type_id")
     private UnitType unitType;

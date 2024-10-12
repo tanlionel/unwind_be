@@ -1,14 +1,18 @@
 package com.capstone.unwind.model.ResortDTO;
 
 import com.capstone.unwind.entity.UnitType;
-import lombok.Value;
+import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * DTO for {@link UnitType}
  */
-@Value
+@Data
+@Getter
+@Setter
+@Builder
 public class UnitTypeDto implements Serializable {
     Integer id;
     String title;
@@ -30,4 +34,14 @@ public class UnitTypeDto implements Serializable {
     Integer sleeps;
     String view;
     Boolean isActive;
+    List<UnitTypeAmenities> unitTypeAmenitiesList;
+
+    @Data
+    @Getter
+    @Setter
+    @Builder
+    public static class UnitTypeAmenities{
+        String name;
+        String type;
+    }
 }

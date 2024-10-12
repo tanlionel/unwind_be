@@ -30,5 +30,4 @@ public class ResortDetailResponseDTO {
         String name;
         String type;
     }
-
 }
