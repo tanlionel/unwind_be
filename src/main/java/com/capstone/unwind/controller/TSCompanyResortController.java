@@ -43,32 +43,8 @@ public class TSCompanyResortController {
         return resortDtoResponse;
     }
     @PostMapping("unit-type")
-    public List<UnitTypeDto> createUnitType(@RequestBody ResortUnitTypeRequestDTO resortUnitTypeRequestDTO) throws ErrMessageException, EntityDoesNotExistException, UserDoesNotHavePermission {
-        List<UnitTypeDto> unitTypeDtoList = resortService.createUnitType(resortUnitTypeRequestDTO);
-        return unitTypeDtoList;
-    }
-    @PostMapping("/staff")
-    public TimeShareCompanyStaffDTO createTSCompanyStaff(@RequestBody TimeShareCompanyStaffDTO timeShareCompanyStaffDTO) throws EntityAlreadyExist, UserDoesNotExistException, ErrMessageException {
-        TimeShareCompanyStaffDTO timeshareCompanyStaffDtoResponse = timeshareCompanyStaffService.createTimeshareStaff(timeShareCompanyStaffDTO);
-        return timeshareCompanyStaffDtoResponse;
-    }
-    @GetMapping("/staff")
-    public Page<TimeShareCompanyStaffDTO> getPageableTSCompanyStaff(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
-                                             @RequestParam(required = false,defaultValue = "10") Integer pageSize,
-                                             @RequestParam(required = false,defaultValue = "") String StaffName) throws UserDoesNotHavePermission {
-        Page<TimeShareCompanyStaffDTO> TSCompanyStaffDtoPage = timeshareCompanyStaffService.getPageableTsStaff(pageNo,pageSize,StaffName);
-        return TSCompanyStaffDtoPage;
-    }
-    @PostMapping("unit-type_amentities")
     public AddUnitTypeAmentiesResponseDTO createUnitType(@RequestBody AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws ErrMessageException, EntityDoesNotExistException, UserDoesNotHavePermission {
-        AddUnitTypeAmentiesResponseDTO unitTypeDetailResponseDTO = resortService.addAmenitiesToUnitType(addUnitTypeAmentiesDTO);
+        AddUnitTypeAmentiesResponseDTO unitTypeDetailResponseDTO = resortService.createUnitType(addUnitTypeAmentiesDTO);
         return unitTypeDetailResponseDTO;
-    }
-    @PutMapping("/{staffId}")
-    public ResponseEntity<TimeShareCompanyStaffDTO> updateTimeshareStaff(
-            @PathVariable Integer staffId,
-            @RequestBody TimeShareCompanyStaffDTO timeShareCompanyStaffDTO) throws ErrMessageException, EntityDoesNotExistException {
-        TimeShareCompanyStaffDTO updatedStaff = timeshareCompanyStaffService.updateTimeshareStaff(staffId, timeShareCompanyStaffDTO);
-        return ResponseEntity.ok(updatedStaff);
     }
 }

@@ -5,10 +5,7 @@ import com.capstone.unwind.entity.Faq;
 import com.capstone.unwind.entity.Policy;
 import com.capstone.unwind.exception.EntityAlreadyExist;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
-import com.capstone.unwind.model.SystemDTO.FaqDTO;
-import com.capstone.unwind.model.SystemDTO.FaqMapper;
-import com.capstone.unwind.model.SystemDTO.PolicyDTO;
-import com.capstone.unwind.model.SystemDTO.PolicyMapper;
+import com.capstone.unwind.model.SystemDTO.*;
 import com.capstone.unwind.repository.FagRespository;
 import com.capstone.unwind.repository.PolicyRespository;
 import com.capstone.unwind.service.ServiceInterface.FaqService;
@@ -28,7 +25,7 @@ public class PolicyServiceImplement implements PolicyService {
     private final PolicyMapper policyMapper;
 
     @Override
-    public PolicyDTO createPolicy(PolicyDTO policyDTO) throws EntityAlreadyExist {
+    public PolicyDTO createPolicy(PolicyRequestDTO policyDTO) throws EntityAlreadyExist {
         Policy policyRequest = Policy.builder()
                 .type(policyDTO.getType())
                 .title(policyDTO.getTitle())
@@ -47,7 +44,7 @@ public class PolicyServiceImplement implements PolicyService {
     }
 
     @Override
-    public PolicyDTO updatePolicy(Integer id, PolicyDTO policyDTO) throws EntityDoesNotExistException {
+    public PolicyDTO updatePolicy(Integer id, PolicyRequestDTO policyDTO) throws EntityDoesNotExistException {
         Policy policy = policyRespository.findById(id)
                 .orElseThrow(() -> new EntityDoesNotExistException());
 

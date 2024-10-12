@@ -5,7 +5,9 @@ import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.UserDoesNotExistException;
 import com.capstone.unwind.model.ResortDTO.ResortDetailResponseDTO;
 import com.capstone.unwind.model.SystemDTO.FaqDTO;
+import com.capstone.unwind.model.SystemDTO.FaqRequestDTO;
 import com.capstone.unwind.model.SystemDTO.PolicyDTO;
+import com.capstone.unwind.model.SystemDTO.PolicyRequestDTO;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
 import com.capstone.unwind.service.ServiceInterface.FaqService;
 import com.capstone.unwind.service.ServiceInterface.PolicyService;
@@ -26,7 +28,7 @@ public class SystemStaffController {
     @Autowired
     private final PolicyService policyService;
     @PostMapping("faq")
-    public FaqDTO createFaq(@RequestBody FaqDTO faqDTO) throws EntityAlreadyExist {
+    public FaqDTO createFaq(@RequestBody FaqRequestDTO faqDTO) throws EntityAlreadyExist {
         FaqDTO faqDTOResponse = faqService.createFaq(faqDTO);
         return faqDTOResponse;
     }
@@ -36,7 +38,7 @@ public class SystemStaffController {
         return faqDTO;
     }
     @PutMapping("/faq/{id}")
-    public FaqDTO updateFaq(@PathVariable Integer id, @RequestBody FaqDTO faqDTO) throws EntityDoesNotExistException {
+    public FaqDTO updateFaq(@PathVariable Integer id, @RequestBody FaqRequestDTO faqDTO) throws EntityDoesNotExistException {
         return faqService.updateFaq(id, faqDTO);
     }
     @GetMapping("/faq/all")
@@ -46,7 +48,7 @@ public class SystemStaffController {
 
 
     @PostMapping("policy")
-    public PolicyDTO createPolicy(@RequestBody PolicyDTO policyDTO) throws EntityAlreadyExist {
+    public PolicyDTO createPolicy(@RequestBody PolicyRequestDTO policyDTO) throws EntityAlreadyExist {
         PolicyDTO policyDTOResponse = policyService.createPolicy(policyDTO);
         return policyDTOResponse;
     }
@@ -56,7 +58,7 @@ public class SystemStaffController {
         return policyDTO;
     }
     @PutMapping("/policy/{id}")
-    public PolicyDTO updatePolicy(@PathVariable Integer id, @RequestBody PolicyDTO policyDTO) throws EntityDoesNotExistException {
+    public PolicyDTO updatePolicy(@PathVariable Integer id, @RequestBody PolicyRequestDTO policyDTO) throws EntityDoesNotExistException {
         return policyService.updatePolicy(id, policyDTO);
     }
     @GetMapping("/policy/all")

@@ -7,6 +7,7 @@ import com.capstone.unwind.exception.EntityAlreadyExist;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.model.SystemDTO.FaqDTO;
 import com.capstone.unwind.model.SystemDTO.FaqMapper;
+import com.capstone.unwind.model.SystemDTO.FaqRequestDTO;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyMapper;
 import com.capstone.unwind.repository.*;
@@ -26,7 +27,7 @@ public class FaqServiceImplement implements FaqService {
     private final FaqMapper faqMapper;
 
     @Override
-    public FaqDTO createFaq(FaqDTO faqDTO) throws EntityAlreadyExist {
+    public FaqDTO createFaq(FaqRequestDTO faqDTO) throws EntityAlreadyExist {
         Faq faqRequest = Faq.builder()
                 .type(faqDTO.getType())
                 .title(faqDTO.getTitle())
@@ -45,7 +46,7 @@ public class FaqServiceImplement implements FaqService {
     }
 
     @Override
-    public FaqDTO updateFaq(Integer id, FaqDTO faqDTO) throws EntityDoesNotExistException {
+    public FaqDTO updateFaq(Integer id, FaqRequestDTO faqDTO) throws EntityDoesNotExistException {
         Faq faq = fagRepository.findById(id)
                 .orElseThrow(() -> new EntityDoesNotExistException());
 

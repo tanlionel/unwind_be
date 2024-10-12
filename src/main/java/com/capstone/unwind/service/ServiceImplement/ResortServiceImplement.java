@@ -150,27 +150,7 @@ public class ResortServiceImplement implements ResortService {
     }
 
     @Override
-    public List<UnitTypeDto> createUnitType(ResortUnitTypeRequestDTO resortUnitTypeRequestDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission {
-        User tsCompany = userService.getLoginUser();
-        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
-        if (timeshareCompany==null) throw new UserDoesNotHavePermission();
-
-        Resort resort = resortRepository.findById(resortUnitTypeRequestDTO.getResortId()).orElseThrow(EntityDoesNotExistException::new);
-        try{
-            List<UnitTypeDto> unitTypeDtoList = resortUnitTypeRequestDTO.getUnitTypeDtoList();
-            for (UnitTypeDto tmp:unitTypeDtoList){
-                UnitType unitType = unitTypeMapper.toEntity(tmp);
-                unitType.setResort(resort);
-                unitTypeRepository.save(unitType);
-            }
-        }catch (Exception e){
-            throw new ErrMessageException("Error when save unit type");
-        }
-        List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortId(resort.getId()).stream().map(unitTypeMapper::toDto).toList();
-        return unitTypeDtoListResponse;
-    }
-    @Override
-    public AddUnitTypeAmentiesResponseDTO addAmenitiesToUnitType(AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission {
+    public AddUnitTypeAmentiesResponseDTO createUnitType(AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission {
         User tsCompany = userService.getLoginUser();
         TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
         if (timeshareCompany==null) throw new UserDoesNotHavePermission();

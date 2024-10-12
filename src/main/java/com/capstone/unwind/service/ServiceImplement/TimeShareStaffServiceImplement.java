@@ -4,6 +4,8 @@ import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.*;
 import com.capstone.unwind.model.ResortDTO.ResortDto;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
+import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffRequestDTO;
+import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareStaffUpdateRequestDTO;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeshareCompanyStaffMapper;
 import com.capstone.unwind.model.UserDTO.UpdateUserRequestDTO;
 import com.capstone.unwind.model.UserDTO.UserDto;
@@ -43,7 +45,7 @@ public class TimeShareStaffServiceImplement implements TimeShareStaffService {
     @Autowired
     private final ResortRepository resortRepository;
     @Override
-    public TimeShareCompanyStaffDTO createTimeshareStaff(TimeShareCompanyStaffDTO timeShareCompanyStaffDTO)
+    public TimeShareCompanyStaffDTO createTimeshareStaff(TimeShareCompanyStaffRequestDTO timeShareCompanyStaffDTO)
             throws EntityAlreadyExist, UserDoesNotExistException, ErrMessageException {
         User tsCompany = userService.getLoginUser();
         User user = userRepository.findUserById(tsCompany.getId());
@@ -89,7 +91,7 @@ public class TimeShareStaffServiceImplement implements TimeShareStaffService {
         return staffDtoPage;
     }
     @Override
-    public TimeShareCompanyStaffDTO updateTimeshareStaff(Integer staffId, TimeShareCompanyStaffDTO timeShareCompanyStaffDTO)
+    public TimeShareCompanyStaffDTO updateTimeshareStaff(Integer staffId, TimeShareStaffUpdateRequestDTO timeShareCompanyStaffDTO)
             throws EntityDoesNotExistException, ErrMessageException {
 
         User tsCompany = userService.getLoginUser();
