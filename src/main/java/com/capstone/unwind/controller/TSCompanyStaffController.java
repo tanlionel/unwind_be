@@ -10,6 +10,7 @@ import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,5 +44,11 @@ public class TSCompanyStaffController {
             @RequestBody TimeShareStaffUpdateRequestDTO timeShareCompanyStaffDTO) throws ErrMessageException, EntityDoesNotExistException {
         TimeShareCompanyStaffDTO updatedStaff = timeshareCompanyStaffService.updateTimeshareStaff(staffId, timeShareCompanyStaffDTO);
         return ResponseEntity.ok(updatedStaff);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<TimeShareCompanyStaffDTO> getTimeshareStaffById(@PathVariable("id") Integer id) throws EntityDoesNotExistException {
+
+        TimeShareCompanyStaffDTO staffDTO = timeshareCompanyStaffService.getTimeshareStaffById(id);
+        return new ResponseEntity<>(staffDTO, HttpStatus.OK);
     }
 }

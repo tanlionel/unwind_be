@@ -18,7 +18,6 @@ public class TimeShareCompanyStaffDTO {
 
     private String userName;
 
-    private String password;
 
     private Integer timeshareCompanyId;
 
