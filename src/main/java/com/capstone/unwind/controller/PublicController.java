@@ -4,11 +4,17 @@ import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
 import com.capstone.unwind.model.ResortDTO.ResortDetailResponseDTO;
 import com.capstone.unwind.model.ResortDTO.ResortDto;
+import com.capstone.unwind.model.SystemDTO.FaqDTO;
+import com.capstone.unwind.model.SystemDTO.PolicyDTO;
+import com.capstone.unwind.service.ServiceInterface.FaqService;
+import com.capstone.unwind.service.ServiceInterface.PolicyService;
 import com.capstone.unwind.service.ServiceInterface.ResortService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("api/public")
@@ -17,6 +23,10 @@ import org.springframework.web.bind.annotation.*;
 public class PublicController {
     @Autowired
     private final ResortService resortService;
+    @Autowired
+    private final FaqService faqService;
+    @Autowired
+    private final PolicyService policyService;
     @GetMapping("/resort")
     public Page<ResortDto> getPageableResort(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
                                              @RequestParam(required = false,defaultValue = "10") Integer pageSize,
@@ -28,5 +38,23 @@ public class PublicController {
     public ResortDetailResponseDTO getResortById(@PathVariable Integer resortId) throws EntityDoesNotExistException, UserDoesNotHavePermission {
         ResortDetailResponseDTO resortDetailResponseDTO = resortService.getPublicResortById(resortId);
         return resortDetailResponseDTO;
+    }
+    @GetMapping("/faq/all")
+    public List<FaqDTO> getAllFaq() {
+        return faqService.findAll();
+    }
+    @GetMapping("policy/{type}")
+    public List<PolicyDTO> getPolicyByType(@PathVariable String type) throws EntityDoesNotExistException {
+        List<PolicyDTO> policyDTO = policyService.getPolicyByType(type);
+        return policyDTO;
+    }
+    @GetMapping("faq/{type}")
+    public List<FaqDTO> getFaqByType(@PathVariable String type) throws EntityDoesNotExistException {
+        List<FaqDTO> faqDTO = faqService.getFaqByType(type);
+        return faqDTO;
+    }
+    @GetMapping("/policy/all")
+    public List<PolicyDTO> getAllPolicy() {
+        return policyService.findAll();
     }
 }

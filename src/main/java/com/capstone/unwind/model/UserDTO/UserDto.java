@@ -18,6 +18,6 @@ public class UserDto implements Serializable {
     String email;
     String userName;
     Integer roleId;
-    String roleRoleName;
+    String roleName;
     Boolean isActive;
 }
