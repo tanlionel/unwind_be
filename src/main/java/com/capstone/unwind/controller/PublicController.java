@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/public")
 @RequiredArgsConstructor
 @CrossOrigin
-public class PubicController {
+public class PublicController {
     @Autowired
     private final ResortService resortService;
     @GetMapping("/resort")
@@ -26,7 +26,7 @@ public class PubicController {
     }
     @GetMapping("/resort/{resortId}")
     public ResortDetailResponseDTO getResortById(@PathVariable Integer resortId) throws EntityDoesNotExistException, UserDoesNotHavePermission {
-        ResortDetailResponseDTO resortDetailResponseDTO = resortService.getResortById(resortId);
+        ResortDetailResponseDTO resortDetailResponseDTO = resortService.getPublicResortById(resortId);
         return resortDetailResponseDTO;
     }
 }
