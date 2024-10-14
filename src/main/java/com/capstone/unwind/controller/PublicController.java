@@ -6,9 +6,11 @@ import com.capstone.unwind.model.ResortDTO.ResortDetailResponseDTO;
 import com.capstone.unwind.model.ResortDTO.ResortDto;
 import com.capstone.unwind.model.SystemDTO.FaqDTO;
 import com.capstone.unwind.model.SystemDTO.PolicyDTO;
+import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
 import com.capstone.unwind.service.ServiceInterface.FaqService;
 import com.capstone.unwind.service.ServiceInterface.PolicyService;
 import com.capstone.unwind.service.ServiceInterface.ResortService;
+import com.capstone.unwind.service.ServiceInterface.TimeshareCompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,8 @@ public class PublicController {
     private final FaqService faqService;
     @Autowired
     private final PolicyService policyService;
+    @Autowired
+    TimeshareCompanyService timeshareCompanyService;
     @GetMapping("/resort")
     public Page<ResortDto> getPageableResort(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
                                              @RequestParam(required = false,defaultValue = "10") Integer pageSize,
@@ -56,5 +60,19 @@ public class PublicController {
     @GetMapping("/policy/all")
     public List<PolicyDTO> getAllPolicy() {
         return policyService.findAll();
+    }
+
+
+    @GetMapping("/timeshare-company")
+    public Page<TimeshareCompanyDto> getPageableTimeshareCompany(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
+                                                                 @RequestParam(required = false,defaultValue = "10") Integer pageSize,
+                                                                 @RequestParam(required = false,defaultValue = "") String tsName){
+        Page<TimeshareCompanyDto> timeshareCompanyDtoPage = timeshareCompanyService.getPageableTimeshareCompany(pageNo,pageSize,tsName);
+        return timeshareCompanyDtoPage;
+    }
+    @GetMapping("timeshare-company/{tsId}")
+    public TimeshareCompanyDto getTimeshareCompanyById(@PathVariable Integer tsId) throws EntityDoesNotExistException {
+        TimeshareCompanyDto timeshareCompanyDto = timeshareCompanyService.getTimeshareCompanyById(tsId);
+        return timeshareCompanyDto;
     }
 }
