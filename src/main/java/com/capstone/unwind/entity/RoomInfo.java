@@ -1,8 +1,7 @@
 package com.capstone.unwind.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -10,6 +9,9 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "room_info")
 public class RoomInfo {
     @Id
@@ -19,6 +21,9 @@ public class RoomInfo {
 
     @Column(name = "room_info_code", length = 45)
     private String roomInfoCode;
+
+    @Column(name = "room_info_name", length = 45)
+    private String roomInfoName;
 
     @Column(name = "created_at")
     private Timestamp createdAt;
