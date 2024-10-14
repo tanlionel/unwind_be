@@ -60,7 +60,7 @@ public class TSCompanyResortController {
             return new ResponseEntity<>(unitTypeResponse, HttpStatus.OK);
 
     }
-    @GetMapping("/resort/{resortId}")
+    @GetMapping("/unit-type/{resortId}")
     public ResponseEntity<AddUnitTypeAmentiesResponseDTO> getUnitTypeByResortId(
             @PathVariable Integer resortId) throws UserDoesNotHavePermission, EntityDoesNotExistException {
 
