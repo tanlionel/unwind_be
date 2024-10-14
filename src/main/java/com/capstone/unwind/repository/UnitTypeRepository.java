@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface UnitTypeRepository extends JpaRepository<UnitType, Integer> {
     List<UnitType> findAllByResortId(Integer resortId);
+
 }

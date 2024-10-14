@@ -53,7 +53,7 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
         return timeshareCompanyDtoDB;
     }
 
-    @Override
+    @Override()
     public Page<TimeshareCompanyDto> getPageableTimeshareCompany(Integer pageNo, Integer pageSize, String tsName) {
         Pageable pageable = PageRequest.of(pageNo,pageSize, Sort.by("id").ascending());
         Page<TimeshareCompany> timeshareCompanyPage = timeshareCompanyRepository.findAllByTimeshareCompanyNameContaining(tsName,pageable);

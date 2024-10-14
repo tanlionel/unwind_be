@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface UnitTypeAmentitiesRepository extends JpaRepository<UnitTypeAmenity, Integer> {
     List<UnitTypeAmenity> findAllByUnitTypeId(Integer UnitTypeId);
+
+    void deleteAllByUnitTypeId(Integer id);
 }

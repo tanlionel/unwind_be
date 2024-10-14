@@ -6,12 +6,14 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    @Mapping(source = "roleRoleName", target = "role.roleName")
+    @Mapping(source = "roleName", target = "role.roleName")
     @Mapping(source = "roleId", target = "role.id")
     User toEntity(UserDto userDto);
 
     //@Mapping(source = "userName", target = "userName")
     @Mapping(source = "username", target = "userName")
+    @Mapping(source = "role.roleName", target = "roleName")
+    @Mapping(source = "role.id",target = "roleId")
     UserDto toDto(User user);
 
     @InheritConfiguration(name = "toEntity")

@@ -43,7 +43,7 @@ public class SecurityConfiguration {
                                 .hasAuthority("ADMIN")
                                 .requestMatchers("api/timeshare-company/**")
                                 .hasAuthority("TIMESHARECOMPANY")
-                                .requestMatchers("/api/public")
+                                .requestMatchers("/api/public/**")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())
