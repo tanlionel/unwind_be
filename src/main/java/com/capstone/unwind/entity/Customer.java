@@ -59,7 +59,7 @@ public class Customer {
     @Column(name = "note", length = 300)
     private String note;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 
