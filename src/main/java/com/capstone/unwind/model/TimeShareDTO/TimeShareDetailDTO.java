@@ -15,8 +15,11 @@ import java.time.LocalDate;
 public class TimeShareDetailDTO {
     private Integer timeShareId;
     private String resortName;
+    private String roomCode;
     private String roomName;
+    private Integer roomId;
     private String resortAddress;
+    private Integer resortId;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate startDate;
     @JsonFormat(pattern = "dd-MM-yyyy")

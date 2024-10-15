@@ -327,6 +327,7 @@ public class ResortServiceImplement implements ResortService {
 
         UnitType updatedUnitType = unitTypeRepository.save(unitType);
 
+        //false -> set is active = false
         unitTypeAmentitiesRepository.deleteAllByUnitTypeId(updatedUnitType.getId());
 
         try {

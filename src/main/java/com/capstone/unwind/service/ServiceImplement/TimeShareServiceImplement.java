@@ -4,6 +4,7 @@ import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.RoomDTO.RoomInfoMapper;
 import com.capstone.unwind.model.TimeShareDTO.*;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.TimeShareService;
@@ -35,6 +36,8 @@ public class TimeShareServiceImplement implements TimeShareService {
     private final TimeShareMapper timeShareMapper;
     @Autowired
     private final UnitTypeRepository unitTypeRepository;
+    @Autowired
+    private RoomInfoMapper roomInfoMapper;
 
     @Override
     public TimeShareResponseDTO createTimeShare(TimeShareRequestDTO timeShareRequestDTO) throws EntityDoesNotExistException, ErrMessageException {
@@ -135,53 +138,48 @@ public class TimeShareServiceImplement implements TimeShareService {
 
     }
 @Override
-    public List<TimeShareDetailDTO> getTimeShareDetails(Integer timeShareID) throws OptionalNotFoundException {
+    public TimeShareDetailDTO getTimeShareDetails(Integer timeShareID) throws OptionalNotFoundException {
         Optional<Timeshare> optionalTimeShare = timeShareRepository.findById(timeShareID);
         if (!optionalTimeShare.isPresent()) throw new OptionalNotFoundException("Not found room");
         Timeshare timeShare = optionalTimeShare.get();
-        RoomInfo roomInfo = timeShare.getRoomInfo();
+        if (!timeShare.getIsActive()) throw new OptionalNotFoundException("timeshare is not active");
 
-        if (roomInfo == null || !roomInfo.getIsActive()) {
-            return Collections.emptyList();
-        }
-        Integer resortId = roomInfo.getResort().getId();
-        Resort resort = resortRepository.findById(resortId).orElse(null);
-        if (resort == null || !resort.getIsActive()) {
-            return Collections.emptyList();
-        }
-        Integer uniTypeId = roomInfo.getUnitType().getId();
-        UnitType unitType = unitTypeRepository.findById(uniTypeId).orElse(null);
+        Optional<RoomInfo> roomInfo = roomInfoRepository.findById(timeShare.getRoomInfo().getId());
+        if (!roomInfo.get().getIsActive()) throw new OptionalNotFoundException("room is not active");
 
-        TimeShareDetailDTO.unitType unitTypeDTO = null;
-        if (unitType != null) {
-            unitTypeDTO = TimeShareDetailDTO.unitType.builder()
-                    .id(unitType.getId())
-                    .title(unitType.getTitle())
-                    .area(unitType.getArea())
-                    .bathrooms(unitType.getBathrooms())
-                    .bedrooms(unitType.getBedrooms())
-                    .bedsFull(unitType.getBedsFull())
-                    .bedsKing(unitType.getBedsKing())
-                    .bedsSofa(unitType.getBedsSofa())
-                    .bedsMurphy(unitType.getBedsMurphy())
-                    .bedsQueen(unitType.getBedsQueen())
-                    .bedsTwin(unitType.getBedsTwin())
-                    .buildingsOption(unitType.getBuildingsOption())
-                    .description(unitType.getDescription())
-                    .kitchen(unitType.getKitchen())
-                    .photos(unitType.getPhotos())
-                    .sleeps(unitType.getSleeps())
-                    .view(unitType.getView())
-                    .build();
-        }
-        return List.of(TimeShareDetailDTO.builder()
+        Optional<UnitType> unitType = unitTypeRepository.findById(roomInfo.get().getUnitType().getId());
+        Optional<Resort> resort = resortRepository.findById(roomInfo.get().getResort().getId());
+        if (!resort.get().getIsActive()) throw new OptionalNotFoundException("resort is not active");
+        TimeShareDetailDTO timeShareDetailDTO = TimeShareDetailDTO.builder()
                 .timeShareId(timeShare.getId())
-                .resortName(resort.getResortName())
-                .roomName(roomInfo.getRoomInfoName())
-                .resortAddress(resort.getAddress())
+                .resortName(resort.get().getResortName())
+                .roomName(roomInfo.get().getRoomInfoName())
+                .roomCode(roomInfo.get().getRoomInfoCode())
+                .resortAddress(resort.get().getAddress())
                 .startDate(timeShare.getStartDate())
                 .endDate(timeShare.getEndDate())
-                .unitType(unitTypeDTO)
-                .build());
+                .resortId(resort.get().getId())
+                .roomId(roomInfo.get().getId())
+                .unitType(TimeShareDetailDTO.unitType.builder()
+                        .id(unitType.get().getId())
+                        .title(unitType.get().getTitle())
+                        .area(unitType.get().getArea())
+                        .bathrooms(unitType.get().getBathrooms())
+                        .bedrooms(unitType.get().getBedrooms())
+                        .bedsFull(unitType.get().getBedsFull())
+                        .bedsKing(unitType.get().getBedsKing())
+                        .bedsQueen(unitType.get().getBedsQueen())
+                        .bedsSofa(unitType.get().getBedsSofa())
+                        .bedsMurphy(unitType.get().getBedsMurphy())
+                        .bedsTwin(unitType.get().getBedsTwin())
+                        .buildingsOption(unitType.get().getBuildingsOption())
+                        .description(unitType.get().getDescription())
+                        .kitchen(unitType.get().getKitchen())
+                        .photos(unitType.get().getPhotos())
+                        .sleeps(unitType.get().getSleeps())
+                        .view(unitType.get().getView())
+                        .build())
+                .build();
+        return timeShareDetailDTO;
     }
 }

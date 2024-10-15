@@ -36,7 +36,7 @@ public class TimeshareController {
 
     //fix please
     @GetMapping("/timeshare/{timeShareID}")
-    public List<TimeShareDetailDTO> getTimeShareDetails(@PathVariable Integer timeShareID) throws OptionalNotFoundException {
+    public TimeShareDetailDTO getTimeShareDetails(@PathVariable Integer timeShareID) throws OptionalNotFoundException {
         return timeShareService.getTimeShareDetails(timeShareID);
     }
 }

@@ -10,5 +10,5 @@ import java.util.List;
 public interface TimeShareService {
     TimeShareResponseDTO createTimeShare(TimeShareRequestDTO timeShareRequestDTO) throws EntityDoesNotExistException, ErrMessageException;
     List<ListTimeShareDTO> getAllTimeShares();
-    List<TimeShareDetailDTO> getTimeShareDetails(Integer timeShareID) throws OptionalNotFoundException;
+    TimeShareDetailDTO getTimeShareDetails(Integer timeShareID) throws OptionalNotFoundException;
 }
