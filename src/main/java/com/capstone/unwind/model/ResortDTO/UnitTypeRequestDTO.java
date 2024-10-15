@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddUnitTypeAmentiesDTO implements Serializable {
+public class UnitTypeRequestDTO implements Serializable {
     String title;
     String area;
     Integer bathrooms;

@@ -4,8 +4,6 @@ import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
-import com.capstone.unwind.model.ResortDTO.AddUnitTypeAmentiesDTO;
-import com.capstone.unwind.model.ResortDTO.AddUnitTypeAmentiesResponseDTO;
 import com.capstone.unwind.model.RoomDTO.RoomRequestDTO;
 import com.capstone.unwind.model.RoomDTO.RoomResponseDTO;
 import com.capstone.unwind.repository.*;
@@ -32,36 +30,48 @@ public class RoomServiceImplement implements RoomService {
     private final ResortRepository resortRepository;
     @Autowired
     private final RoomAmentityRepository roomAmentityRepository;
+    @Autowired
+    private final CustomerRepository customerRepository;
 @Override
     public RoomResponseDTO createRoom(RoomRequestDTO roomRequestDTO) throws EntityDoesNotExistException,  UserDoesNotHavePermission,ErrMessageException {
-        User tsCompany = userService.getLoginUser();
-        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
-        if (timeshareCompany==null) throw new UserDoesNotHavePermission();
-        Resort resort = resortRepository.findById(roomRequestDTO.getResortId()).orElseThrow(EntityDoesNotExistException::new);
-       UnitType unitTypeInDb = unitTypeRepository.findById(roomRequestDTO.getUnitTypeId()).orElseThrow(EntityDoesNotExistException::new);
-        RoomInfo roomInfo = RoomInfo.builder()
-                .roomInfoCode(roomRequestDTO.getRoomInfoCode())
-                .resortId(resort.getId())
-                .roomInfoName(roomRequestDTO.getRoomName())
-                .status(roomRequestDTO.getStatus())
-                .unitTypeId(unitTypeInDb.getId())
-                .isActive(true)
-                .build();
+        User user = userService.getLoginUser();
+        Customer customer = customerRepository.findByUserId(user.getId());
+    Resort resort = resortRepository.findById(roomRequestDTO.getResortId())
+            .orElseThrow(() -> new ErrMessageException("Resort with ID " + roomRequestDTO.getResortId() + " does not exist"));
+    UnitType unitTypeInDb = unitTypeRepository.findById(roomRequestDTO.getUnitTypeId())
+            .orElseThrow(() -> new ErrMessageException("unitType with ID " + roomRequestDTO.getUnitTypeId() + " does not exist"));
+    if (!unitTypeInDb.getResort().getId().equals(roomRequestDTO.getResortId())) {
+        throw new  ErrMessageException("unitType with ID " + roomRequestDTO.getUnitTypeId() + "is not owned by this Resort");
+    }
+    boolean roomCodeExists = roomInfoRepository.existsByRoomInfoCodeAndResortId(roomRequestDTO.getRoomInfoCode(), resort.getId());
+    if (roomCodeExists) {
+        throw new ErrMessageException("Room code '" + roomRequestDTO.getRoomInfoCode() + "' already exists in this resort.");
+    }
+    RoomInfo roomInfo = RoomInfo.builder()
+            .roomInfoCode(roomRequestDTO.getRoomInfoCode())
+            .resortId(resort.getId())
+            .roomInfoName(roomRequestDTO.getRoomName())
+            .status(roomRequestDTO.getStatus())
+            .unitTypeId(unitTypeInDb.getId())
+            .isActive(true)
+            .build();
 
-        RoomInfo roomInfoInDb = roomInfoRepository.save(roomInfo);
-    try{
-        for (RoomRequestDTO.roomAmenity tmp: roomRequestDTO.getRoomAmenities()){
-            RoomAmenity roomAmenity = RoomAmenity.builder()
-                    .roomInfo(roomInfo)
-                    .name(tmp.getName())
-                    .type(tmp.getType())
-                    .isActive(true)
-                    .build();
-            roomAmentityRepository.save(roomAmenity);
+    RoomInfo roomInfoInDb = roomInfoRepository.save(roomInfo);
+    if (roomRequestDTO.getRoomAmenities() != null && !roomRequestDTO.getRoomAmenities().isEmpty()) {
+        try {
+            for (RoomRequestDTO.roomAmenity tmp : roomRequestDTO.getRoomAmenities()) {
+                RoomAmenity roomAmenity = RoomAmenity.builder()
+                        .roomInfo(roomInfo)
+                        .name(tmp.getName())
+                        .type(tmp.getType())
+                        .isActive(true)
+                        .build();
+                roomAmentityRepository.save(roomAmenity);
+            }
+        } catch (Exception e) {
+            throw new ErrMessageException("Error when saving room amenities");
         }
-    }catch (Exception e) {
-        throw new ErrMessageException("Error when save roomamenities");
-    };
+    }
 
     List<RoomAmenity> roomAmenities = roomAmentityRepository.findAllByRoomInfoId(roomInfo.getId());
         RoomResponseDTO.unitType unitTypeDTO = RoomResponseDTO.unitType.builder()
@@ -73,6 +83,7 @@ public class RoomServiceImplement implements RoomService {
                 .bedsFull(unitTypeInDb.getBedsFull())
                 .bedsKing(unitTypeInDb.getBedsKing())
                 .bedsSofa(unitTypeInDb.getBedsSofa())
+                .buildingsOption(unitTypeInDb.getBuildingsOption())
                 .bedsMurphy(unitTypeInDb.getBedsMurphy())
                 .bedsQueen(unitTypeInDb.getBedsQueen())
                 .bedsTwin(unitTypeInDb.getBedsTwin())

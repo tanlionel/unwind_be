@@ -42,5 +42,10 @@ public class RoomInfo {
 
     @Column(name = "unit_type_id")
     private Integer unitTypeId;
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = Timestamp.from(Instant.now());
+        this.updatedAt = Timestamp.from(Instant.now());
+    }
 
 }

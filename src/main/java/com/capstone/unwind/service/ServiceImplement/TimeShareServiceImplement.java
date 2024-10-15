@@ -40,7 +40,7 @@ public class TimeShareServiceImplement implements TimeShareService {
         User user = userService.getLoginUser();
         Customer customer = customerRepository.findByUserId(user.getId());
         RoomInfo roomInfo = roomInfoRepository.findById(timeShareRequestDTO.getRoomInfoId())
-                .orElseThrow(EntityDoesNotExistException::new);
+                .orElseThrow(() -> new ErrMessageException("roomInfo with ID " + timeShareRequestDTO.getRoomInfoId() + " does not exist"));
         boolean isTimeshareConflict = timeShareRepository.existsByRoomInfoAndDateRange(
                 roomInfo,
                 timeShareRequestDTO.getStartDate(),

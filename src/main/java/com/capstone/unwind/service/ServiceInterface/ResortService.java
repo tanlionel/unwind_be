@@ -4,6 +4,7 @@ import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
 import com.capstone.unwind.model.ResortDTO.*;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -19,11 +20,11 @@ public interface ResortService {
     Page<ResortDto> getPublicPageableResort(Integer pageNo, Integer pageSize, String resortName) throws UserDoesNotHavePermission;
 
 
-    AddUnitTypeAmentiesResponseDTO createUnitType(AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission;
-    AddUnitTypeAmentiesResponseDTO updateUnitType(Integer unitTypeId, AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO)
+    UnitTypeResponseDTO createUnitType(UnitTypeRequestDTO unitTypeRequestDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission;
+    UnitTypeResponseDTO updateUnitType(Integer unitTypeId, UnitTypeRequestDTO unitTypeRequestDTO)
             throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission;
-    AddUnitTypeAmentiesResponseDTO getUnitTypeById(Integer unitTypeId)
+    UnitTypeResponseDTO getUnitTypeById(Integer unitTypeId)
             throws EntityDoesNotExistException, UserDoesNotHavePermission;
-    AddUnitTypeAmentiesResponseDTO getUnitTypeByResortId(Integer resortId)
-            throws EntityDoesNotExistException, UserDoesNotHavePermission;
+    List<UnitTypeResponseDTO> getUnitTypeByResortId(Integer resortId)
+            throws EntityDoesNotExistException, UserDoesNotHavePermission, ErrMessageException;
 }
