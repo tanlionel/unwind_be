@@ -39,6 +39,7 @@ public class UnitTypeResponseDTO {
     public static class UnitTypeAmenitiesDTO {
         private String name;
         private String type;
+        private Boolean isActive;
     }
 
 }
