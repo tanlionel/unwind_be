@@ -1,5 +1,6 @@
 package com.capstone.unwind.model.TimeShareDTO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -16,7 +17,9 @@ public class TimeShareDetailDTO {
     private String resortName;
     private String roomName;
     private String resortAddress;
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate startDate;
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate endDate;
     private unitType unitType;
 

@@ -1,19 +1,23 @@
 package com.capstone.unwind.controller;
 
 import com.capstone.unwind.exception.EntityDoesNotExistException;
+import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
 import com.capstone.unwind.model.ResortDTO.ResortDetailResponseDTO;
 import com.capstone.unwind.model.ResortDTO.ResortDto;
+import com.capstone.unwind.model.ResortDTO.UnitTypeResponseDTO;
+import com.capstone.unwind.model.RoomDTO.RoomInfoDto;
+import com.capstone.unwind.model.RoomDTO.RoomRequestDTO;
+import com.capstone.unwind.model.RoomDTO.RoomResponseDTO;
 import com.capstone.unwind.model.SystemDTO.FaqDTO;
 import com.capstone.unwind.model.SystemDTO.PolicyDTO;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
-import com.capstone.unwind.service.ServiceInterface.FaqService;
-import com.capstone.unwind.service.ServiceInterface.PolicyService;
-import com.capstone.unwind.service.ServiceInterface.ResortService;
-import com.capstone.unwind.service.ServiceInterface.TimeshareCompanyService;
+import com.capstone.unwind.service.ServiceInterface.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +35,8 @@ public class PublicController {
     private final PolicyService policyService;
     @Autowired
     TimeshareCompanyService timeshareCompanyService;
+    @Autowired
+    private RoomService roomService;
     @GetMapping("/resort")
     public Page<ResortDto> getPageableResort(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
                                              @RequestParam(required = false,defaultValue = "10") Integer pageSize,
@@ -74,5 +80,26 @@ public class PublicController {
     public TimeshareCompanyDto getTimeshareCompanyById(@PathVariable Integer tsId) throws EntityDoesNotExistException {
         TimeshareCompanyDto timeshareCompanyDto = timeshareCompanyService.getTimeshareCompanyById(tsId);
         return timeshareCompanyDto;
+    }
+
+
+    @GetMapping("/room/resort/{resortId}")
+    public ResponseEntity<List<RoomInfoDto>> getAllRoomByResortId(@PathVariable Integer resortId){
+        List<RoomInfoDto> roomInfoDtoList  = roomService.getAllExistingRoomByResortId(resortId);
+        return ResponseEntity.ok(roomInfoDtoList);
+    }
+    @GetMapping("unit-type/{unitTypeId}")
+    public ResponseEntity<UnitTypeResponseDTO> getUnitTypeById(@PathVariable Integer unitTypeId) throws UserDoesNotHavePermission, EntityDoesNotExistException {
+        UnitTypeResponseDTO unitTypeResponse = resortService.getUnitTypeByIdPublic(unitTypeId);
+        return new ResponseEntity<>(unitTypeResponse, HttpStatus.OK);
+
+    }
+    @GetMapping("/unit-types/resort/{resortId}")
+
+    public ResponseEntity<List<UnitTypeResponseDTO>> getUnitTypeByResortId(
+            @PathVariable Integer resortId) throws  EntityDoesNotExistException, ErrMessageException {
+
+        List<UnitTypeResponseDTO> response = resortService.getUnitTypeByResortIdPublic(resortId);
+        return ResponseEntity.ok(response);
     }
 }

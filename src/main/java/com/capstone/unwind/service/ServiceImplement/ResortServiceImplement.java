@@ -298,12 +298,12 @@ public class ResortServiceImplement implements ResortService {
         Resort resort = resortRepository.findById(unitTypeRequestDTO.getResortId())
                 .orElseThrow(() -> new ErrMessageException("Resort with ID " + unitTypeRequestDTO.getResortId() + " does not exist"));
         if (!resort.getTimeshareCompany().getId().equals(timeshareCompany.getId())) {
-            throw new  ErrMessageException("Resort with ID " + unitTypeRequestDTO.getResortId() + "is not owned by your company");
+            throw new ErrMessageException("Resort with ID " + unitTypeRequestDTO.getResortId() + "is not owned by your company");
         }
         UnitType unitType = unitTypeRepository.findById(unitTypeId)
                 .orElseThrow(() -> new ErrMessageException("unitType with ID " + unitTypeId + " does not exist"));
         if (!unitType.getResort().getTimeshareCompany().getId().equals(timeshareCompany.getId())) {
-            throw new  ErrMessageException("unitType with ID " + unitTypeId + "is not owned by your company");
+            throw new ErrMessageException("unitType with ID " + unitTypeId + "is not owned by your company");
         }
         unitType.setArea(unitTypeRequestDTO.getArea());
         unitType.setBedrooms(unitTypeRequestDTO.getBedrooms());
@@ -437,6 +437,58 @@ public class ResortServiceImplement implements ResortService {
     }
 
     @Override
+    public UnitTypeResponseDTO getUnitTypeByIdPublic(Integer unitTypeId) throws EntityDoesNotExistException, UserDoesNotHavePermission {
+        Optional<UnitType> unitType = unitTypeRepository.findById(unitTypeId);
+        if (!unitType.isPresent()) {
+            throw new EntityDoesNotExistException();
+        }
+
+        UnitType unitTypeInDb = unitType.get();
+        List<UnitTypeAmenity> unitAmenityList = unitTypeAmentitiesRepository.findAllByUnitTypeId(unitTypeId);
+
+        List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortId(unitTypeInDb.getResort().getId())
+                .stream().map(unitTypeMapper::toDto).toList();
+
+        for (UnitTypeDto tmp : unitTypeDtoListResponse) {
+            List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeId(tmp.getId());
+            tmp.setUnitTypeAmenitiesList(unitTypeAmenities.stream().map(p ->
+                    UnitTypeDto.UnitTypeAmenities.builder()
+                            .name(p.getName())
+                            .type(p.getType())
+                            .build()).toList());
+        }
+
+        UnitTypeResponseDTO responseDTO = UnitTypeResponseDTO.builder()
+                .id(unitTypeInDb.getId())
+                .title(unitTypeInDb.getTitle())
+                .area(unitTypeInDb.getArea())
+                .bedrooms(unitTypeInDb.getBedrooms())
+                .bedsKing(unitTypeInDb.getBedsKing())
+                .bedsFull(unitTypeInDb.getBedsFull())
+                .bedsMurphy(unitTypeInDb.getBedsMurphy())
+                .bedsQueen(unitTypeInDb.getBedsQueen())
+                .bedsSofa(unitTypeInDb.getBedsSofa())
+                .bedsTwin(unitTypeInDb.getBedsTwin())
+                .description(unitTypeInDb.getDescription())
+                .bathrooms(unitTypeInDb.getBathrooms())
+                .price(unitTypeInDb.getPrice())
+                .kitchen(unitTypeInDb.getKitchen())
+                .photos(unitTypeInDb.getPhotos())
+                .view(unitTypeInDb.getView())
+                .sleeps(unitTypeInDb.getSleeps())
+                .unitTypeAmenitiesDTOS(unitAmenityList.stream()
+                        .map(p -> UnitTypeResponseDTO.UnitTypeAmenitiesDTO.builder()
+                                .name(p.getName())
+                                .type(p.getType())
+                                .build())
+                        .toList())
+                .isActive(unitTypeInDb.getIsActive())
+                .build();
+
+        return responseDTO;
+    }
+
+    @Override
     public List<UnitTypeResponseDTO> getUnitTypeByResortId(Integer resortId)
             throws EntityDoesNotExistException, UserDoesNotHavePermission, ErrMessageException {
         User tsCompany = userService.getLoginUser();
@@ -450,6 +502,34 @@ public class ResortServiceImplement implements ResortService {
         if (!resort.getTimeshareCompany().getId().equals(timeshareCompany.getId())) {
             throw new UserDoesNotHavePermission();
         }
+        List<UnitType> unitTypeList = unitTypeRepository.findAllByResortId(resortId);
+        if (unitTypeList.isEmpty()) {
+            throw new EntityDoesNotExistException();
+        }
+        List<UnitTypeResponseDTO> responseDTOs = new ArrayList<>();
+
+        for (UnitType unitTypeInDb : unitTypeList) {
+            List<UnitTypeAmenity> unitAmenityList = unitTypeAmentitiesRepository.findAllByUnitTypeId(unitTypeInDb.getId());
+            UnitTypeResponseDTO responseDTO = unitTypesMapper.toDto(unitTypeInDb);
+            List<UnitTypeResponseDTO.UnitTypeAmenitiesDTO> amenitiesDTOList = unitAmenityList.stream()
+                    .map(p -> UnitTypeResponseDTO.UnitTypeAmenitiesDTO.builder()
+                            .name(p.getName())
+                            .type(p.getType())
+                            .build())
+                    .toList();
+
+            responseDTO.setUnitTypeAmenitiesDTOS(amenitiesDTOList);
+
+            responseDTOs.add(responseDTO);
+        }
+        return responseDTOs;
+    }
+
+    @Override
+    public List<UnitTypeResponseDTO> getUnitTypeByResortIdPublic(Integer resortId) throws ErrMessageException, EntityDoesNotExistException {
+
+        Resort resort = resortRepository.findById(resortId)
+                .orElseThrow(() -> new ErrMessageException("Resort with ID " + resortId + " does not exist"));
         List<UnitType> unitTypeList = unitTypeRepository.findAllByResortId(resortId);
         if (unitTypeList.isEmpty()) {
             throw new EntityDoesNotExistException();

@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.util.List;
 import java.util.Optional;
 @RequiredArgsConstructor
 @Service
@@ -137,5 +138,13 @@ public class UserServiceImplement implements UserService {
 
         User updatedUser = userRepository.save(user);
         return userMapper.toDto(updatedUser);
+    }
+
+    @Override
+    public List<UserDto> getAllTimeshareCompanyAccount() {
+        Integer timeshareCompanyRoleId = 2;
+        List<User> users = userRepository.findAllByRoleId(timeshareCompanyRoleId);
+        List<UserDto> userDtoList = users.stream().map(userMapper::toDto).toList();
+        return userDtoList;
     }
 }

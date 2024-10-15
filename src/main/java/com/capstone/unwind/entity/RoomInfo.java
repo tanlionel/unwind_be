@@ -34,14 +34,19 @@ public class RoomInfo {
     @Column(name = "is_active")
     private Boolean isActive;
 
-    @Column(name = "resort_id")
-    private Integer resortId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "resort_id")
+    private Resort resort;
+
 
     @Column(name = "status", length = 45)
     private String status;
 
-    @Column(name = "unit_type_id")
-    private Integer unitTypeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unit_type_id")
+    private UnitType unitType;
+
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = Timestamp.from(Instant.now());

@@ -10,6 +10,8 @@ import com.capstone.unwind.model.UserDTO.UserDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface UserService {
     User login(String email, String password) throws UserDoesNotExistException, AccountSuspendedException, InvalidateException;
     User registerUser(RegisterRequestDTO registerUser) throws Exception;
@@ -19,4 +21,5 @@ public interface UserService {
     UserDto getUserByUserId(Integer userId) throws UserDoesNotExistException;
     UserDto createUser(RegisterRequestDTO registerRequestDTO) throws Exception;
     UserDto updateUser(Integer userId, UpdateUserRequestDTO updateUserRequestDTO) throws Exception;
+    List<UserDto> getAllTimeshareCompanyAccount();
 }

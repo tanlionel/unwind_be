@@ -2,6 +2,7 @@ package com.capstone.unwind.controller;
 
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
+import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.TimeShareDTO.*;
 import com.capstone.unwind.service.ServiceInterface.TimeShareService;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +27,16 @@ public class TimeshareController {
         TimeShareResponseDTO timeShareResponse = timeShareService.createTimeShare(timeShareRequestDTO);
         return new ResponseEntity<>(timeShareResponse, HttpStatus.OK);
     }
-    @GetMapping("/timeshare/all")
+    @GetMapping("/timeshares")
     public ResponseEntity<List<ListTimeShareDTO>> getAllTimeShares() {
         List<ListTimeShareDTO> timeShares = timeShareService.getAllTimeShares();
         return ResponseEntity.ok(timeShares);
     }
-    @GetMapping("/{timeShareID}")
-    public List<TimeShareDetailDTO> getTimeShareDetails(@PathVariable Integer timeShareID) {
+
+
+    //fix please
+    @GetMapping("/timeshare/{timeShareID}")
+    public List<TimeShareDetailDTO> getTimeShareDetails(@PathVariable Integer timeShareID) throws OptionalNotFoundException {
         return timeShareService.getTimeShareDetails(timeShareID);
     }
 }

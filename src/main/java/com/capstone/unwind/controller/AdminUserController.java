@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
@@ -46,5 +48,10 @@ public class AdminUserController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
+    }
+    @GetMapping("/timeshare-company")
+    public ResponseEntity<List<UserDto>> getAllTimeshareCompanyAccount(){
+        List<UserDto> userDtoList = userService.getAllTimeshareCompanyAccount();
+        return ResponseEntity.ok(userDtoList);
     }
 }

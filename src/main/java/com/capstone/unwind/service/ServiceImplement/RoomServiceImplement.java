@@ -4,6 +4,8 @@ import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
+import com.capstone.unwind.model.RoomDTO.RoomInfoDto;
+import com.capstone.unwind.model.RoomDTO.RoomInfoMapper;
 import com.capstone.unwind.model.RoomDTO.RoomRequestDTO;
 import com.capstone.unwind.model.RoomDTO.RoomResponseDTO;
 import com.capstone.unwind.repository.*;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -32,48 +35,55 @@ public class RoomServiceImplement implements RoomService {
     private final RoomAmentityRepository roomAmentityRepository;
     @Autowired
     private final CustomerRepository customerRepository;
-@Override
-    public RoomResponseDTO createRoom(RoomRequestDTO roomRequestDTO) throws EntityDoesNotExistException,  UserDoesNotHavePermission,ErrMessageException {
+    @Autowired
+    private RoomInfoMapper roomInfoMapper;
+
+    @Override
+    public RoomResponseDTO createRoom(RoomRequestDTO roomRequestDTO) throws EntityDoesNotExistException, UserDoesNotHavePermission, ErrMessageException {
         User user = userService.getLoginUser();
         Customer customer = customerRepository.findByUserId(user.getId());
-    Resort resort = resortRepository.findById(roomRequestDTO.getResortId())
-            .orElseThrow(() -> new ErrMessageException("Resort with ID " + roomRequestDTO.getResortId() + " does not exist"));
-    UnitType unitTypeInDb = unitTypeRepository.findById(roomRequestDTO.getUnitTypeId())
-            .orElseThrow(() -> new ErrMessageException("unitType with ID " + roomRequestDTO.getUnitTypeId() + " does not exist"));
-    if (!unitTypeInDb.getResort().getId().equals(roomRequestDTO.getResortId())) {
-        throw new  ErrMessageException("unitType with ID " + roomRequestDTO.getUnitTypeId() + "is not owned by this Resort");
-    }
-    boolean roomCodeExists = roomInfoRepository.existsByRoomInfoCodeAndResortId(roomRequestDTO.getRoomInfoCode(), resort.getId());
-    if (roomCodeExists) {
-        throw new ErrMessageException("Room code '" + roomRequestDTO.getRoomInfoCode() + "' already exists in this resort.");
-    }
-    RoomInfo roomInfo = RoomInfo.builder()
-            .roomInfoCode(roomRequestDTO.getRoomInfoCode())
-            .resortId(resort.getId())
-            .roomInfoName(roomRequestDTO.getRoomName())
-            .status(roomRequestDTO.getStatus())
-            .unitTypeId(unitTypeInDb.getId())
-            .isActive(true)
-            .build();
 
-    RoomInfo roomInfoInDb = roomInfoRepository.save(roomInfo);
-    if (roomRequestDTO.getRoomAmenities() != null && !roomRequestDTO.getRoomAmenities().isEmpty()) {
-        try {
-            for (RoomRequestDTO.roomAmenity tmp : roomRequestDTO.getRoomAmenities()) {
-                RoomAmenity roomAmenity = RoomAmenity.builder()
-                        .roomInfo(roomInfo)
-                        .name(tmp.getName())
-                        .type(tmp.getType())
-                        .isActive(true)
-                        .build();
-                roomAmentityRepository.save(roomAmenity);
-            }
-        } catch (Exception e) {
-            throw new ErrMessageException("Error when saving room amenities");
+        Resort resortInDB = resortRepository.findById(roomRequestDTO.getResortId())
+                .orElseThrow(() -> new ErrMessageException("Resort with ID " + roomRequestDTO.getResortId() + " does not exist"));
+        UnitType unitTypeInDb = unitTypeRepository.findById(roomRequestDTO.getUnitTypeId())
+                .orElseThrow(() -> new ErrMessageException("unitType with ID " + roomRequestDTO.getUnitTypeId() + " does not exist"));
+        if (!unitTypeInDb.getResort().getId().equals(roomRequestDTO.getResortId())) {
+            throw new ErrMessageException("unitType with ID " + roomRequestDTO.getUnitTypeId() + "is not owned by this Resort");
         }
-    }
 
-    List<RoomAmenity> roomAmenities = roomAmentityRepository.findAllByRoomInfoId(roomInfo.getId());
+        boolean roomCodeExists = roomInfoRepository.existsByRoomInfoCodeAndResortId(roomRequestDTO.getRoomInfoCode(), resortInDB.getId());
+        if (roomCodeExists) {
+            throw new ErrMessageException("Room code '" + roomRequestDTO.getRoomInfoCode() + "' already exists in this resort.");
+        }
+
+
+        RoomInfo roomInfo = RoomInfo.builder()
+                .roomInfoCode(roomRequestDTO.getRoomInfoCode())
+                .resort(resortInDB)
+                .roomInfoName(roomRequestDTO.getRoomName())
+                .status(roomRequestDTO.getStatus())
+                .unitType(unitTypeInDb)
+                .isActive(true)
+                .build();
+
+        RoomInfo roomInfoInDb = roomInfoRepository.save(roomInfo);
+        if (roomRequestDTO.getRoomAmenities() != null && !roomRequestDTO.getRoomAmenities().isEmpty()) {
+            try {
+                for (RoomRequestDTO.roomAmenity tmp : roomRequestDTO.getRoomAmenities()) {
+                    RoomAmenity roomAmenity = RoomAmenity.builder()
+                            .roomInfo(roomInfo)
+                            .name(tmp.getName())
+                            .type(tmp.getType())
+                            .isActive(true)
+                            .build();
+                    roomAmentityRepository.save(roomAmenity);
+                }
+            } catch (Exception e) {
+                throw new ErrMessageException("Error when saving room amenities");
+            }
+        }
+
+        List<RoomAmenity> roomAmenities = roomAmentityRepository.findAllByRoomInfoId(roomInfo.getId());
         RoomResponseDTO.unitType unitTypeDTO = RoomResponseDTO.unitType.builder()
                 .id(unitTypeInDb.getId())
                 .title(unitTypeInDb.getTitle())
@@ -99,7 +109,7 @@ public class RoomServiceImplement implements RoomService {
         RoomResponseDTO responseDTO = RoomResponseDTO.builder()
                 .roomId(roomInfoInDb.getId())
                 .roomInfoCode(roomInfoInDb.getRoomInfoCode())
-                .resortId(roomInfoInDb.getResortId())
+                .resortId(roomInfoInDb.getResort().getId())
                 .isActive(roomInfoInDb.getIsActive())
                 .status(roomInfoInDb.getStatus())
                 .roomName(roomInfoInDb.getRoomInfoName())
@@ -114,5 +124,12 @@ public class RoomServiceImplement implements RoomService {
                 .createdAt(roomInfoInDb.getCreatedAt())
                 .build();
         return responseDTO;
+    }
+
+    @Override
+    public List<RoomInfoDto> getAllExistingRoomByResortId(Integer resortId) {
+        List<RoomInfo> roomInfoList = roomInfoRepository.findAllByResortId(resortId);
+        List<RoomInfoDto> roomInfoDtoList = roomInfoList.stream().map(roomInfoMapper::toDto).collect(Collectors.toList());
+        return roomInfoDtoList;
     }
 }

@@ -3,6 +3,7 @@ package com.capstone.unwind.service.ServiceImplement;
 import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
+import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.TimeShareDTO.*;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.TimeShareService;
@@ -105,7 +106,7 @@ public class TimeShareServiceImplement implements TimeShareService {
                     if (roomInfo == null || !roomInfo.getIsActive()) {
                         return null;
                     }
-                    Integer resortId = roomInfo.getResortId();
+                    Integer resortId = roomInfo.getResort().getId();
                     Resort resort = resortRepository.findById(resortId)
                             .orElse(null);
                     if (resort == null || !resort.getIsActive()) {
@@ -114,7 +115,7 @@ public class TimeShareServiceImplement implements TimeShareService {
                     String resortName = resortRepository.findById(resortId)
                             .map(Resort::getResortName)
                             .orElse("Unknown Resort");
-                    Integer uniTypeId = roomInfo.getUnitTypeId();
+                    Integer uniTypeId = roomInfo.getUnitType().getId();
                     Optional<UnitType> unitTypeOptional = unitTypeRepository.findById(uniTypeId);
                     Integer bathRoom = unitTypeOptional.map(UnitType::getBathrooms).orElse(0);
                     Integer bedRooms = unitTypeOptional.map(UnitType::getBedrooms).orElse(0);
@@ -134,20 +135,21 @@ public class TimeShareServiceImplement implements TimeShareService {
 
     }
 @Override
-    public List<TimeShareDetailDTO> getTimeShareDetails(Integer timeShareID) {
+    public List<TimeShareDetailDTO> getTimeShareDetails(Integer timeShareID) throws OptionalNotFoundException {
         Optional<Timeshare> optionalTimeShare = timeShareRepository.findById(timeShareID);
+        if (!optionalTimeShare.isPresent()) throw new OptionalNotFoundException("Not found room");
         Timeshare timeShare = optionalTimeShare.get();
         RoomInfo roomInfo = timeShare.getRoomInfo();
 
         if (roomInfo == null || !roomInfo.getIsActive()) {
             return Collections.emptyList();
         }
-        Integer resortId = roomInfo.getResortId();
+        Integer resortId = roomInfo.getResort().getId();
         Resort resort = resortRepository.findById(resortId).orElse(null);
         if (resort == null || !resort.getIsActive()) {
             return Collections.emptyList();
         }
-        Integer uniTypeId = roomInfo.getUnitTypeId();
+        Integer uniTypeId = roomInfo.getUnitType().getId();
         UnitType unitType = unitTypeRepository.findById(uniTypeId).orElse(null);
 
         TimeShareDetailDTO.unitType unitTypeDTO = null;

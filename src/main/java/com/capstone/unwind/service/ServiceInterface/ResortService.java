@@ -25,6 +25,10 @@ public interface ResortService {
             throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission;
     UnitTypeResponseDTO getUnitTypeById(Integer unitTypeId)
             throws EntityDoesNotExistException, UserDoesNotHavePermission;
+    UnitTypeResponseDTO getUnitTypeByIdPublic(Integer unitTypeId)
+            throws EntityDoesNotExistException, UserDoesNotHavePermission;
     List<UnitTypeResponseDTO> getUnitTypeByResortId(Integer resortId)
             throws EntityDoesNotExistException, UserDoesNotHavePermission, ErrMessageException;
+    List<UnitTypeResponseDTO> getUnitTypeByResortIdPublic(Integer resortId) throws ErrMessageException, EntityDoesNotExistException;
+
 }
