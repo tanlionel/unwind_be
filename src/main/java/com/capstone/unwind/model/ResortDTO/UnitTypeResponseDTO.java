@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddUnitTypeAmentiesResponseDTO {
+public class UnitTypeResponseDTO {
     Integer id;
     String title;
     String area;

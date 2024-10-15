@@ -63,4 +63,10 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .build());
     }
+    @ExceptionHandler(OptionalNotFoundException.class)
+    public ResponseEntity<?> handleOptionalNotFoundException(OptionalNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ExceptionDTO.builder()
+                .message(ex.getMessage())
+                .build());
+    }
 }

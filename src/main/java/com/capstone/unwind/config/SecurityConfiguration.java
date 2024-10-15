@@ -41,6 +41,8 @@ public class SecurityConfiguration {
                                 .permitAll()
                                 .requestMatchers("api/admin/**")
                                 .hasAuthority("ADMIN")
+                                .requestMatchers("api/customer/**")
+                                .hasAuthority("CUSTOMER")
                                 .requestMatchers("api/timeshare-company/**")
                                 .hasAuthority("TIMESHARECOMPANY")
                                 .requestMatchers("/api/public/**")

@@ -1,9 +1,7 @@
 package com.capstone.unwind.controller;
 
-import com.capstone.unwind.entity.UnitType;
 import com.capstone.unwind.exception.*;
 import com.capstone.unwind.model.ResortDTO.*;
-import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
 import com.capstone.unwind.service.ServiceInterface.ResortService;
 import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
 import lombok.RequiredArgsConstructor;
@@ -43,21 +41,30 @@ public class TSCompanyResortController {
         return resortDtoResponse;
     }
     @PostMapping("unit-type")
-    public AddUnitTypeAmentiesResponseDTO createUnitType(@RequestBody AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws ErrMessageException, EntityDoesNotExistException, UserDoesNotHavePermission {
-        AddUnitTypeAmentiesResponseDTO unitTypeDetailResponseDTO = resortService.createUnitType(addUnitTypeAmentiesDTO);
+    public UnitTypeResponseDTO createUnitType(@RequestBody UnitTypeRequestDTO unitTypeRequestDTO) throws ErrMessageException, EntityDoesNotExistException, UserDoesNotHavePermission {
+        UnitTypeResponseDTO unitTypeDetailResponseDTO = resortService.createUnitType(unitTypeRequestDTO);
         return unitTypeDetailResponseDTO;
     }
     @PutMapping("unit-type/{unitTypeId}")
-    public ResponseEntity<AddUnitTypeAmentiesResponseDTO> updateUnitType(
+    public ResponseEntity<UnitTypeResponseDTO> updateUnitType(
             @PathVariable Integer unitTypeId,
-            @RequestBody AddUnitTypeAmentiesDTO addUnitTypeAmentiesDTO) throws UserDoesNotHavePermission, ErrMessageException, EntityDoesNotExistException {
-        AddUnitTypeAmentiesResponseDTO response = resortService.updateUnitType(unitTypeId, addUnitTypeAmentiesDTO);
+            @RequestBody UnitTypeRequestDTO unitTypeRequestDTO) throws UserDoesNotHavePermission, ErrMessageException, EntityDoesNotExistException {
+        UnitTypeResponseDTO response = resortService.updateUnitType(unitTypeId, unitTypeRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("unit-type/{unitTypeId}")
-    public ResponseEntity<AddUnitTypeAmentiesResponseDTO> getUnitTypeById(@PathVariable Integer unitTypeId) throws UserDoesNotHavePermission, EntityDoesNotExistException {
-            AddUnitTypeAmentiesResponseDTO unitTypeResponse = resortService.getUnitTypeById(unitTypeId);
+    public ResponseEntity<UnitTypeResponseDTO> getUnitTypeById(@PathVariable Integer unitTypeId) throws UserDoesNotHavePermission, EntityDoesNotExistException {
+            UnitTypeResponseDTO unitTypeResponse = resortService.getUnitTypeById(unitTypeId);
             return new ResponseEntity<>(unitTypeResponse, HttpStatus.OK);
 
     }
+    @GetMapping("/unit-types/{resortId}")
+
+    public ResponseEntity<List<UnitTypeResponseDTO>> getUnitTypeByResortId(
+            @PathVariable Integer resortId) throws UserDoesNotHavePermission, EntityDoesNotExistException, ErrMessageException {
+
+        List<UnitTypeResponseDTO> response = resortService.getUnitTypeByResortId(resortId);
+        return ResponseEntity.ok(response);
+    }
+
 }
