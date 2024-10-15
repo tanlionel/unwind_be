@@ -3,7 +3,6 @@ package com.capstone.unwind.controller;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.model.TimeShareDTO.*;
-import com.capstone.unwind.service.ServiceInterface.FaqService;
 import com.capstone.unwind.service.ServiceInterface.TimeShareService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ import java.util.List;
 @RequestMapping("/api/customer")
 @RequiredArgsConstructor
 @CrossOrigin
-public class TimeShareController {
+public class TimeshareController {
     @Autowired
     private final TimeShareService timeShareService;
 

@@ -47,5 +47,4 @@ public class RoomInfo {
         this.createdAt = Timestamp.from(Instant.now());
         this.updatedAt = Timestamp.from(Instant.now());
     }
-
 }

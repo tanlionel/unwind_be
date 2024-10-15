@@ -97,6 +97,7 @@ public class TimeShareServiceImplement implements TimeShareService {
         User user = userService.getLoginUser();
         Customer customer = customerRepository.findByUserId(user.getId());
         List<Timeshare> timeShares = timeShareRepository.findAllByOwnerId(customer.getId());
+
         return timeShares.stream()
                 .map(timeShare -> {
                     RoomInfo roomInfo = timeShare.getRoomInfo();

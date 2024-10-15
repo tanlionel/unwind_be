@@ -5,6 +5,7 @@ import com.capstone.unwind.entity.RoomInfo;
 import com.capstone.unwind.entity.UnitType;
 import com.capstone.unwind.model.ResortDTO.ResortRequestDTO;
 import com.capstone.unwind.model.ResortDTO.UnitTypeDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +28,7 @@ public class RoomResponseDTO implements Serializable {
     private String roomName;
     private String status;
     private unitType unitType;
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private Timestamp createdAt;
     private List<roomAmenity> roomAmenities;
     @Data
