@@ -107,13 +107,22 @@ public class TimeShareServiceImplement implements TimeShareService {
                     RoomInfo roomInfo = timeShare.getRoomInfo();
 
                     if (roomInfo == null || !roomInfo.getIsActive()) {
-                        return null;
+                        try {
+                            throw new OptionalNotFoundException("Room information is not valid or inactive");
+                        } catch (OptionalNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
+
                     Integer resortId = roomInfo.getResort().getId();
                     Resort resort = resortRepository.findById(resortId)
                             .orElse(null);
                     if (resort == null || !resort.getIsActive()) {
-                        return null;
+                        try {
+                            throw new OptionalNotFoundException("Resort  is not valid or inactive");
+                        } catch (OptionalNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                     String resortName = resortRepository.findById(resortId)
                             .map(Resort::getResortName)
