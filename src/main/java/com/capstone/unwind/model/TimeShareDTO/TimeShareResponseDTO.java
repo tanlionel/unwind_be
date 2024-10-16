@@ -2,6 +2,7 @@ package com.capstone.unwind.model.TimeShareDTO;
 
 import com.capstone.unwind.entity.Customer;
 import com.capstone.unwind.entity.RoomInfo;
+import com.capstone.unwind.model.RoomDTO.RoomInfoDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
@@ -28,5 +29,5 @@ public class TimeShareResponseDTO {
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private Timestamp createdAt;
     private Boolean isActive;
-    private RoomInfo roomInfo;
+    private RoomInfoDto roomInfo;
 }

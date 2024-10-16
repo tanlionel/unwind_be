@@ -12,4 +12,6 @@ public interface UnitTypeAmentitiesRepository extends JpaRepository<UnitTypeAmen
     List<UnitTypeAmenity> findAllByUnitTypeId(Integer UnitTypeId);
 
     void deleteAllByUnitTypeId(Integer id);
+
+    List<UnitTypeAmenity> findAllByUnitTypeIdAndIsActiveTrue(Integer id);
 }

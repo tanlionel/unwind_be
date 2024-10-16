@@ -42,7 +42,7 @@ public class Timeshare {
     private LocalDate endDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id",referencedColumnName = "customer_id")
     private Customer owner;
 
     @Column(name = "is_active")

@@ -295,13 +295,17 @@ public class ResortServiceImplement implements ResortService {
         User tsCompany = userService.getLoginUser();
         TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
         if (timeshareCompany == null) throw new UserDoesNotHavePermission();
+
         Resort resort = resortRepository.findById(unitTypeRequestDTO.getResortId())
                 .orElseThrow(() -> new ErrMessageException("Resort with ID " + unitTypeRequestDTO.getResortId() + " does not exist"));
+
         if (!resort.getTimeshareCompany().getId().equals(timeshareCompany.getId())) {
             throw new ErrMessageException("Resort with ID " + unitTypeRequestDTO.getResortId() + "is not owned by your company");
         }
+
         UnitType unitType = unitTypeRepository.findById(unitTypeId)
                 .orElseThrow(() -> new ErrMessageException("unitType with ID " + unitTypeId + " does not exist"));
+
         if (!unitType.getResort().getTimeshareCompany().getId().equals(timeshareCompany.getId())) {
             throw new ErrMessageException("unitType with ID " + unitTypeId + "is not owned by your company");
         }
@@ -326,10 +330,11 @@ public class ResortServiceImplement implements ResortService {
         unitType.setIsActive(true);
 
         UnitType updatedUnitType = unitTypeRepository.save(unitType);
-
-        //false -> set is active = false
-        unitTypeAmentitiesRepository.deleteAllByUnitTypeId(updatedUnitType.getId());
-
+        List<UnitTypeAmenity> existingAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeId(updatedUnitType.getId());
+        for (UnitTypeAmenity amenity : existingAmenities) {
+            amenity.setIsActive(false);
+            unitTypeAmentitiesRepository.save(amenity);
+        }
         try {
             for (UnitTypeRequestDTO.UnitTypeAmenitiesDTO tmp : unitTypeRequestDTO.getUnitTypeAmenitiesDTOS()) {
                 UnitTypeAmenity amenity = UnitTypeAmenity.builder()
@@ -344,7 +349,8 @@ public class ResortServiceImplement implements ResortService {
             throw new ErrMessageException("Error when saving amenities");
         }
 
-        List<UnitTypeAmenity> amenities = unitTypeAmentitiesRepository.findAllByUnitTypeId(updatedUnitType.getId());
+        List<UnitTypeAmenity> amenities = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(updatedUnitType.getId());
+
 
         UnitTypeResponseDTO unitTypeResponseDTO = UnitTypeResponseDTO.builder()
                 .id(updatedUnitType.getId())
@@ -370,6 +376,7 @@ public class ResortServiceImplement implements ResortService {
                         .map(p -> UnitTypeResponseDTO.UnitTypeAmenitiesDTO.builder()
                                 .name(p.getName())
                                 .type(p.getType())
+                                .isActive(p.getIsActive())
                                 .build())
                         .toList())
                 .isActive(updatedUnitType.getIsActive())
