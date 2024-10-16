@@ -39,10 +39,12 @@ public class TimeShareServiceImplement implements TimeShareService {
     @Autowired
     private RoomInfoMapper roomInfoMapper;
 
+
     @Override
-    public TimeShareResponseDTO createTimeShare(TimeShareRequestDTO timeShareRequestDTO) throws EntityDoesNotExistException, ErrMessageException {
+    public TimeShareResponseDTO createTimeShare(TimeShareRequestDTO timeShareRequestDTO) throws EntityDoesNotExistException, ErrMessageException, OptionalNotFoundException {
         User user = userService.getLoginUser();
         Customer customer = customerRepository.findByUserId(user.getId());
+        if (customer==null) throw new OptionalNotFoundException("Customer not found");
         RoomInfo roomInfo = roomInfoRepository.findById(timeShareRequestDTO.getRoomInfoId())
                 .orElseThrow(() -> new ErrMessageException("roomInfo with ID " + timeShareRequestDTO.getRoomInfoId() + " does not exist"));
         boolean isTimeshareConflict = timeShareRepository.existsByRoomInfoAndDateRange(
@@ -80,7 +82,8 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .build();
 
         Timeshare timeShareInDb = timeShareRepository.save(timeshare);
-
+        Optional<RoomInfo> roomInfoInDb = roomInfoRepository.findById(timeShareInDb.getRoomInfo().getId());
+        Optional<Resort> resortInDb = resortRepository.findById(roomInfoInDb.get().getResort().getId());
         TimeShareResponseDTO timeShareResponseDTO = TimeShareResponseDTO.builder()
                 .timeShareId(timeShareInDb.getId())
                 .status(timeShareInDb.getStatus())
@@ -88,7 +91,7 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .endDate(timeShareInDb.getEndDate())
                 .startYear(timeShareInDb.getStartYear())
                 .endYear(timeShareInDb.getEndYear())
-                .roomInfo(timeShareInDb.getRoomInfo())
+                .roomInfo(roomInfoMapper.toDto(roomInfoInDb.get()))
                 .owner(timeShareInDb.getOwner().getFullName())
                 .createdAt(timeShareInDb.getCreatedAt())
                 .isActive(timeShareInDb.getIsActive())

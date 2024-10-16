@@ -22,7 +22,7 @@ public class TimeshareController {
     private final TimeShareService timeShareService;
 
     @PostMapping("/timeshare")
-    public ResponseEntity<TimeShareResponseDTO> createTimeShare(@RequestBody TimeShareRequestDTO timeShareRequestDTO) throws EntityDoesNotExistException, ErrMessageException {
+    public ResponseEntity<TimeShareResponseDTO> createTimeShare(@RequestBody TimeShareRequestDTO timeShareRequestDTO) throws EntityDoesNotExistException, ErrMessageException, OptionalNotFoundException {
 
         TimeShareResponseDTO timeShareResponse = timeShareService.createTimeShare(timeShareRequestDTO);
         return new ResponseEntity<>(timeShareResponse, HttpStatus.OK);
