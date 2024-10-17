@@ -35,6 +35,8 @@ public class TimeShareServiceImplement implements TimeShareService {
     @Autowired
     private final TimeShareMapper timeShareMapper;
     @Autowired
+    private final ListTimeShareMapper listTimeShareMapper;
+    @Autowired
     private final UnitTypeRepository unitTypeRepository;
     @Autowired
     private RoomInfoMapper roomInfoMapper;
@@ -100,54 +102,28 @@ public class TimeShareServiceImplement implements TimeShareService {
     }
 
     @Override
-    public List<ListTimeShareDTO> getAllTimeShares() {
+    public List<ListTimeShareDTO> getAllTimeShares() throws OptionalNotFoundException {
         User user = userService.getLoginUser();
         Customer customer = customerRepository.findByUserId(user.getId());
+        if (customer == null) {
+            throw new OptionalNotFoundException("Customer does not exist for user with ID: " + user.getId());
+        }
         List<Timeshare> timeShares = timeShareRepository.findAllByOwnerId(customer.getId());
-
-        return timeShares.stream()
-                .map(timeShare -> {
+        List<Timeshare> validTimeShares = timeShares.stream()
+                .filter(timeShare -> {
                     RoomInfo roomInfo = timeShare.getRoomInfo();
-
                     if (roomInfo == null || !roomInfo.getIsActive()) {
-                        try {
-                            throw new OptionalNotFoundException("Room information is not valid or inactive");
-                        } catch (OptionalNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
+                        return false;
                     }
-
-                    Integer resortId = roomInfo.getResort().getId();
-                    Resort resort = resortRepository.findById(resortId)
-                            .orElse(null);
+                    Resort resort = roomInfo.getResort();
                     if (resort == null || !resort.getIsActive()) {
-                        try {
-                            throw new OptionalNotFoundException("Resort  is not valid or inactive");
-                        } catch (OptionalNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
+                        return false;
                     }
-                    String resortName = resortRepository.findById(resortId)
-                            .map(Resort::getResortName)
-                            .orElse("Unknown Resort");
-                    Integer uniTypeId = roomInfo.getUnitType().getId();
-                    Optional<UnitType> unitTypeOptional = unitTypeRepository.findById(uniTypeId);
-                    Integer bathRoom = unitTypeOptional.map(UnitType::getBathrooms).orElse(0);
-                    Integer bedRooms = unitTypeOptional.map(UnitType::getBedrooms).orElse(0);
-
-                    return ListTimeShareDTO.builder()
-                            .timeShareId(timeShare.getId())
-                            .resortName(resortName)
-                            .roomName(roomInfo.getRoomInfoName())
-                            .bathRoom(bathRoom)
-                            .bedRooms(bedRooms)
-                            .startDate(timeShare.getStartDate())
-                            .endDate(timeShare.getEndDate())
-                            .build();
+                    UnitType unitType = roomInfo.getUnitType();
+                    return unitType != null && unitType.getIsActive();
                 })
-                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-
+        return listTimeShareMapper.toDtoList(validTimeShares);
     }
 @Override
     public TimeShareDetailDTO getTimeShareDetails(Integer timeShareID) throws OptionalNotFoundException {

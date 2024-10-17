@@ -28,7 +28,7 @@ public class TimeshareController {
         return new ResponseEntity<>(timeShareResponse, HttpStatus.OK);
     }
     @GetMapping("/timeshares")
-    public ResponseEntity<List<ListTimeShareDTO>> getAllTimeShares() {
+    public ResponseEntity<List<ListTimeShareDTO>> getAllTimeShares() throws OptionalNotFoundException {
         List<ListTimeShareDTO> timeShares = timeShareService.getAllTimeShares();
         return ResponseEntity.ok(timeShares);
     }
