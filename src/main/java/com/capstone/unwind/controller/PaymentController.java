@@ -19,6 +19,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -58,14 +59,26 @@ public class PaymentController {
         }
         vnp_Params.put("vnp_ReturnUrl", VNpayConfig.vnp_ReturnUrl);
 
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        String vnp_CreateDate = formatter.format(cld.getTime());
+
+
+        // Lấy thời gian hiện tại theo múi giờ Việt Nam
+        ZoneId vnZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
+        LocalDateTime now = LocalDateTime.now(vnZoneId);
+
+        // Định dạng thời gian
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+        // Tạo thời gian tạo giao dịch
+        String vnp_CreateDate = now.format(formatter);
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
-        cld.add(Calendar.MINUTE, 15);
-        String vnp_ExpireDate = formatter.format(cld.getTime());
+        // Tạo thời gian hết hạn (15 phút sau)
+        String vnp_ExpireDate = now.plusMinutes(15).format(formatter);
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+
+        // In ra kết quả để kiểm tra
+        System.out.println("Create Date: " + vnp_CreateDate);
+        System.out.println("Expire Date: " + vnp_ExpireDate);
 
         List fieldNames = new ArrayList(vnp_Params.keySet());
         Collections.sort(fieldNames);
