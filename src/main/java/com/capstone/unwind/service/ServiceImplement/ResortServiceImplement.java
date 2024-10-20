@@ -8,6 +8,7 @@ import com.capstone.unwind.model.ResortDTO.*;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.ResortService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -99,6 +100,70 @@ public class ResortServiceImplement implements ResortService {
                         .toList())
                 .isActive(resortInDb.getIsActive())
                 .build();
+        return resortDetailResponseDTO;
+    }
+    @Transactional
+    @Override
+    public ResortDetailResponseDTO updateResort(Integer resortId, ResortRequestDTO resortRequestDTO)
+            throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission {
+
+        User tsCompany = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
+        if (timeshareCompany == null) throw new UserDoesNotHavePermission();
+
+        Resort resort = resortRepository.findById(resortId)
+                .orElseThrow(() -> new ErrMessageException("resort with ID " + resortId + " does not exist"));
+
+        if (!resort.getTimeshareCompany().getId().equals(timeshareCompany.getId())) {
+            throw new ErrMessageException("resort with ID " + resortId + "is not owned by your company");
+        }
+
+        if (!resort.getResortName().equals(resortRequestDTO.getResortName())) {
+            resort.setResortName(resortRequestDTO.getResortName());
+        }
+        if (!resort.getLogo().equals(resortRequestDTO.getLogo())) {
+            resort.setLogo(resortRequestDTO.getLogo());
+        }
+        resort.setMinPrice(resortRequestDTO.getMinPrice());
+        resort.setMaxPrice(resortRequestDTO.getMaxPrice());
+        resort.setStatus(resortRequestDTO.getStatus());
+        resort.setAddress(resortRequestDTO.getAddress());
+        resort.setTimeshareCompany(timeshareCompany);
+        resort.setDescription(resortRequestDTO.getDescription());
+        resort.setIsActive(true);
+
+        Resort updatedResort = resortRepository.save(resort);
+        resortAmenityRepository.deactivateExistingAmenities(updatedResort.getId());
+        List<ResortAmenity> newAmenities = resortRequestDTO.getResortAmenityList().stream()
+                .map(tmp -> ResortAmenity.builder()
+                        .resort(updatedResort)
+                        .name(tmp.getName())
+                        .type(tmp.getType())
+                        .isActive(true)
+                        .build())
+                .toList();
+        resortAmenityRepository.saveAll(newAmenities);
+
+        List<ResortAmenity> activeAmenities = resortAmenityRepository.findAllByResortIdAndIsActiveTrue(updatedResort.getId());
+        ResortDetailResponseDTO resortDetailResponseDTO = ResortDetailResponseDTO.builder()
+                .id(updatedResort.getId())
+                .resortName(updatedResort.getResortName())
+                .logo(updatedResort.getLogo())
+                .minPrice(updatedResort.getMinPrice())
+                .maxPrice(updatedResort.getMaxPrice())
+                .status(updatedResort.getStatus())
+                .address(updatedResort.getAddress())
+                .timeshareCompanyId(updatedResort.getTimeshareCompany().getId())
+                .description(updatedResort.getDescription())
+                .resortAmenityList(activeAmenities.stream()
+                        .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
+                                .name(p.getName())
+                                .type(p.getType())
+                                .build())
+                        .toList())
+                .isActive(updatedResort.getIsActive())
+                .build();
+
         return resortDetailResponseDTO;
     }
 
