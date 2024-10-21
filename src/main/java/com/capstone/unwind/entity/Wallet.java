@@ -1,15 +1,17 @@
 package com.capstone.unwind.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.List;
 
-@Getter
-@Setter
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "wallet")
 public class Wallet {
     @Id
@@ -20,9 +22,6 @@ public class Wallet {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "owner_id",unique = true)
     private Customer owner;
-
-    @Column(name = "total_money")
-    private Float totalMoney;
 
     @Column(name = "available_money")
     private Float availableMoney;
@@ -38,6 +37,10 @@ public class Wallet {
 
     @Column(name = "type", length = 45)
     private String type;
+
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<WalletTransaction> transactions;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = Timestamp.from(Instant.now());
