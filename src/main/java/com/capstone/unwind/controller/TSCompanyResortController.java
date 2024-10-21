@@ -40,6 +40,15 @@ public class TSCompanyResortController {
         ResortDetailResponseDTO resortDtoResponse = resortService.createResort(resortDto);
         return resortDtoResponse;
     }
+    @PutMapping("/{resortId}")
+    public ResponseEntity<ResortDetailResponseDTO> updateResort(
+            @PathVariable Integer resortId,
+            @RequestBody ResortRequestDTO resortRequestDTO) throws UserDoesNotHavePermission, ErrMessageException, EntityDoesNotExistException {
+
+            ResortDetailResponseDTO updatedResort = resortService.updateResort(resortId, resortRequestDTO);
+            return ResponseEntity.ok(updatedResort);
+
+    }
     @PostMapping("unit-type")
     public UnitTypeResponseDTO createUnitType(@RequestBody UnitTypeRequestDTO unitTypeRequestDTO) throws ErrMessageException, EntityDoesNotExistException, UserDoesNotHavePermission {
         UnitTypeResponseDTO unitTypeDetailResponseDTO = resortService.createUnitType(unitTypeRequestDTO);
