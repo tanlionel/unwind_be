@@ -17,15 +17,15 @@ public class Wallet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "owner_id",unique = true)
     private Customer owner;
 
     @Column(name = "total_money")
     private Float totalMoney;
 
-    @Column(name = "availaible_money")
-    private Float availaibleMoney;
+    @Column(name = "available_money")
+    private Float availableMoney;
 
     @Column(name = "created_at")
     private Timestamp createdAt;
@@ -38,5 +38,16 @@ public class Wallet {
 
     @Column(name = "type", length = 45)
     private String type;
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = Timestamp.from(Instant.now());
+        this.updatedAt = Timestamp.from(Instant.now());
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = Timestamp.from(Instant.now());
+    }
+
 
 }

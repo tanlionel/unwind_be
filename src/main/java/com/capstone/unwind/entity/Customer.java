@@ -1,14 +1,15 @@
 package com.capstone.unwind.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "customer")
 public class Customer {
     @Id
@@ -59,8 +60,8 @@ public class Customer {
     @Column(name = "note", length = 300)
     private String note;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id",unique = true)
     private User user;
 
     @Column(name = "is_active")

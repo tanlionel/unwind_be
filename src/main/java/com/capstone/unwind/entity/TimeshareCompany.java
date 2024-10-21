@@ -28,7 +28,7 @@ public class TimeshareCompany {
     private String description;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id",unique = true)
     private User owner;
 
     @Column(name = "contact", length = 45)
