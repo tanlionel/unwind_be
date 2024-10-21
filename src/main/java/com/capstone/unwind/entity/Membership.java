@@ -23,9 +23,6 @@ public class Membership {
     @Column(name = "name", length = 45)
     private String name;
 
-    @Column(name = "type", length = 45)
-    private String type;
-
     @Column(name = "is_active")
     private Boolean isActive;
 

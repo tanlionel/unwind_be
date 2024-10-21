@@ -1,12 +1,16 @@
 package com.capstone.unwind.controller;
 
 import com.capstone.unwind.config.VNpayConfig;
+import com.capstone.unwind.entity.WalletTransaction;
+import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.PaymentDTO.VNPayRequestDTO;
 import com.capstone.unwind.model.PaymentDTO.VNPayResponseDTO;
 import com.capstone.unwind.model.PaymentDTO.VNPayTransactionDetailDTO;
+import com.capstone.unwind.service.ServiceInterface.WalletService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.swagger2.mappers.ModelMapper;
@@ -28,6 +32,8 @@ import java.util.*;
 @RequiredArgsConstructor
 @CrossOrigin
 public class PaymentController {
+    @Autowired
+    private final WalletService walletService;
 
 
     @GetMapping("url-payment")
@@ -113,13 +119,18 @@ public class PaymentController {
     public ResponseEntity<VNPayTransactionDetailDTO> transaction(@RequestParam(value = "vnp_Amount",required = false) String amount,
                                          @RequestParam(value = "vnp_OrderInfo",required = false) String orderInfo,
                                          @RequestParam(value = "vnp_ResponseCode",required = false) String responseCode,
-                                        @RequestParam(value = "vnp_PayDate",required = false) String payDate ){
+                                        @RequestParam(value = "vnp_PayDate",required = false) String payDate ) throws OptionalNotFoundException {
+        float fee = 0.0f;
+        float money =(float) Long.parseLong(amount)/100;
+        String paymentMethod = "VNPAY";
+        WalletTransaction walletTransaction = walletService.createTransactionVNPAY(fee,money,paymentMethod);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         VNPayTransactionDetailDTO vnPayTransactionDetailDTO = VNPayTransactionDetailDTO.builder()
                 .amount(Long.parseLong(amount)/100)
                 .transactionTime(LocalDateTime.parse(payDate, formatter))
                 .orderDetail(orderInfo)
                 .responseCode(responseCode)
+                .walletTransactionId(walletTransaction.getId())
                 .build();
         return ResponseEntity.ok(vnPayTransactionDetailDTO);
     }

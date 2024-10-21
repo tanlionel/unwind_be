@@ -67,4 +67,7 @@ public class Customer {
     @Column(name = "is_active")
     private Boolean isActive;
 
+    @OneToOne(mappedBy = "owner", fetch = FetchType.LAZY)
+    private Wallet wallet;
+
 }

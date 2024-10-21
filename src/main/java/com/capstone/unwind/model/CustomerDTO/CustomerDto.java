@@ -40,6 +40,7 @@ public class CustomerDto implements Serializable {
     Boolean isMember;
 
 
+
     /**
      * DTO for {@link User}
      */

@@ -36,6 +36,9 @@ public class User implements UserDetails {
     @Column(name = "is_active")
     private Boolean isActive;
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private Customer customer;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(UserRole.valueOf(role.getRoleName())::name);

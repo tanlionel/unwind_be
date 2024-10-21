@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Getter
@@ -19,4 +20,5 @@ public class VNPayTransactionDetailDTO implements Serializable {
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     LocalDateTime transactionTime;
     String orderDetail;
+    UUID walletTransactionId;
 }
