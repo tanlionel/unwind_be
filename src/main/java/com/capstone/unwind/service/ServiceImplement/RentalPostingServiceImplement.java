@@ -65,8 +65,9 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     }
     @Override
     public PostingDetailResponseDTO getRentalPostingDetailById(Integer postingId) throws OptionalNotFoundException {
-        RentalPosting rentalPosting = rentalPostingRepository.findByIdAndIsActive(postingId, true)
+        RentalPosting rentalPosting = rentalPostingRepository.findByIdAndIsActive(postingId)
                 .orElseThrow(() -> new OptionalNotFoundException("Active Rental Posting not found with ID: " + postingId));
         return postingDetailMapper.entityToDto(rentalPosting);
     }
+
 }

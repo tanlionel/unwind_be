@@ -4,6 +4,8 @@ import com.capstone.unwind.entity.RentalPosting;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -24,5 +26,7 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRoomInfo_IsActiveAndStatus(
             boolean isActive, String resortName, boolean roomInfoIsActive, String status, Pageable pageable);
 
-    Optional<RentalPosting> findByIdAndIsActive(Integer id, Boolean isActive);
+    @Query("SELECT r FROM RentalPosting r WHERE r.id = :postingId AND r.isActive = true")
+    Optional<RentalPosting> findByIdAndIsActive(@Param("postingId") Integer postingId);
+
 }

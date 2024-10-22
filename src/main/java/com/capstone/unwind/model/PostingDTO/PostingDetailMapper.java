@@ -1,13 +1,15 @@
 package com.capstone.unwind.model.PostingDTO;
 
 import com.capstone.unwind.entity.RentalPosting;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import com.capstone.unwind.entity.ResortAmenity;
+import com.capstone.unwind.entity.UnitType;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PostingDetailMapper {
 
     PostingDetailMapper INSTANCE = Mappers.getMapper(PostingDetailMapper.class);
@@ -33,9 +35,66 @@ public interface PostingDetailMapper {
     @Mapping(source = "timeshare.roomInfo.unitType", target = "unitType")
     @Mapping(source = "timeshare.roomInfo.resort.amenities", target = "resortAmenities")
     PostingDetailResponseDTO entityToDto(RentalPosting entity);
+    PostingDetailResponseDTO.ResortAmenityDTO toResortAmenityDTO(ResortAmenity amenity);
+    PostingDetailResponseDTO.unitType toUnitTypeDTO(UnitType unitType);
+    @AfterMapping
+    default void filterActiveEntities(RentalPosting entity, @MappingTarget PostingDetailResponseDTO.PostingDetailResponseDTOBuilder responseDTOBuilder) {
+        boolean isValid = true;
+
+        if (entity.getTimeshare() != null && Boolean.FALSE.equals(entity.getTimeshare().getIsActive())) {
+            responseDTOBuilder.timeShareId(null);
+            isValid = false;
+        }
+
+        if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null) {
+            if (Boolean.FALSE.equals(entity.getTimeshare().getRoomInfo().getIsActive())) {
+                responseDTOBuilder.roomInfoId(null);
+                responseDTOBuilder.roomName(null);
+                isValid = false;
+            }
+        }
+        if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
+                entity.getTimeshare().getRoomInfo().getUnitType() != null) {
+            if (Boolean.FALSE.equals(entity.getTimeshare().getRoomInfo().getUnitType().getIsActive())) {
+                responseDTOBuilder.unitType(null);
+                isValid = false;
+            }
+        }
+        if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
+                entity.getTimeshare().getRoomInfo().getResort() != null) {
+            if (Boolean.FALSE.equals(entity.getTimeshare().getRoomInfo().getResort().getIsActive())) {
+                responseDTOBuilder.resortId(null);
+                responseDTOBuilder.resortName(null);
+                responseDTOBuilder.address(null);
+                isValid = false;
+            }
+        }
+
+        if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
+                entity.getTimeshare().getRoomInfo().getResort() != null) {
+            List<PostingDetailResponseDTO.ResortAmenityDTO> activeAmenities = entity.getTimeshare().getRoomInfo().getResort().getAmenities().stream()
+                    .filter(amenity -> Boolean.TRUE.equals(amenity.getIsActive()))
+                    .map(amenity -> PostingDetailResponseDTO.ResortAmenityDTO.builder()
+                            .id(amenity.getId())
+                            .name(amenity.getName())
+                            .type(amenity.getType())
+                            .build())
+                    .collect(Collectors.toList());
+            responseDTOBuilder.resortAmenities(activeAmenities);
+
+            if (activeAmenities.isEmpty()) {
+                isValid = false;
+            }
+        }
+        if (!isValid) {
+            throw new IllegalStateException("One or more related entities are inactive.");
+        }
+    }
     List<PostingDetailResponseDTO> entitiesToDtos(List<RentalPosting> entities);
+
     RentalPosting dtoToEntity(PostingDetailResponseDTO dto);
     List<RentalPosting> dtosToEntities(List<PostingDetailResponseDTO> dtos);
+
     default Float calculateTotalPrice(Integer nights, Float pricePerNights) {
         if (nights != null && pricePerNights != null) {
             return nights * pricePerNights;
