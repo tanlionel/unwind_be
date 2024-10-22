@@ -9,6 +9,7 @@ import com.capstone.unwind.model.UserDTO.UpdateUserRequestDTO;
 import com.capstone.unwind.model.UserDTO.UserDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ public interface UserService {
     User registerUser(RegisterRequestDTO registerUser) throws Exception;
     User getLoginUser();
     User getUserByUserName(String Username) throws UserDoesNotExistException, InvalidateException;
+    UserDetails loadUserByUsername(String username, Integer tsId);
     Page<UserDto> getPageableUser(Integer pageNo, Integer pageSize, String userName, Integer roleId);
     UserDto getUserByUserId(Integer userId) throws UserDoesNotExistException;
     UserDto createUser(RegisterRequestDTO registerRequestDTO) throws Exception;

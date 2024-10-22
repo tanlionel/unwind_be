@@ -1,11 +1,12 @@
 package com.capstone.unwind.controller;
 
+import com.capstone.unwind.entity.TimeshareCompanyStaff;
 import com.capstone.unwind.entity.User;
-import com.capstone.unwind.model.AuthDTO.BasicUserResponseDTO;
-import com.capstone.unwind.model.AuthDTO.LoginRequestDTO;
-import com.capstone.unwind.model.AuthDTO.RegisterRequestDTO;
-import com.capstone.unwind.model.AuthDTO.ResponseObjectDTO;
+import com.capstone.unwind.exception.*;
+import com.capstone.unwind.model.AuthDTO.*;
+import com.capstone.unwind.model.TimeShareStaffDTO.LoginTSStaffRequestDto;
 import com.capstone.unwind.service.ServiceInterface.JwtService;
+import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ public class UserAuthController {
     private final UserService userService;
     @Autowired
     private final JwtService jwtService;
+    @Autowired
+    private final TimeShareStaffService timeShareStaffService;
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequestDTO registeredUser) throws Exception{
         User user = userService.registerUser(registeredUser);
@@ -46,6 +49,20 @@ public class UserAuthController {
                         .refreshToken(refreshToken)
                         .build()
         );
+    }
+
+    @PostMapping("/timeshare-company-staff/login")
+    public ResponseEntity<?> signInStaffRole(@RequestBody LoginTSStaffRequestDto loginTSStaffRequestDto) throws AccountSuspendedException, OptionalNotFoundException, InvalidateException, TokenExpiredException, UserDoesNotExistException {
+        TimeshareCompanyStaff timeshareCompanyStaff = timeShareStaffService.loginStaff(loginTSStaffRequestDto);
+        String refreshToken = jwtService.generateRefreshTokenStaff(timeshareCompanyStaff);
+        String accessToken = jwtService.generateAccessTokenStaff(refreshToken);
+
+        return ResponseEntity.ok(LoginResponseStaffDto.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .resortId(timeshareCompanyStaff.getResort().getId())
+                        .tsCompanyId(timeshareCompanyStaff.getTimeshareCompany().getId())
+                        .build());
     }
 
 }

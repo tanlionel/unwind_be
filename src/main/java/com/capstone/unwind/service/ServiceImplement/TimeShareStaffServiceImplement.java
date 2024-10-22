@@ -2,11 +2,9 @@ package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.*;
+import com.capstone.unwind.model.AuthDTO.ResponseObjectDTO;
 import com.capstone.unwind.model.ResortDTO.ResortDto;
-import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
-import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffRequestDTO;
-import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareStaffUpdateRequestDTO;
-import com.capstone.unwind.model.TimeShareStaffDTO.TimeshareCompanyStaffMapper;
+import com.capstone.unwind.model.TimeShareStaffDTO.*;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
 import com.capstone.unwind.model.UserDTO.UpdateUserRequestDTO;
 import com.capstone.unwind.model.UserDTO.UserDto;
@@ -113,5 +111,18 @@ public class TimeShareStaffServiceImplement implements TimeShareStaffService {
         Optional<TimeshareCompanyStaff> timeshareCompanyStaff = timeshareCompanyStaffRepository.findById(tsStaffId);
         if (timeshareCompanyStaff==null) throw new EntityDoesNotExistException();
         return timeshareCompanyStaffMapper.toDto(timeshareCompanyStaff.get());
+    }
+
+    @Override
+    public TimeshareCompanyStaff loginStaff(LoginTSStaffRequestDto loginTSStaffRequestDto) throws OptionalNotFoundException, AccountSuspendedException, InvalidateException {
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyById(loginTSStaffRequestDto.getTsCompanyId());
+        if (timeshareCompany==null) throw new OptionalNotFoundException("Not found company");
+        TimeshareCompanyStaff timeshareCompanyStaff = timeshareCompanyStaffRepository.findTimeshareCompanyStaffByUserNameAndTimeshareCompanyId(loginTSStaffRequestDto.getUsername(), loginTSStaffRequestDto.getTsCompanyId());
+        if (timeshareCompanyStaff==null) throw new OptionalNotFoundException("Not found staff");
+        if (timeshareCompanyStaff.getIsActive()==false) throw new AccountSuspendedException();
+        if (!passwordEncoder.matches(loginTSStaffRequestDto.getPassword(), timeshareCompanyStaff.getPassword())) {
+            throw new InvalidateException();
+        }
+        return timeshareCompanyStaff;
     }
 }

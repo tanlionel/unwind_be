@@ -19,4 +19,6 @@ public class TestController {
     private String getFromSecured(){
         return "hello from secured";
     }
+    @GetMapping("tsStaff")
+    private String getFromStaff(){return "siuu";}
 }

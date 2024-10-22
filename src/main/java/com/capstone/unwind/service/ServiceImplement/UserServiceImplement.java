@@ -8,6 +8,7 @@ import com.capstone.unwind.model.UserDTO.UpdateUserRequestDTO;
 import com.capstone.unwind.model.UserDTO.UserDto;
 import com.capstone.unwind.model.UserDTO.UserMapper;
 import com.capstone.unwind.repository.RoleRepository;
+import com.capstone.unwind.repository.TimeshareCompanyStaffRepository;
 import com.capstone.unwind.repository.UserRepository;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -87,6 +89,18 @@ public class UserServiceImplement implements UserService {
             throw new UserDoesNotExistException();
         }
         return user;
+    }
+
+    @Autowired
+    private TimeshareCompanyStaffRepository timeshareCompanyStaffRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username, Integer tsId) {
+        if (tsId == null) {
+            return userRepository.findUserByUserName(username);
+        } else {
+            return timeshareCompanyStaffRepository.findTimeshareCompanyStaffByUserNameAndTimeshareCompanyId(username, tsId);
+        }
     }
 
     @Override

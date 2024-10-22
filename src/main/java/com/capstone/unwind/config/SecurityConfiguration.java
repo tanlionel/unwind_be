@@ -51,6 +51,8 @@ public class SecurityConfiguration {
                                 .permitAll()
                                 .requestMatchers("api/payment/payment-info")
                                 .permitAll()
+                                .requestMatchers("api/test/tsStaff")
+                                .hasAuthority("TIMESHARECOMPANYSTAFF")
                                 .anyRequest()
                                 .authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
