@@ -176,7 +176,7 @@ public class ResortServiceImplement implements ResortService {
         Optional<Resort> resort = resortRepository.findById(resortId);
         if (!resort.isPresent()) throw new EntityDoesNotExistException();
         Resort resortInDb = resort.get();
-        List<ResortAmenity> resortAmenityList = resortAmenityRepository.findAllByResortId(resortId);
+        List<ResortAmenity> resortAmenityList = resortAmenityRepository.findAllByResortIdAndIsActiveTrue(resortId);
         List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortIdAndIsActiveTrue(resortInDb.getId()).stream().map(unitTypeMapper::toDto).toList();
 
         //mapping unit type amenities
@@ -231,7 +231,7 @@ public class ResortServiceImplement implements ResortService {
         Optional<Resort> resort = resortRepository.findById(resortId);
         if (!resort.isPresent()) throw new EntityDoesNotExistException();
         Resort resortInDb = resort.get();
-        List<ResortAmenity> resortAmenityList = resortAmenityRepository.findAllByResortId(resortId);
+        List<ResortAmenity> resortAmenityList = resortAmenityRepository.findAllByResortIdAndIsActiveTrue(resortId);
         List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortIdAndIsActiveTrue(resortInDb.getId()).stream().map(unitTypeMapper::toDto).toList();
 
         //mapping unit type amenities

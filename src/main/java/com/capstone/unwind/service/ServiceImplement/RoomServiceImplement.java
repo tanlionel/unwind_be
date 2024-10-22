@@ -128,7 +128,7 @@ public class RoomServiceImplement implements RoomService {
 
     @Override
     public List<RoomInfoDto> getAllExistingRoomByResortId(Integer resortId) {
-        List<RoomInfo> roomInfoList = roomInfoRepository.findAllByResortId(resortId);
+        List<RoomInfo> roomInfoList = roomInfoRepository.findAllByResortIdAndIsActiveTrue(resortId);
         List<RoomInfoDto> roomInfoDtoList = roomInfoList.stream().map(roomInfoMapper::toDto).collect(Collectors.toList());
         return roomInfoDtoList;
     }

@@ -3,6 +3,8 @@ package com.capstone.unwind.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -42,5 +44,8 @@ public class Resort {
 
     @Column(name = "is_active")
     private Boolean isActive;
+
+    @OneToMany(mappedBy = "resort", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ResortAmenity> amenities;
 
 }

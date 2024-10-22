@@ -2,7 +2,10 @@ package com.capstone.unwind.controller;
 
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
+import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
+import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
+import com.capstone.unwind.model.PostingDTO.PostingResponseDTO;
 import com.capstone.unwind.model.ResortDTO.ResortDetailResponseDTO;
 import com.capstone.unwind.model.ResortDTO.ResortDto;
 import com.capstone.unwind.model.ResortDTO.UnitTypeResponseDTO;
@@ -16,6 +19,8 @@ import com.capstone.unwind.service.ServiceInterface.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +42,8 @@ public class PublicController {
     TimeshareCompanyService timeshareCompanyService;
     @Autowired
     private RoomService roomService;
+    @Autowired
+    private RentalPostingService rentalPostingService;
     @GetMapping("/resort")
     public Page<ResortDto> getPageableResort(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
                                              @RequestParam(required = false,defaultValue = "10") Integer pageSize,
@@ -101,5 +108,21 @@ public class PublicController {
 
         List<UnitTypeResponseDTO> response = resortService.getUnitTypeByResortIdPublic(resortId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/rental/postings")
+    public Page<PostingResponseDTO> getPublicPostings(
+            @RequestParam(required = false, defaultValue = "0") Integer pageNo,
+            @RequestParam(required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "") String resortName) throws OptionalNotFoundException {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<PostingResponseDTO> postingResponsePage = rentalPostingService.getAllPublicPostings(resortName, pageable);
+
+        return postingResponsePage;
+    }
+    @GetMapping("rental/posting/{postingId}")
+    public PostingDetailResponseDTO getRentalPostingDetail(@PathVariable Integer postingId) throws OptionalNotFoundException {
+        return rentalPostingService.getRentalPostingDetailById(postingId);
     }
 }

@@ -10,4 +10,6 @@ import java.util.List;
 public interface RoomInfoRepository extends JpaRepository <RoomInfo, Integer>{
     boolean existsByRoomInfoCodeAndResortId(String roomInfoCode, Integer id);
     List<RoomInfo> findAllByResortId(Integer resortId);
+
+    List<RoomInfo> findAllByResortIdAndIsActiveTrue(Integer resortId);
 }
