@@ -43,5 +43,6 @@ public class UnitTypeDto implements Serializable {
     public static class UnitTypeAmenities{
         String name;
         String type;
+        Boolean isActive;
     }
 }

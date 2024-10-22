@@ -177,14 +177,15 @@ public class ResortServiceImplement implements ResortService {
         if (!resort.isPresent()) throw new EntityDoesNotExistException();
         Resort resortInDb = resort.get();
         List<ResortAmenity> resortAmenityList = resortAmenityRepository.findAllByResortId(resortId);
-        List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortId(resortInDb.getId()).stream().map(unitTypeMapper::toDto).toList();
+        List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortIdAndIsActiveTrue(resortInDb.getId()).stream().map(unitTypeMapper::toDto).toList();
 
         //mapping unit type amenities
         for (UnitTypeDto tmp : unitTypeDtoListResponse) {
-            List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeId(tmp.getId());
+            List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(tmp.getId());
             tmp.setUnitTypeAmenitiesList(unitTypeAmenities.stream().map(p -> UnitTypeDto.UnitTypeAmenities.builder()
                     .name(p.getName())
                     .type(p.getType())
+                    .isActive(p.getIsActive())
                     .build()).toList());
         }
 
@@ -231,14 +232,15 @@ public class ResortServiceImplement implements ResortService {
         if (!resort.isPresent()) throw new EntityDoesNotExistException();
         Resort resortInDb = resort.get();
         List<ResortAmenity> resortAmenityList = resortAmenityRepository.findAllByResortId(resortId);
-        List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortId(resortInDb.getId()).stream().map(unitTypeMapper::toDto).toList();
+        List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortIdAndIsActiveTrue(resortInDb.getId()).stream().map(unitTypeMapper::toDto).toList();
 
         //mapping unit type amenities
         for (UnitTypeDto tmp : unitTypeDtoListResponse) {
-            List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeId(tmp.getId());
+            List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(tmp.getId());
             tmp.setUnitTypeAmenitiesList(unitTypeAmenities.stream().map(p -> UnitTypeDto.UnitTypeAmenities.builder()
                     .name(p.getName())
                     .type(p.getType())
+                    .isActive(p.getIsActive())
                     .build()).toList());
         }
 
@@ -346,6 +348,7 @@ public class ResortServiceImplement implements ResortService {
                         .map(p -> UnitTypeResponseDTO.UnitTypeAmenitiesDTO.builder()
                                 .name(p.getName())
                                 .type(p.getType())
+                                .isActive(p.getIsActive())
                                 .build())
                         .toList())
                 .isActive(unitTypeInDb.getIsActive())
@@ -449,7 +452,61 @@ public class ResortServiceImplement implements ResortService {
 
         return unitTypeResponseDTO;
     }
+    @Override
+    public UnitTypeResponseDTO deActiveUnitType(Integer unitTypeId)
+            throws ErrMessageException, UserDoesNotHavePermission {
 
+        User tsCompany = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
+        if (timeshareCompany == null) throw new UserDoesNotHavePermission();
+
+        UnitType unitType = unitTypeRepository.findById(unitTypeId)
+                .orElseThrow(() -> new ErrMessageException("unitType with ID " + unitTypeId + " does not exist"));
+
+        if (!unitType.getResort().getTimeshareCompany().getId().equals(timeshareCompany.getId())) {
+            throw new ErrMessageException("unitType with ID " + unitTypeId + " is not owned by your company");
+        }
+        unitType.setIsActive(true);
+
+        UnitType updatedUnitType = unitTypeRepository.save(unitType);
+
+        List<UnitTypeAmenity> existingAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeId(updatedUnitType.getId());
+        for (UnitTypeAmenity amenity : existingAmenities) {
+            amenity.setIsActive(true);
+            unitTypeAmentitiesRepository.save(amenity);
+        }
+        UnitTypeResponseDTO unitTypeResponseDTO = UnitTypeResponseDTO.builder()
+                .id(updatedUnitType.getId())
+                .area(updatedUnitType.getArea())
+                .bedsFull(updatedUnitType.getBedsFull())
+                .bedsKing(updatedUnitType.getBedsKing())
+                .bedrooms(updatedUnitType.getBedrooms())
+                .bedsQueen(updatedUnitType.getBedsQueen())
+                .bedsSofa(updatedUnitType.getBedsSofa())
+                .bedsTwin(updatedUnitType.getBedsTwin())
+                .description(updatedUnitType.getDescription())
+                .bathrooms(updatedUnitType.getBathrooms())
+                .bedsMurphy(updatedUnitType.getBedsMurphy())
+                .price(updatedUnitType.getPrice())
+                .kitchen(updatedUnitType.getKitchen())
+                .photos(updatedUnitType.getPhotos())
+                .title(updatedUnitType.getTitle())
+                .resortId(updatedUnitType.getResort().getId())
+                .buildingsOption(updatedUnitType.getBuildingsOption())
+                .sleeps(updatedUnitType.getSleeps())
+                .view(updatedUnitType.getView())
+                .unitTypeAmenitiesDTOS(existingAmenities.stream()
+                        .map(p -> UnitTypeResponseDTO.UnitTypeAmenitiesDTO.builder()
+                                .name(p.getName())
+                                .type(p.getType())
+                                .isActive(p.getIsActive())
+                                .build())
+                        .toList())
+                .isActive(updatedUnitType.getIsActive())
+                .build();
+
+        return unitTypeResponseDTO;
+    }
     @Override
     public UnitTypeResponseDTO getUnitTypeById(Integer unitTypeId)
             throws EntityDoesNotExistException, UserDoesNotHavePermission {
@@ -465,17 +522,18 @@ public class ResortServiceImplement implements ResortService {
         }
 
         UnitType unitTypeInDb = unitType.get();
-        List<UnitTypeAmenity> unitAmenityList = unitTypeAmentitiesRepository.findAllByUnitTypeId(unitTypeId);
+        List<UnitTypeAmenity> unitAmenityList = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(unitTypeId);
 
         List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortId(unitTypeInDb.getResort().getId())
                 .stream().map(unitTypeMapper::toDto).toList();
 
         for (UnitTypeDto tmp : unitTypeDtoListResponse) {
-            List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeId(tmp.getId());
+            List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(tmp.getId());
             tmp.setUnitTypeAmenitiesList(unitTypeAmenities.stream().map(p ->
                     UnitTypeDto.UnitTypeAmenities.builder()
                             .name(p.getName())
                             .type(p.getType())
+                            .isActive(p.getIsActive())
                             .build()).toList());
         }
 
@@ -501,6 +559,7 @@ public class ResortServiceImplement implements ResortService {
                         .map(p -> UnitTypeResponseDTO.UnitTypeAmenitiesDTO.builder()
                                 .name(p.getName())
                                 .type(p.getType())
+                                .isActive(p.getIsActive())
                                 .build())
                         .toList())
                 .isActive(unitTypeInDb.getIsActive())
@@ -517,17 +576,18 @@ public class ResortServiceImplement implements ResortService {
         }
 
         UnitType unitTypeInDb = unitType.get();
-        List<UnitTypeAmenity> unitAmenityList = unitTypeAmentitiesRepository.findAllByUnitTypeId(unitTypeId);
+        List<UnitTypeAmenity> unitAmenityList = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(unitTypeId);
 
         List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortId(unitTypeInDb.getResort().getId())
                 .stream().map(unitTypeMapper::toDto).toList();
 
         for (UnitTypeDto tmp : unitTypeDtoListResponse) {
-            List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeId(tmp.getId());
+            List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(tmp.getId());
             tmp.setUnitTypeAmenitiesList(unitTypeAmenities.stream().map(p ->
                     UnitTypeDto.UnitTypeAmenities.builder()
                             .name(p.getName())
                             .type(p.getType())
+                            .isActive(p.getIsActive())
                             .build()).toList());
         }
 
@@ -553,6 +613,7 @@ public class ResortServiceImplement implements ResortService {
                         .map(p -> UnitTypeResponseDTO.UnitTypeAmenitiesDTO.builder()
                                 .name(p.getName())
                                 .type(p.getType())
+                                .isActive(p.getIsActive())
                                 .build())
                         .toList())
                 .isActive(unitTypeInDb.getIsActive())
@@ -575,19 +636,20 @@ public class ResortServiceImplement implements ResortService {
         if (!resort.getTimeshareCompany().getId().equals(timeshareCompany.getId())) {
             throw new UserDoesNotHavePermission();
         }
-        List<UnitType> unitTypeList = unitTypeRepository.findAllByResortId(resortId);
+        List<UnitType> unitTypeList = unitTypeRepository.findAllByResortIdAndIsActiveTrue(resortId);
         if (unitTypeList.isEmpty()) {
             throw new EntityDoesNotExistException();
         }
         List<UnitTypeResponseDTO> responseDTOs = new ArrayList<>();
 
         for (UnitType unitTypeInDb : unitTypeList) {
-            List<UnitTypeAmenity> unitAmenityList = unitTypeAmentitiesRepository.findAllByUnitTypeId(unitTypeInDb.getId());
+            List<UnitTypeAmenity> unitAmenityList = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(unitTypeInDb.getId());
             UnitTypeResponseDTO responseDTO = unitTypesMapper.toDto(unitTypeInDb);
             List<UnitTypeResponseDTO.UnitTypeAmenitiesDTO> amenitiesDTOList = unitAmenityList.stream()
                     .map(p -> UnitTypeResponseDTO.UnitTypeAmenitiesDTO.builder()
                             .name(p.getName())
                             .type(p.getType())
+                            .isActive(p.getIsActive())
                             .build())
                     .toList();
 
@@ -603,19 +665,20 @@ public class ResortServiceImplement implements ResortService {
 
         Resort resort = resortRepository.findById(resortId)
                 .orElseThrow(() -> new ErrMessageException("Resort with ID " + resortId + " does not exist"));
-        List<UnitType> unitTypeList = unitTypeRepository.findAllByResortId(resortId);
+        List<UnitType> unitTypeList = unitTypeRepository.findAllByResortIdAndIsActiveTrue(resortId);
         if (unitTypeList.isEmpty()) {
             throw new EntityDoesNotExistException();
         }
         List<UnitTypeResponseDTO> responseDTOs = new ArrayList<>();
 
         for (UnitType unitTypeInDb : unitTypeList) {
-            List<UnitTypeAmenity> unitAmenityList = unitTypeAmentitiesRepository.findAllByUnitTypeId(unitTypeInDb.getId());
+            List<UnitTypeAmenity> unitAmenityList = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(unitTypeInDb.getId());
             UnitTypeResponseDTO responseDTO = unitTypesMapper.toDto(unitTypeInDb);
             List<UnitTypeResponseDTO.UnitTypeAmenitiesDTO> amenitiesDTOList = unitAmenityList.stream()
                     .map(p -> UnitTypeResponseDTO.UnitTypeAmenitiesDTO.builder()
                             .name(p.getName())
                             .type(p.getType())
+                            .isActive(p.getIsActive())
                             .build())
                     .toList();
 

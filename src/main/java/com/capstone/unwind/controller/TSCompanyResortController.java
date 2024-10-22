@@ -61,6 +61,11 @@ public class TSCompanyResortController {
         UnitTypeResponseDTO response = resortService.updateUnitType(unitTypeId, unitTypeRequestDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    @PutMapping("unit-type/{unitTypeId}/deactivate")
+    public ResponseEntity<UnitTypeResponseDTO> deActivateUnitType(@PathVariable Integer unitTypeId) throws UserDoesNotHavePermission, ErrMessageException {
+            UnitTypeResponseDTO response = resortService.deActiveUnitType(unitTypeId);
+            return ResponseEntity.ok(response);
+        }
     @GetMapping("unit-type/{unitTypeId}")
     public ResponseEntity<UnitTypeResponseDTO> getUnitTypeById(@PathVariable Integer unitTypeId) throws UserDoesNotHavePermission, EntityDoesNotExistException {
             UnitTypeResponseDTO unitTypeResponse = resortService.getUnitTypeById(unitTypeId);

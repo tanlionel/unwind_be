@@ -135,7 +135,8 @@ public class TimeShareServiceImplement implements TimeShareService {
         Optional<RoomInfo> roomInfo = roomInfoRepository.findById(timeShare.getRoomInfo().getId());
         if (!roomInfo.get().getIsActive()) throw new OptionalNotFoundException("room is not active");
 
-        Optional<UnitType> unitType = unitTypeRepository.findById(roomInfo.get().getUnitType().getId());
+    Optional<UnitType> optionalUnitType = unitTypeRepository.findByIdAndIsActiveTrue(roomInfo.get().getUnitType().getId());
+    UnitType unitType = optionalUnitType.orElseThrow(() -> new OptionalNotFoundException("Unit type not found or inactive"));
         Optional<Resort> resort = resortRepository.findById(roomInfo.get().getResort().getId());
         if (!resort.get().getIsActive()) throw new OptionalNotFoundException("resort is not active");
         TimeShareDetailDTO timeShareDetailDTO = TimeShareDetailDTO.builder()
@@ -149,23 +150,23 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .resortId(resort.get().getId())
                 .roomId(roomInfo.get().getId())
                 .unitType(TimeShareDetailDTO.unitType.builder()
-                        .id(unitType.get().getId())
-                        .title(unitType.get().getTitle())
-                        .area(unitType.get().getArea())
-                        .bathrooms(unitType.get().getBathrooms())
-                        .bedrooms(unitType.get().getBedrooms())
-                        .bedsFull(unitType.get().getBedsFull())
-                        .bedsKing(unitType.get().getBedsKing())
-                        .bedsQueen(unitType.get().getBedsQueen())
-                        .bedsSofa(unitType.get().getBedsSofa())
-                        .bedsMurphy(unitType.get().getBedsMurphy())
-                        .bedsTwin(unitType.get().getBedsTwin())
-                        .buildingsOption(unitType.get().getBuildingsOption())
-                        .description(unitType.get().getDescription())
-                        .kitchen(unitType.get().getKitchen())
-                        .photos(unitType.get().getPhotos())
-                        .sleeps(unitType.get().getSleeps())
-                        .view(unitType.get().getView())
+                        .id(unitType.getId())
+                        .title(unitType.getTitle())
+                        .area(unitType.getArea())
+                        .bathrooms(unitType.getBathrooms())
+                        .bedrooms(unitType.getBedrooms())
+                        .bedsFull(unitType.getBedsFull())
+                        .bedsKing(unitType.getBedsKing())
+                        .bedsQueen(unitType.getBedsQueen())
+                        .bedsSofa(unitType.getBedsSofa())
+                        .bedsMurphy(unitType.getBedsMurphy())
+                        .bedsTwin(unitType.getBedsTwin())
+                        .buildingsOption(unitType.getBuildingsOption())
+                        .description(unitType.getDescription())
+                        .kitchen(unitType.getKitchen())
+                        .photos(unitType.getPhotos())
+                        .sleeps(unitType.getSleeps())
+                        .view(unitType.getView())
                         .build())
                 .build();
         return timeShareDetailDTO;
