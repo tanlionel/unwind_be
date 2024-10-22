@@ -102,7 +102,10 @@ public class CustomerServiceImplement implements CustomerService {
         Customer customer = user.getCustomer();
         customer.setMembership(membership);
         customer.setMemberPurchaseDate(LocalDate.now());
-        customer.setMemberExpiryDate(LocalDate.now().plusMonths(membership.getDuration()));
+        if(customer.getMemberExpiryDate()==null){
+            customer.setMemberExpiryDate(LocalDate.now().plusMonths(membership.getDuration()));
+        }
+        else customer.setMemberExpiryDate(customer.getMemberExpiryDate().plusMonths(membership.getDuration()));
 
         //update transaction
         WalletTransaction walletTransaction = walletService.updateTransactionMembershipByVNPAY(uuid,membership_id);
