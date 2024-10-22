@@ -1,5 +1,6 @@
 package com.capstone.unwind.service.ServiceInterface;
 
+import com.capstone.unwind.entity.TimeshareCompanyStaff;
 import com.capstone.unwind.entity.User;
 import com.capstone.unwind.exception.AccountSuspendedException;
 import com.capstone.unwind.exception.InvalidateException;
@@ -18,7 +19,6 @@ public interface UserService {
     User registerUser(RegisterRequestDTO registerUser) throws Exception;
     User getLoginUser();
     User getUserByUserName(String Username) throws UserDoesNotExistException, InvalidateException;
-    UserDetails loadUserByUsername(String username, Integer tsId);
     Page<UserDto> getPageableUser(Integer pageNo, Integer pageSize, String userName, Integer roleId);
     UserDto getUserByUserId(Integer userId) throws UserDoesNotExistException;
     UserDto createUser(RegisterRequestDTO registerRequestDTO) throws Exception;

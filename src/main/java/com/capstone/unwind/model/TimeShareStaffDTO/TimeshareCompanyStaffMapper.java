@@ -14,6 +14,7 @@ public interface TimeshareCompanyStaffMapper {
     @InheritInverseConfiguration(name = "toEntity")
     @Mapping(source = "timeshareCompany.id", target = "timeshareCompanyId")
     @Mapping(source = "resort.id", target = "resortId")
+    @Mapping(source = "username",target = "userName")
     TimeShareCompanyStaffDTO toDto(TimeshareCompanyStaff timeshareCompanyStaff);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

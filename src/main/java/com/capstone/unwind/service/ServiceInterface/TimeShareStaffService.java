@@ -17,4 +17,5 @@ public interface TimeShareStaffService {
             throws EntityDoesNotExistException, ErrMessageException;
     TimeShareCompanyStaffDTO getTimeshareStaffById(Integer tsStaffId) throws EntityDoesNotExistException;
     TimeshareCompanyStaff loginStaff(LoginTSStaffRequestDto loginTSStaffRequestDto) throws OptionalNotFoundException, AccountSuspendedException, InvalidateException;
+    TimeShareCompanyStaffDTO getLoginStaff();
 }

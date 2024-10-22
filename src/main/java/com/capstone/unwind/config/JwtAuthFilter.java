@@ -1,7 +1,10 @@
 package com.capstone.unwind.config;
 
+import com.capstone.unwind.entity.TimeshareCompanyStaff;
 import com.capstone.unwind.exception.InvalidateException;
 import com.capstone.unwind.exception.UserDoesNotExistException;
+import com.capstone.unwind.repository.TimeshareCompanyStaffRepository;
+import com.capstone.unwind.repository.UserRepository;
 import com.capstone.unwind.service.ServiceInterface.JwtService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import jakarta.servlet.FilterChain;
@@ -24,6 +27,8 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserService userService;
+    private final TimeshareCompanyStaffRepository timeshareCompanyStaffRepository;
+    private final UserRepository userRepository;
     private static final String HEADER = "Authorization";
     private static final String SUB_STRING = "Bearer ";
     @Override
@@ -47,12 +52,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails user = null;
             try {
-                user = userService.getUserByUserName(userName);
-            } catch (UserDoesNotExistException | InvalidateException e) {
+                user = userRepository.findUserByUserName(userName);
+                if (user==null) {
+                    Integer tsId = jwtService.extractTsId(jwt);
+                    user = timeshareCompanyStaffRepository.findTimeshareCompanyStaffByUserNameAndTimeshareCompanyId(userName,tsId);
+                    if (user==null) throw new RuntimeException();
+                }
+            } catch ( Exception e) {
                 throw new RuntimeException(e);
             }
             if (jwtService.isValidToken(jwt, user)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, jwt, user.getAuthorities());
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
