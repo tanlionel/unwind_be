@@ -14,4 +14,5 @@ public interface TimeshareCompanyStaffRepository extends JpaRepository<Timeshare
     Page<TimeshareCompanyStaff> findAllByUserNameContainingAndTimeshareCompanyId(String userName, Integer tsId, Pageable pageable);
 
     Page<TimeshareCompanyStaff> findAllByTimeshareCompanyId(Integer id, Pageable pageable);
+    TimeshareCompanyStaff findTimeshareCompanyStaffByUserNameAndTimeshareCompanyId(String username, Integer tsCompanyId);
 }

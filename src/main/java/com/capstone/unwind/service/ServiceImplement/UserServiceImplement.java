@@ -1,6 +1,7 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.Role;
+import com.capstone.unwind.entity.TimeshareCompanyStaff;
 import com.capstone.unwind.entity.User;
 import com.capstone.unwind.exception.*;
 import com.capstone.unwind.model.AuthDTO.RegisterRequestDTO;
@@ -8,7 +9,9 @@ import com.capstone.unwind.model.UserDTO.UpdateUserRequestDTO;
 import com.capstone.unwind.model.UserDTO.UserDto;
 import com.capstone.unwind.model.UserDTO.UserMapper;
 import com.capstone.unwind.repository.RoleRepository;
+import com.capstone.unwind.repository.TimeshareCompanyStaffRepository;
 import com.capstone.unwind.repository.UserRepository;
+import com.capstone.unwind.service.ServiceInterface.JwtService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +19,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +40,9 @@ public class UserServiceImplement implements UserService {
     private final PasswordEncoder passwordEncoder;
     @Autowired
     private final UserMapper userMapper;
+    @Autowired
+    private final TimeshareCompanyStaffRepository timeshareCompanyStaffRepository;
+
     @Override
     public User login(String email, String password) throws UserDoesNotExistException, AccountSuspendedException, InvalidateException {
         User loginUser = userRepository.findUserByEmail(email);

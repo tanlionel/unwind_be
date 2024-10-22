@@ -15,10 +15,7 @@ import lombok.Setter;
 public class TimeShareCompanyStaffDTO {
 
     private Integer id;
-
     private String userName;
-
-
     private Integer timeshareCompanyId;
 
     private Integer resortId;

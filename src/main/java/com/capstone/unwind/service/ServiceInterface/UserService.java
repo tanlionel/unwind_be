@@ -1,5 +1,6 @@
 package com.capstone.unwind.service.ServiceInterface;
 
+import com.capstone.unwind.entity.TimeshareCompanyStaff;
 import com.capstone.unwind.entity.User;
 import com.capstone.unwind.exception.AccountSuspendedException;
 import com.capstone.unwind.exception.InvalidateException;
@@ -9,6 +10,7 @@ import com.capstone.unwind.model.UserDTO.UpdateUserRequestDTO;
 import com.capstone.unwind.model.UserDTO.UserDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 

@@ -4,5 +4,6 @@ public enum UserRole {
     CUSTOMER,
     TIMESHARECOMPANY,
     SYSTEMSTAFF,
-    ADMIN
+    ADMIN,
+    TIMESHARECOMPANYSTAFF
 }
