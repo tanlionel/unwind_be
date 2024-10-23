@@ -466,13 +466,13 @@ public class ResortServiceImplement implements ResortService {
         if (!unitType.getResort().getTimeshareCompany().getId().equals(timeshareCompany.getId())) {
             throw new ErrMessageException("unitType with ID " + unitTypeId + " is not owned by your company");
         }
-        unitType.setIsActive(true);
+        unitType.setIsActive(false);
 
         UnitType updatedUnitType = unitTypeRepository.save(unitType);
 
         List<UnitTypeAmenity> existingAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeId(updatedUnitType.getId());
         for (UnitTypeAmenity amenity : existingAmenities) {
-            amenity.setIsActive(true);
+            amenity.setIsActive(false);
             unitTypeAmentitiesRepository.save(amenity);
         }
         UnitTypeResponseDTO unitTypeResponseDTO = UnitTypeResponseDTO.builder()
