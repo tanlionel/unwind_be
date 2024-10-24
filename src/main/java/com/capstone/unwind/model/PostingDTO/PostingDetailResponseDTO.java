@@ -2,6 +2,7 @@ package com.capstone.unwind.model.PostingDTO;
 
 import com.capstone.unwind.entity.Resort;
 import com.capstone.unwind.entity.ResortAmenity;
+import com.capstone.unwind.entity.RoomInfo;
 import com.capstone.unwind.entity.UnitType;
 import com.capstone.unwind.model.TimeShareDTO.TimeShareDetailDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -43,6 +44,8 @@ public class PostingDetailResponseDTO {
     private boolean isActive;
     private unitType unitType;
     private List<ResortAmenityDTO> resortAmenities;
+    private List<RoomAmenityDTO> roomAmenities;
+    private List<UnitTypeAmenityDTO> unitTypeAmenities;
     @Data
     @Getter
     @Setter
@@ -66,11 +69,31 @@ public class PostingDetailResponseDTO {
         Integer sleeps;
         String view;
     }
+        @Data
+        @Getter
+        @Setter
+        @Builder
+        public static class UnitTypeAmenityDTO {
+            private Integer id;
+            private String name;
+            private String type;
+        }
+
     @Data
     @Getter
     @Setter
     @Builder
     public static class ResortAmenityDTO {
+        private Integer id;
+        private String name;
+        private String type;
+    }
+
+    @Data
+    @Getter
+    @Setter
+    @Builder
+    public static class RoomAmenityDTO {
         private Integer id;
         private String name;
         private String type;

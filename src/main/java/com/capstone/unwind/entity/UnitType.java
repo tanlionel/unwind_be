@@ -3,6 +3,8 @@ package com.capstone.unwind.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -73,5 +75,6 @@ public class UnitType {
 
     @Column(name = "is_active")
     private Boolean isActive;
-
+    @OneToMany(mappedBy = "unitType", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UnitTypeAmenity> amenities;
 }

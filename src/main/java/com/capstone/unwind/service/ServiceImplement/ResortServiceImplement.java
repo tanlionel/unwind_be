@@ -398,11 +398,7 @@ public class ResortServiceImplement implements ResortService {
         unitType.setIsActive(true);
 
         UnitType updatedUnitType = unitTypeRepository.save(unitType);
-        List<UnitTypeAmenity> existingAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeId(updatedUnitType.getId());
-        for (UnitTypeAmenity amenity : existingAmenities) {
-            amenity.setIsActive(false);
-            unitTypeAmentitiesRepository.save(amenity);
-        }
+        unitTypeAmentitiesRepository.deactivateAmenitiesByUnitTypeId(updatedUnitType.getId());
         try {
             for (UnitTypeRequestDTO.UnitTypeAmenitiesDTO tmp : unitTypeRequestDTO.getUnitTypeAmenitiesDTOS()) {
                 UnitTypeAmenity amenity = UnitTypeAmenity.builder()

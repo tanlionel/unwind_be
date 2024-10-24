@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Setter
@@ -45,7 +46,8 @@ public class RoomInfo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unit_type_id")
     private UnitType unitType;
-
+    @OneToMany(mappedBy = "roomInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<RoomAmenity> amenities;
 
     @PrePersist
     protected void onCreate() {

@@ -3,6 +3,7 @@ package com.capstone.unwind.model.PostingDTO;
 import com.capstone.unwind.entity.RentalPosting;
 import com.capstone.unwind.entity.ResortAmenity;
 import com.capstone.unwind.entity.UnitType;
+import com.capstone.unwind.exception.ErrMessageException;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -34,6 +35,8 @@ public interface PostingDetailMapper {
     @Mapping(source = "isActive", target = "isActive")
     @Mapping(source = "timeshare.roomInfo.unitType", target = "unitType")
     @Mapping(source = "timeshare.roomInfo.resort.amenities", target = "resortAmenities")
+    @Mapping(source = "timeshare.roomInfo.unitType.amenities", target = "unitTypeAmenities")
+    @Mapping(source = "timeshare.roomInfo.amenities", target = "roomAmenities")
     PostingDetailResponseDTO entityToDto(RentalPosting entity);
     PostingDetailResponseDTO.ResortAmenityDTO toResortAmenityDTO(ResortAmenity amenity);
     PostingDetailResponseDTO.unitType toUnitTypeDTO(UnitType unitType);
@@ -81,13 +84,43 @@ public interface PostingDetailMapper {
                             .build())
                     .collect(Collectors.toList());
             responseDTOBuilder.resortAmenities(activeAmenities);
-
             if (activeAmenities.isEmpty()) {
                 isValid = false;
             }
         }
+
+            if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
+                    entity.getTimeshare().getRoomInfo().getResort() != null) {
+                List<PostingDetailResponseDTO.RoomAmenityDTO> activeRoomAmenities = entity.getTimeshare().getRoomInfo().getAmenities().stream()
+                        .filter(amenity -> Boolean.TRUE.equals(amenity.getIsActive()))
+                        .map(amenity -> PostingDetailResponseDTO.RoomAmenityDTO.builder()
+                                .id(amenity.getId())
+                                .name(amenity.getName())
+                                .type(amenity.getType())
+                                .build())
+                        .collect(Collectors.toList());
+                responseDTOBuilder.roomAmenities(activeRoomAmenities);
+                if (activeRoomAmenities.isEmpty()) {
+                    isValid = false;
+                }
+            }
+                if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
+                        entity.getTimeshare().getRoomInfo().getResort() != null) {
+                    List<PostingDetailResponseDTO.UnitTypeAmenityDTO> activeUnitTypeAmenities = entity.getTimeshare().getRoomInfo().getUnitType().getAmenities().stream()
+                            .filter(amenity -> Boolean.TRUE.equals(amenity.getIsActive()))
+                            .map(amenity -> PostingDetailResponseDTO.UnitTypeAmenityDTO.builder()
+                                    .id(amenity.getId())
+                                    .name(amenity.getName())
+                                    .type(amenity.getType())
+                                    .build())
+                            .collect(Collectors.toList());
+                    responseDTOBuilder.unitTypeAmenities(activeUnitTypeAmenities);
+            if (activeUnitTypeAmenities.isEmpty()) {
+                isValid = false;
+            }
+        }
         if (!isValid) {
-            throw new IllegalStateException("One or more related entities are inactive.");
+            throw new IllegalStateException("TimeShare or room , unitType related entities are inactive.");
         }
     }
     List<PostingDetailResponseDTO> entitiesToDtos(List<RentalPosting> entities);

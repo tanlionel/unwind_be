@@ -45,23 +45,13 @@ public class RentalPostingServiceImplement implements RentalPostingService {
             throw new OptionalNotFoundException("Customer does not exist for user with ID: " + user.getId());
         }
         List<RentalPosting> rentalPostings = rentalPostingRepository.findAllByOwnerIdAndIsActive(customer.getId(),true);
-        List<RentalPosting> validRentalPostings = rentalPostings.stream()
-                .filter(timeShare -> {
-                    RoomInfo roomInfo = timeShare.getRoomInfo();
-                    if (roomInfo == null || !roomInfo.getIsActive()) {
-                        return false;
-                    }
-                    Resort resort = roomInfo.getResort();
-                            return resort != null && resort.getIsActive();
-                })
-                .collect(Collectors.toList());
-        return listRentalPostingMapper.entitiesToDtos(validRentalPostings);
+        return listRentalPostingMapper.entitiesToDtos(rentalPostings);
     }
     @Override
     public Page<PostingResponseDTO> getAllPublicPostings(String resortName, Pageable pageable) throws OptionalNotFoundException {
-        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRoomInfo_IsActiveAndStatus(
-                true, resortName, true, processing, pageable);
-        return rentalPostings.map(listRentalPostingMapper::entityToDto);
+        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByRoomInfo_Resort_ResortNameContainingAndStatus(
+                resortName, processing, pageable);
+        return listRentalPostingMapper.entitiesToDTOs(rentalPostings);
     }
     @Override
     public PostingDetailResponseDTO getRentalPostingDetailById(Integer postingId) throws OptionalNotFoundException {

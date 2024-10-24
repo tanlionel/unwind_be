@@ -2,14 +2,19 @@ package com.capstone.unwind.model.PostingDTO;
 
 import com.capstone.unwind.entity.RentalPosting;
 import com.capstone.unwind.entity.Timeshare;
+import com.capstone.unwind.entity.UnitType;
+import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.model.TimeShareDTO.ListTimeShareDTO;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ListRentalPostingMapper {
 
     ListRentalPostingMapper INSTANCE = Mappers.getMapper(ListRentalPostingMapper.class);
@@ -29,15 +34,64 @@ public interface ListRentalPostingMapper {
     @Mapping(source = "checkoutDate", target = "checkoutDate")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "isActive", target = "isActive")
+    @Mapping(source = "timeshare.roomInfo.unitType", target = "unitTypeDTO")
     PostingResponseDTO entityToDto(RentalPosting entity);
 
-    List<PostingResponseDTO> entitiesToDtos(List<RentalPosting> entities);
+    default List<PostingResponseDTO> entitiesToDtos(List<RentalPosting> entities) {
+        return entities.stream()
+                .map(this::entityToDto)
+                .filter(PostingResponseDTO::getIsValid)
+                .collect(Collectors.toList());
+
+    }
+    default Page<PostingResponseDTO> entitiesToDTOs(Page<RentalPosting> entities) {
+        List<PostingResponseDTO> validDtos = entities.stream()
+                .map(this::entityToDto)
+                .filter(PostingResponseDTO::getIsValid)
+                .collect(Collectors.toList());
+
+        int totalElements = validDtos.size();
+        int start = Math.toIntExact(entities.getPageable().getOffset());
+        int end = Math.min((start + entities.getPageable().getPageSize()), totalElements);
+
+        List<PostingResponseDTO> pageContent = validDtos.subList(start, end);
+
+        return new PageImpl<>(pageContent, entities.getPageable(), totalElements);
+    }
     RentalPosting dtoToEntity(PostingResponseDTO dto);
     List<RentalPosting> dtosToEntities(List<PostingResponseDTO> dtos);
+    PostingResponseDTO.unitTypeDTO toUnitTypeDTO(UnitType unitType);
+    @AfterMapping
+    default void filterActiveEntities(RentalPosting entity, @MappingTarget PostingResponseDTO.PostingResponseDTOBuilder responseDTOBuilder) {
+        boolean isValid = true;
+        if (entity.getTimeshare() != null && Boolean.FALSE.equals(entity.getTimeshare().getIsActive())) {
+            responseDTOBuilder.timeShareId(null);
+            isValid = false;
+        }
+
+        if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null) {
+            if (Boolean.FALSE.equals(entity.getTimeshare().getRoomInfo().getIsActive())) {
+                responseDTOBuilder.roomInfoId(null);
+                responseDTOBuilder.roomName(null);
+                isValid = false;
+            }
+        }
+
+        if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
+                entity.getTimeshare().getRoomInfo().getUnitType() != null) {
+            if (Boolean.FALSE.equals(entity.getTimeshare().getRoomInfo().getUnitType().getIsActive())) {
+                responseDTOBuilder.unitTypeDTO(null);
+                isValid = false;
+            }
+        }
+
+        responseDTOBuilder.isValid(isValid);
+    }
     default Float calculateTotalPrice(Integer nights, Float pricePerNights) {
         if (nights != null && pricePerNights != null) {
             return nights * pricePerNights;
         }
         return 0f;
     }
+
 }
