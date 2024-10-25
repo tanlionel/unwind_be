@@ -20,12 +20,15 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
 
     List<RentalPosting> findAllByOwnerIdAndIsActive(Integer id, boolean isActive);
 
+
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRoomInfo_IsActive(boolean b, String resortName, boolean b1,
                                                                                                      Pageable pageable);
 
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRoomInfo_IsActiveAndStatus(
             boolean isActive, String resortName, boolean roomInfoIsActive, String status, Pageable pageable);
 
+    Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatus(boolean isActive,
+          String resortName, String status, Pageable pageable);
     @Query("SELECT r FROM RentalPosting r WHERE r.id = :postingId AND r.isActive = true")
     Optional<RentalPosting> findByIdAndIsActive(@Param("postingId") Integer postingId);
 

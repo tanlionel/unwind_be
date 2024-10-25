@@ -1,6 +1,7 @@
 package com.capstone.unwind.model.PostingDTO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Data;
@@ -33,5 +34,30 @@ public class PostingResponseDTO {
     private LocalDate checkoutDate;
     private String status;
     private boolean isActive;
-
+    private unitTypeDTO unitTypeDTO;
+    @JsonIgnore
+    private Boolean isValid;
+    @Data
+    @Getter
+    @Setter
+    @Builder
+    public static class unitTypeDTO {
+        Integer id;
+        String title;
+        String area;
+        Integer bathrooms;
+        Integer bedrooms;
+        Integer bedsFull;
+        Integer bedsKing;
+        Integer bedsSofa;
+        Integer bedsMurphy;
+        Integer bedsQueen;
+        Integer bedsTwin;
+        String buildingsOption;
+        String description;
+        String kitchen;
+        String photos;
+        Integer sleeps;
+        String view;
+    }
 }
