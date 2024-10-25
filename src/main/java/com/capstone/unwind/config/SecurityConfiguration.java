@@ -53,6 +53,8 @@ public class SecurityConfiguration {
                                 .permitAll()
                                 .requestMatchers("api/test/tsStaff")
                                 .hasAuthority("TIMESHARECOMPANYSTAFF")
+                                .requestMatchers("api/timeshare-staff/**")
+                                .hasAuthority("TIMESHARECOMPANYSTAFF")
                                 .requestMatchers("api/test/api/some-endpoint")
                                 .hasAuthority("TIMESHARECOMPANYSTAFF")
                                 .anyRequest()
