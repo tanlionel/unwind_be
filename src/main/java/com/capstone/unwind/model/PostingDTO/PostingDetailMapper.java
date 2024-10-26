@@ -16,6 +16,9 @@ public interface PostingDetailMapper {
     PostingDetailMapper INSTANCE = Mappers.getMapper(PostingDetailMapper.class);
 
     @Mapping(source = "id", target = "rentalPostingId")
+    @Mapping(source = "expiredDate", target = "expiredDate")
+    @Mapping(source = "owner.id", target = "ownerId")
+    @Mapping(source = "owner.fullName", target = "ownerName")
     @Mapping(source = "timeshare.id", target = "timeShareId")
     @Mapping(source = "timeshare.roomInfo.id", target = "roomInfoId")
     @Mapping(source = "timeshare.roomInfo.roomInfoName", target = "roomName")
@@ -28,6 +31,7 @@ public interface PostingDetailMapper {
     @Mapping(target = "totalPrice", expression = "java(calculateTotalPrice(entity.getNights(), entity.getPricePerNights()))")
     @Mapping(source = "rentalPackage.id", target = "rentalPackageId")
     @Mapping(source = "rentalPackage.rentalPackageName", target = "rentalPackageName")
+    @Mapping(source = "rentalPackage.duration", target = "rentalPackageDuration")
     @Mapping(source = "rentalPackage.description", target = "rentalPackageDescription")
     @Mapping(source = "checkinDate", target = "checkinDate")
     @Mapping(source = "checkoutDate", target = "checkoutDate")

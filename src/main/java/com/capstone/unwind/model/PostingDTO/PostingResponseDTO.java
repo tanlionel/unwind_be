@@ -16,6 +16,10 @@ import java.time.LocalDate;
 @Builder
 public class PostingResponseDTO {
     private Integer rentalPostingId;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate expiredDate;
+    private Integer ownerId;
+    private String ownerName;
     private Integer timeShareId;
     private Integer roomInfoId;
     private String roomName;

@@ -22,6 +22,10 @@ import java.util.List;
 @Builder
 public class PostingDetailResponseDTO {
     private Integer rentalPostingId;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate expiredDate;
+    private Integer ownerId;
+    private String ownerName;
     private Integer timeShareId;
     private Integer roomInfoId;
     private String roomName;
@@ -35,6 +39,7 @@ public class PostingDetailResponseDTO {
     private String cancelType;
     private Integer rentalPackageId;
     private String rentalPackageName;
+    private String rentalPackageDuration;
     private String rentalPackageDescription;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate checkinDate;
