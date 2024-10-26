@@ -17,6 +17,8 @@ public interface ListRentalPostingTsStaffMapper {
 
     @Mapping(source = "id", target = "rentalPostingId")
     @Mapping(source = "timeshare.id", target = "timeShareId")
+    @Mapping(source = "rentalPackage.id", target = "rentalPackageId")
+    @Mapping(source = "rentalPackage.rentalPackageName", target = "rentalPackageName")
     @Mapping(source = "timeshare.roomInfo.id", target = "roomInfoId")
     @Mapping(source = "timeshare.roomInfo.roomInfoCode", target = "roomCode")
     @Mapping(source = "timeshare.roomInfo.resort.id", target = "resortId")

@@ -35,11 +35,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     @Autowired
     private final ListRentalPostingTsStaffMapper listRentalPostingTsStaffMapper;
     @Autowired
-    private final ListRentalPostingPackage4Mapper listRentalPostingPackage4Mapper;
-    @Autowired
     private final PostingDetailMapper postingDetailMapper;
-    @Autowired
-    private final PostingDetailPackage4Mapper postingDetailPackage4Mapper;
     @Autowired
     private final UserService userService;
     @Autowired
@@ -50,6 +46,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     private final TimeshareCompanyStaffRepository timeshareCompanyStaffRepository;
     private final String processing = "Processing";
     private final String pendingPricing = "PendingPricing";
+    private final String  pendingApproval = "PendingApproval";
     @Override
     public List<PostingResponseDTO> getAllPostings() throws OptionalNotFoundException {
         User user = userService.getLoginUser();
@@ -80,8 +77,14 @@ public class RentalPostingServiceImplement implements RentalPostingService {
             throw new OptionalNotFoundException("Timeshare company staff not found with id: " + user.getId());
         }
         TimeshareCompanyStaff timeshareCompanyStaff = timeshareCompanyStaffOpt.get();
-        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndRoomInfo_Resort_Id(
-                true, roomInfoCode, timeshareCompanyStaff.getResort().getId(), pageable);
+        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndStatusAndRoomInfo_Resort_Id(
+                true, roomInfoCode,pendingApproval, timeshareCompanyStaff.getResort().getId(), pageable);
+        return listRentalPostingTsStaffMapper.entitiesToDTOs(rentalPostings);
+    }
+    @Override
+    public Page<PostingResponseTsStaffDTO> getAllPostingsSystemStaff(String resortName, Pageable pageable) throws OptionalNotFoundException {
+        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatusAndRentalPackage_Id(
+                true, resortName,pendingPricing,4 ,pageable);
         return listRentalPostingTsStaffMapper.entitiesToDTOs(rentalPostings);
     }
     @Override
@@ -90,27 +93,6 @@ public class RentalPostingServiceImplement implements RentalPostingService {
                 .orElseThrow(() -> new OptionalNotFoundException("Active Rental Posting not found with ID: " + postingId));
         return postingDetailTsStaffMapper.entityToDto(rentalPosting);
     }
-    @Override
-    public PostingDetailPackage4ResponseDTO getRentalPostingDetailPackage4ById(Integer postingId) throws OptionalNotFoundException {
-        RentalPosting rentalPosting = rentalPostingRepository.findByIdAndIsActive(postingId)
-                .orElseThrow(() -> new OptionalNotFoundException("Active Rental Posting not found with ID: " + postingId));
-        return postingDetailPackage4Mapper.entityToDto(rentalPosting);
-    }
-    @Override
-    public Page<PostingPackage4ResponseDTO> getAllPostingsPackage4(String roomInfoCode, Pageable pageable) throws OptionalNotFoundException {
-        TimeShareCompanyStaffDTO user = timeShareStaffService.getLoginStaff();
-        Optional<TimeshareCompanyStaff> timeshareCompanyStaffOpt = timeshareCompanyStaffRepository.findById(user.getId());
 
-        if (timeshareCompanyStaffOpt.isEmpty()) {
-            throw new OptionalNotFoundException("Timeshare company staff not found with id: " + user.getId());
-        }
 
-        TimeshareCompanyStaff timeshareCompanyStaff = timeshareCompanyStaffOpt.get();
-        List<Integer> packageIds = Arrays.asList(3, 4);
-
-        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndRoomInfo_Resort_IdAndRentalPackage_IdIn(
-                true, roomInfoCode, timeshareCompanyStaff.getResort().getId(), packageIds, pageable);
-
-        return listRentalPostingPackage4Mapper.entitiesToDTOs(rentalPostings);
-    }
 }

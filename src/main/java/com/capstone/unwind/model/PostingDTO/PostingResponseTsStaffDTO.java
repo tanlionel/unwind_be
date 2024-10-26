@@ -21,8 +21,8 @@ public class PostingResponseTsStaffDTO {
     private Integer resortId;
     private String resortName;
     private Float pricePerNights;
-/*    private Integer rental_package_id;
-    private String rental_package_name;*/
+    private Integer rentalPackageId;
+    private String rentalPackageName;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate checkinDate;
     @JsonFormat(pattern = "dd-MM-yyyy")

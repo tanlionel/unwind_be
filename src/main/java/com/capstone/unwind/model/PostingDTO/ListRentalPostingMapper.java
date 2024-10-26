@@ -20,6 +20,8 @@ public interface ListRentalPostingMapper {
     ListRentalPostingMapper INSTANCE = Mappers.getMapper(ListRentalPostingMapper.class);
 
     @Mapping(source = "id", target = "rentalPostingId")
+    @Mapping(source = "rentalPackage.id", target = "rentalPackageId")
+    @Mapping(source = "rentalPackage.rentalPackageName", target = "rentalPackageName")
     @Mapping(source = "timeshare.id", target = "timeShareId")
     @Mapping(source = "timeshare.roomInfo.id", target = "roomInfoId")
     @Mapping(source = "timeshare.roomInfo.roomInfoName", target = "roomName")

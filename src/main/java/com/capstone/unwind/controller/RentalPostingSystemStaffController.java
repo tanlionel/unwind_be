@@ -1,7 +1,8 @@
 package com.capstone.unwind.controller;
 
 import com.capstone.unwind.exception.OptionalNotFoundException;
-import com.capstone.unwind.model.PostingDTO.*;
+import com.capstone.unwind.model.PostingDTO.PostingDetailTsStaffResponseDTO;
+import com.capstone.unwind.model.PostingDTO.PostingResponseTsStaffDTO;
 import com.capstone.unwind.service.ServiceInterface.RentalPostingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +12,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/timeshare-staff")
+@RequestMapping("/api/system-staff")
 @RequiredArgsConstructor
 @CrossOrigin
-public class RentalPostingTsStaffController {
+public class RentalPostingSystemStaffController {
     @Autowired
     RentalPostingService rentalPostingService;
 
@@ -22,10 +23,10 @@ public class RentalPostingTsStaffController {
     public Page<PostingResponseTsStaffDTO> getPublicPostings(
             @RequestParam(required = false, defaultValue = "0") Integer pageNo,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize,
-            @RequestParam(required = false, defaultValue = "") String roomInfoCode) throws OptionalNotFoundException {
+            @RequestParam(required = false, defaultValue = "") String resortName) throws OptionalNotFoundException {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<PostingResponseTsStaffDTO> postingResponsePage = rentalPostingService.getAllPostingsTsStaff(roomInfoCode, pageable);
+        Page<PostingResponseTsStaffDTO> postingResponsePage = rentalPostingService.getAllPostingsSystemStaff(resortName, pageable);
 
         return postingResponsePage;
     }

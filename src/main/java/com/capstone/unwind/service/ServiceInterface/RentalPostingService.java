@@ -13,6 +13,5 @@ public interface RentalPostingService {
     PostingDetailResponseDTO getRentalPostingDetailById(Integer postingId) throws OptionalNotFoundException;
     Page<PostingResponseTsStaffDTO> getAllPostingsTsStaff(String resortName, Pageable pageable) throws OptionalNotFoundException;
     PostingDetailTsStaffResponseDTO getRentalPostingDetailTsStaffById(Integer postingId) throws OptionalNotFoundException;
-    Page<PostingPackage4ResponseDTO> getAllPostingsPackage4(String resortName, Pageable pageable) throws OptionalNotFoundException;
-    PostingDetailPackage4ResponseDTO getRentalPostingDetailPackage4ById(Integer postingId) throws OptionalNotFoundException;
+    Page<PostingResponseTsStaffDTO> getAllPostingsSystemStaff(String roomInfoCode, Pageable pageable) throws OptionalNotFoundException;
 }
