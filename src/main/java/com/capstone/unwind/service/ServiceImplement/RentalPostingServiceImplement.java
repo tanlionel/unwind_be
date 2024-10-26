@@ -84,7 +84,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     @Override
     public Page<PostingResponseTsStaffDTO> getAllPostingsSystemStaff(String resortName, Pageable pageable) throws OptionalNotFoundException {
         Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatusAndRentalPackage_Id(
-                true, resortName,pendingPricing,4 ,pageable);
+                true, resortName,pendingApproval,4 ,pageable);
         return listRentalPostingTsStaffMapper.entitiesToDTOs(rentalPostings);
     }
     @Override
