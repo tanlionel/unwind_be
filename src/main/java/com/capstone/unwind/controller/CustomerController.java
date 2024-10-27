@@ -37,9 +37,5 @@ public class CustomerController {
         CustomerDto customerDto = customerService.createCustomer(customerRequestDto);
         return ResponseEntity.ok(customerDto);
     }
-    @PostMapping("/VNPAY/membership")
-    public ResponseEntity<MembershipResponseDto> extendMembership(@RequestParam UUID uuid, @RequestParam Integer membership_id) throws ErrMessageException, OptionalNotFoundException {
-        MembershipResponseDto membershipResponseDto = customerService.extendMembershipVNPAY(uuid,membership_id);
-        return ResponseEntity.ok(membershipResponseDto);
-    }
+
 }

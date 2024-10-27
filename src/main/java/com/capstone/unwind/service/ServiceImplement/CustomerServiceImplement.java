@@ -6,8 +6,7 @@ import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.CustomerDTO.CustomerDto;
 import com.capstone.unwind.model.CustomerDTO.CustomerMapper;
 import com.capstone.unwind.model.CustomerDTO.CustomerRequestDto;
-import com.capstone.unwind.model.WalletDTO.MembershipResponseDto;
-import com.capstone.unwind.model.WalletDTO.WalletTransactionMapper;
+import com.capstone.unwind.model.WalletDTO.*;
 import com.capstone.unwind.repository.CustomerRepository;
 import com.capstone.unwind.repository.MembershipRepository;
 import com.capstone.unwind.repository.UserRepository;
@@ -40,6 +39,8 @@ public class CustomerServiceImplement implements CustomerService {
     private final MembershipRepository membershipRepository;
     @Autowired
     private final WalletTransactionMapper walletTransactionMapper;
+    @Autowired
+    private final WalletMapper walletMapper;
     @Override
     public CustomerDto createCustomer(CustomerRequestDto customerRequestDto) throws OptionalNotFoundException {
         User user = userService.getLoginUser();
@@ -113,6 +114,59 @@ public class CustomerServiceImplement implements CustomerService {
 
         MembershipResponseDto membershipResponseDto = MembershipResponseDto.builder()
                 .walletTransactionDto(walletTransactionMapper.toDto(walletTransaction))
+                .customerId(customerInDB.getId())
+                .build();
+
+        return membershipResponseDto;
+    }
+
+    @Override
+    public WalletTransactionDto depositMoneyVNPAY(UUID uuid) throws OptionalNotFoundException, ErrMessageException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+
+        //update transaction
+        WalletTransaction walletTransaction = walletService.updateTransactionDepositMoneyByVNPAY(uuid);
+        Wallet wallet = walletRepository.findWalletByOwnerId(user.getCustomer().getId());
+        //set available money
+        wallet.setAvailableMoney(wallet.getAvailableMoney()+walletTransaction.getMoney());
+        Wallet walletInDb = walletRepository.save(wallet);
+
+        return walletTransactionMapper.toDto(walletTransaction);
+    }
+
+    @Override
+    public MembershipResponseDto extendMembershipWallet(Integer membershipId) throws OptionalNotFoundException, ErrMessageException {
+        //get user
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+        Membership membership = membershipRepository.findById(membershipId).get();
+        if (membership == null) throw new OptionalNotFoundException("Not found membership package");
+
+        if (membership.getPrice()>user.getCustomer().getWallet().getAvailableMoney()) throw new ErrMessageException("not enough money");
+
+        //minus money and create transaction
+        user.getCustomer().getWallet().setAvailableMoney(user.getCustomer().getWallet().getAvailableMoney()-membership.getPrice());
+        WalletTransaction walletTransaction = walletService.createTransactionWallet(0,membership.getPrice(),"WALLET");
+        String description = "Thanh toán membership "+membership.getDuration()+" tháng";
+        String transactionType = "MEMBERSHIP";
+        WalletTransaction walletTransactionAfterUpdate = walletService.updateTransaction(walletTransaction.getId(),description,transactionType);
+        walletRepository.save(user.getCustomer().getWallet());
+
+        //extend membership
+        Customer customer = user.getCustomer();
+        customer.setMembership(membership);
+        customer.setMemberPurchaseDate(LocalDate.now());
+        if(customer.getMemberExpiryDate()==null){
+            customer.setMemberExpiryDate(LocalDate.now().plusMonths(membership.getDuration()));
+        }
+        else customer.setMemberExpiryDate(customer.getMemberExpiryDate().plusMonths(membership.getDuration()));
+        Customer customerInDB = customerRepository.save(customer);
+
+        MembershipResponseDto membershipResponseDto = MembershipResponseDto.builder()
+                .walletTransactionDto(walletTransactionMapper.toDto(walletTransactionAfterUpdate))
                 .customerId(customerInDB.getId())
                 .build();
 

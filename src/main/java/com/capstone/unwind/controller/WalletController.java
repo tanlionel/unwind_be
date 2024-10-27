@@ -1,9 +1,12 @@
 package com.capstone.unwind.controller;
 
 import com.capstone.unwind.entity.WalletTransaction;
+import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.WalletDTO.MembershipResponseDto;
 import com.capstone.unwind.model.WalletDTO.WalletDto;
 import com.capstone.unwind.model.WalletDTO.WalletTransactionDto;
+import com.capstone.unwind.service.ServiceInterface.CustomerService;
 import com.capstone.unwind.service.ServiceInterface.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,8 @@ import java.util.UUID;
 public class WalletController {
     @Autowired
     private final WalletService walletService;
+    @Autowired
+    private final CustomerService customerService;
 
     @GetMapping("/customer")
     private ResponseEntity<WalletDto> getCustomerWallet() throws OptionalNotFoundException {
@@ -30,4 +35,21 @@ public class WalletController {
         WalletTransactionDto walletTransactionDto = walletService.findWalletTransactionById(uuid);
         return ResponseEntity.ok(walletTransactionDto);
     }
+    @PostMapping("/VNPAY/membership")
+    public ResponseEntity<MembershipResponseDto> extendMembershipVNPAY(@RequestParam UUID uuid, @RequestParam Integer membership_id) throws ErrMessageException, OptionalNotFoundException {
+        MembershipResponseDto membershipResponseDto = customerService.extendMembershipVNPAY(uuid,membership_id);
+        return ResponseEntity.ok(membershipResponseDto);
+    }
+    @PostMapping("/wallet/membership")
+    public ResponseEntity<MembershipResponseDto> extendMembershipWallet(@RequestParam Integer membership_id) throws ErrMessageException, OptionalNotFoundException {
+        MembershipResponseDto membershipResponseDto = customerService.extendMembershipWallet(membership_id);
+        return ResponseEntity.ok(membershipResponseDto);
+    }
+    @PostMapping("/VNPAY/deposit-wallet")
+    public ResponseEntity<WalletTransactionDto> depositMoneyToWalletVNPAY(@RequestParam UUID uuid) throws ErrMessageException, OptionalNotFoundException {
+        WalletTransactionDto walletTransactionDto = customerService.depositMoneyVNPAY(uuid);
+        return ResponseEntity.ok(walletTransactionDto);
+    }
+
+
 }

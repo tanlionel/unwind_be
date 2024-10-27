@@ -59,6 +59,37 @@ public class WalletServiceImplement implements WalletService {
     }
 
     @Override
+    public WalletTransaction createTransactionWallet(float fee, float money, String paymentMethod) {
+        WalletTransaction walletTransaction = WalletTransaction.builder()
+                .fee(fee)
+                .money(-money)
+                .paymentMethod(paymentMethod)
+                .build();
+        WalletTransaction walletTransactionInDb = walletTransactionRepository.save(walletTransaction);
+        return walletTransactionInDb;
+    }
+
+    @Override
+    public WalletTransaction updateTransaction(UUID uuid, String description, String transactionType) throws OptionalNotFoundException, ErrMessageException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+        Optional<WalletTransaction> walletTransaction = walletTransactionRepository.findById(uuid);
+        if (!walletTransaction.isPresent()) throw new OptionalNotFoundException("not found transaction");
+        WalletTransaction walletTransactionInDB;
+        try{
+            walletTransaction.get().setWallet(user.getCustomer().getWallet());
+            walletTransaction.get().setDescription(description);
+            walletTransaction.get().setTransactionType(transactionType);
+            walletTransactionInDB = walletTransactionRepository.save(walletTransaction.get());
+        }catch (Exception e){
+            throw new ErrMessageException("error when save wallet");
+        }
+
+        return walletTransactionInDB;
+    }
+
+    @Override
     public WalletTransactionDto findWalletTransactionById(UUID uuid) throws OptionalNotFoundException {
         Optional<WalletTransaction> walletTransaction = walletTransactionRepository.findById(uuid);
         if (!walletTransaction.isPresent()) throw new OptionalNotFoundException("not found");
@@ -72,7 +103,7 @@ public class WalletServiceImplement implements WalletService {
         if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
 
         Optional<WalletTransaction> walletTransaction = walletTransactionRepository.findById(uuid);
-        if (!walletTransaction.isPresent()) throw new OptionalNotFoundException("not found");
+        if (!walletTransaction.isPresent()) throw new OptionalNotFoundException("not found transaction");
         WalletTransaction walletTransactionInDB;
         try{
         walletTransaction.get().setWallet(user.getCustomer().getWallet());
@@ -81,6 +112,28 @@ public class WalletServiceImplement implements WalletService {
         walletTransaction.get().setDescription("Thanh toán membership "+membership.get().getDuration()+" tháng");
         walletTransaction.get().setTransactionType("MEMBERSHIP");
         walletTransactionInDB = walletTransactionRepository.save(walletTransaction.get());
+        }catch (Exception e){
+            throw new ErrMessageException("error when save wallet");
+        }
+
+        return walletTransactionInDB;
+    }
+
+    @Override
+    public WalletTransaction updateTransactionDepositMoneyByVNPAY(UUID uuid) throws OptionalNotFoundException, ErrMessageException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+
+        Optional<WalletTransaction> walletTransaction = walletTransactionRepository.findById(uuid);
+        if (!walletTransaction.isPresent()) throw new OptionalNotFoundException("not found transaction");
+        WalletTransaction walletTransactionInDB;
+        try{
+            walletTransaction.get().setWallet(user.getCustomer().getWallet());
+            walletTransaction.get().setDescription("Nạp tiền vào ví");
+            walletTransaction.get().setTransactionType("DEPOSITMONEY");
+            walletTransaction.get().setMoney(-walletTransaction.get().getMoney());
+            walletTransactionInDB = walletTransactionRepository.save(walletTransaction.get());
         }catch (Exception e){
             throw new ErrMessageException("error when save wallet");
         }
