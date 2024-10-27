@@ -3,25 +3,26 @@ package com.capstone.unwind.model.PostingDTO;
 import com.capstone.unwind.entity.RentalPosting;
 import com.capstone.unwind.entity.ResortAmenity;
 import com.capstone.unwind.entity.UnitType;
-import com.capstone.unwind.exception.ErrMessageException;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+import java.security.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface PostingDetailMapper {
+public interface PostingDetailTsStaffMapper {
 
-    PostingDetailMapper INSTANCE = Mappers.getMapper(PostingDetailMapper.class);
+    PostingDetailTsStaffMapper INSTANCE = Mappers.getMapper(PostingDetailTsStaffMapper.class);
 
     @Mapping(source = "id", target = "rentalPostingId")
-    @Mapping(source = "expiredDate", target = "expiredDate")
+    @Mapping(source = "createdDate", target = "createdDate")
     @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(source = "owner.fullName", target = "ownerName")
     @Mapping(source = "timeshare.id", target = "timeShareId")
     @Mapping(source = "timeshare.roomInfo.id", target = "roomInfoId")
     @Mapping(source = "timeshare.roomInfo.roomInfoName", target = "roomName")
+    @Mapping(source = "timeshare.roomInfo.roomInfoCode", target = "roomCode")
     @Mapping(source = "timeshare.roomInfo.resort.id", target = "resortId")
     @Mapping(source = "timeshare.roomInfo.resort.resortName", target = "resortName")
     @Mapping(source = "timeshare.roomInfo.resort.address", target = "address")
@@ -31,7 +32,6 @@ public interface PostingDetailMapper {
     @Mapping(target = "totalPrice", expression = "java(calculateTotalPrice(entity.getNights(), entity.getPricePerNights()))")
     @Mapping(source = "rentalPackage.id", target = "rentalPackageId")
     @Mapping(source = "rentalPackage.rentalPackageName", target = "rentalPackageName")
-    @Mapping(source = "rentalPackage.duration", target = "rentalPackageDuration")
     @Mapping(source = "rentalPackage.description", target = "rentalPackageDescription")
     @Mapping(source = "checkinDate", target = "checkinDate")
     @Mapping(source = "checkoutDate", target = "checkoutDate")
@@ -41,11 +41,14 @@ public interface PostingDetailMapper {
     @Mapping(source = "timeshare.roomInfo.resort.amenities", target = "resortAmenities")
     @Mapping(source = "timeshare.roomInfo.unitType.amenities", target = "unitTypeAmenities")
     @Mapping(source = "timeshare.roomInfo.amenities", target = "roomAmenities")
-    PostingDetailResponseDTO entityToDto(RentalPosting entity);
-    PostingDetailResponseDTO.ResortAmenityDTO toResortAmenityDTO(ResortAmenity amenity);
-    PostingDetailResponseDTO.unitType toUnitTypeDTO(UnitType unitType);
+    PostingDetailTsStaffResponseDTO entityToDto(RentalPosting entity);
+    PostingDetailTsStaffResponseDTO.ResortAmenityDTO toResortAmenityDTO(ResortAmenity amenity);
+    PostingDetailTsStaffResponseDTO.unitType toUnitTypeDTO(UnitType unitType);
+    default Timestamp map(Timestamp value) {
+        return value;
+    }
     @AfterMapping
-    default void filterActiveEntities(RentalPosting entity, @MappingTarget PostingDetailResponseDTO.PostingDetailResponseDTOBuilder responseDTOBuilder) {
+    default void filterActiveEntities(RentalPosting entity, @MappingTarget PostingDetailTsStaffResponseDTO.PostingDetailTsStaffResponseDTOBuilder responseDTOBuilder) {
         boolean isValid = true;
 
         if (entity.getTimeshare() != null && Boolean.FALSE.equals(entity.getTimeshare().getIsActive())) {
@@ -57,6 +60,7 @@ public interface PostingDetailMapper {
             if (Boolean.FALSE.equals(entity.getTimeshare().getRoomInfo().getIsActive())) {
                 responseDTOBuilder.roomInfoId(null);
                 responseDTOBuilder.roomName(null);
+                responseDTOBuilder.roomCode(null);
                 isValid = false;
             }
         }
@@ -79,9 +83,9 @@ public interface PostingDetailMapper {
 
         if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
                 entity.getTimeshare().getRoomInfo().getResort() != null) {
-            List<PostingDetailResponseDTO.ResortAmenityDTO> activeAmenities = entity.getTimeshare().getRoomInfo().getResort().getAmenities().stream()
+            List<PostingDetailTsStaffResponseDTO.ResortAmenityDTO> activeAmenities = entity.getTimeshare().getRoomInfo().getResort().getAmenities().stream()
                     .filter(amenity -> Boolean.TRUE.equals(amenity.getIsActive()))
-                    .map(amenity -> PostingDetailResponseDTO.ResortAmenityDTO.builder()
+                    .map(amenity -> PostingDetailTsStaffResponseDTO.ResortAmenityDTO.builder()
                             .id(amenity.getId())
                             .name(amenity.getName())
                             .type(amenity.getType())
@@ -95,9 +99,9 @@ public interface PostingDetailMapper {
 
             if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
                     entity.getTimeshare().getRoomInfo().getResort() != null) {
-                List<PostingDetailResponseDTO.RoomAmenityDTO> activeRoomAmenities = entity.getTimeshare().getRoomInfo().getAmenities().stream()
+                List<PostingDetailTsStaffResponseDTO.RoomAmenityDTO> activeRoomAmenities = entity.getTimeshare().getRoomInfo().getAmenities().stream()
                         .filter(amenity -> Boolean.TRUE.equals(amenity.getIsActive()))
-                        .map(amenity -> PostingDetailResponseDTO.RoomAmenityDTO.builder()
+                        .map(amenity -> PostingDetailTsStaffResponseDTO.RoomAmenityDTO.builder()
                                 .id(amenity.getId())
                                 .name(amenity.getName())
                                 .type(amenity.getType())
@@ -110,9 +114,9 @@ public interface PostingDetailMapper {
             }
                 if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
                         entity.getTimeshare().getRoomInfo().getResort() != null) {
-                    List<PostingDetailResponseDTO.UnitTypeAmenityDTO> activeUnitTypeAmenities = entity.getTimeshare().getRoomInfo().getUnitType().getAmenities().stream()
+                    List<PostingDetailTsStaffResponseDTO.UnitTypeAmenityDTO> activeUnitTypeAmenities = entity.getTimeshare().getRoomInfo().getUnitType().getAmenities().stream()
                             .filter(amenity -> Boolean.TRUE.equals(amenity.getIsActive()))
-                            .map(amenity -> PostingDetailResponseDTO.UnitTypeAmenityDTO.builder()
+                            .map(amenity -> PostingDetailTsStaffResponseDTO.UnitTypeAmenityDTO.builder()
                                     .id(amenity.getId())
                                     .name(amenity.getName())
                                     .type(amenity.getType())

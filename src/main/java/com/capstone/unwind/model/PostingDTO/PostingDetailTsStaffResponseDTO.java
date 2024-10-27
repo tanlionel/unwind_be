@@ -1,36 +1,33 @@
 package com.capstone.unwind.model.PostingDTO;
 
-import com.capstone.unwind.entity.Resort;
-import com.capstone.unwind.entity.ResortAmenity;
-import com.capstone.unwind.entity.RoomInfo;
-import com.capstone.unwind.entity.UnitType;
-import com.capstone.unwind.model.TimeShareDTO.TimeShareDetailDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Getter
 @Setter
 @Builder
-public class PostingDetailResponseDTO {
+public class PostingDetailTsStaffResponseDTO {
     private Integer rentalPostingId;
-    @JsonFormat(pattern = "dd-MM-yyyy")
-    private LocalDate expiredDate;
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    private Timestamp createdDate;
+    private Integer timeShareId;
     private Integer ownerId;
     private String ownerName;
-    private Integer timeShareId;
     private Integer roomInfoId;
+    private String roomCode;
     private String roomName;
     private Integer resortId;
     private String resortName;
+    private String resortDescription;
     private String address;
     private Boolean isVerify;
     private Integer nights;
@@ -39,7 +36,6 @@ public class PostingDetailResponseDTO {
     private String cancelType;
     private Integer rentalPackageId;
     private String rentalPackageName;
-    private String rentalPackageDuration;
     private String rentalPackageDescription;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate checkinDate;

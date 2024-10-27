@@ -16,6 +16,10 @@ import java.time.LocalDate;
 @Builder
 public class PostingResponseDTO {
     private Integer rentalPostingId;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate expiredDate;
+    private Integer ownerId;
+    private String ownerName;
     private Integer timeShareId;
     private Integer roomInfoId;
     private String roomName;
@@ -26,8 +30,8 @@ public class PostingResponseDTO {
     private Integer nights;
     private Float pricePerNights;
     private Float totalPrice;
-/*    private Integer rental_package_id;
-    private String rental_package_name;*/
+    private Integer rentalPackageId;
+    private String rentalPackageName;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate checkinDate;
     @JsonFormat(pattern = "dd-MM-yyyy")

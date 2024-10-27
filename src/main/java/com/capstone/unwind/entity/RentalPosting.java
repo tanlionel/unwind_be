@@ -81,6 +81,6 @@ public class RentalPosting {
     private Timestamp updatedDate;
 
     @Column(name = "price_valuation")
-    private Timestamp priceValuation;
+    private Float priceValuation;
 
 }
