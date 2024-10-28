@@ -6,10 +6,7 @@ import com.capstone.unwind.entity.Wallet;
 import com.capstone.unwind.entity.WalletTransaction;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
-import com.capstone.unwind.model.WalletDTO.WalletDto;
-import com.capstone.unwind.model.WalletDTO.WalletMapper;
-import com.capstone.unwind.model.WalletDTO.WalletTransactionDto;
-import com.capstone.unwind.model.WalletDTO.WalletTransactionMapper;
+import com.capstone.unwind.model.WalletDTO.*;
 import com.capstone.unwind.repository.CustomerRepository;
 import com.capstone.unwind.repository.MembershipRepository;
 import com.capstone.unwind.repository.WalletTransactionRepository;
@@ -19,8 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,14 +37,31 @@ public class WalletServiceImplement implements WalletService {
     private final MembershipRepository membershipRepository;
     @Autowired
     private WalletTransactionMapper walletTransactionMapper;
+    @Autowired
+    private WalletRefreshMapper walletRefreshMapper;
 
     @Override
-    public WalletDto getLoginCustomerWallet() throws OptionalNotFoundException {
+    public WalletDto getLoginCustomerWalletTransaction() throws OptionalNotFoundException {
         User user = userService.getLoginUser();
         if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
         if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
         Wallet wallet = user.getCustomer().getWallet();
-        return walletMapper.toDto(wallet);
+        WalletDto walletDto = walletMapper.toDto(wallet);
+        List<WalletDto.WalletTransactionDto> sortedTransactions = walletDto.getTransactions().stream()
+                .sorted(Comparator.comparing(WalletDto.WalletTransactionDto::getCreatedAt).reversed())
+                .collect(Collectors.toList());
+        walletDto.setTransactions(sortedTransactions);
+        return walletDto;
+    }
+
+    @Override
+    public WalletRefereshDto getLoginCustomerWalletBalance() throws OptionalNotFoundException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+        Wallet wallet = user.getCustomer().getWallet();
+        WalletRefereshDto walletRefereshDto = walletRefreshMapper.toDto(wallet);
+        return walletRefereshDto;
     }
 
     @Override

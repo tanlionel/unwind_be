@@ -5,6 +5,7 @@ import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.WalletDTO.MembershipResponseDto;
 import com.capstone.unwind.model.WalletDTO.WalletDto;
+import com.capstone.unwind.model.WalletDTO.WalletRefereshDto;
 import com.capstone.unwind.model.WalletDTO.WalletTransactionDto;
 import com.capstone.unwind.service.ServiceInterface.CustomerService;
 import com.capstone.unwind.service.ServiceInterface.WalletService;
@@ -25,9 +26,9 @@ public class WalletController {
     @Autowired
     private final CustomerService customerService;
 
-    @GetMapping("/customer")
-    private ResponseEntity<WalletDto> getCustomerWallet() throws OptionalNotFoundException {
-        WalletDto walletDto = walletService.getLoginCustomerWallet();
+    @GetMapping("/customer/wallet-transaction")
+    private ResponseEntity<WalletDto> getCustomerWalletTransaction() throws OptionalNotFoundException {
+        WalletDto walletDto = walletService.getLoginCustomerWalletTransaction();
         return ResponseEntity.ok(walletDto);
     }
     @GetMapping("/wallet-transaction/{uuid}")
@@ -50,6 +51,10 @@ public class WalletController {
         WalletTransactionDto walletTransactionDto = customerService.depositMoneyVNPAY(uuid);
         return ResponseEntity.ok(walletTransactionDto);
     }
-
+    @GetMapping("/customer")
+    public ResponseEntity<WalletRefereshDto> getWalletCustomer() throws OptionalNotFoundException {
+        WalletRefereshDto walletRefereshDto = walletService.getLoginCustomerWalletBalance();
+        return ResponseEntity.ok(walletRefereshDto);
+    }
 
 }

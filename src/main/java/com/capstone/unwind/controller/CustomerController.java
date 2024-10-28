@@ -3,6 +3,7 @@ package com.capstone.unwind.controller;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.CustomerDTO.CustomerDto;
+import com.capstone.unwind.model.CustomerDTO.CustomerInitDto;
 import com.capstone.unwind.model.CustomerDTO.CustomerRequestDto;
 import com.capstone.unwind.model.WalletDTO.MembershipResponseDto;
 import com.capstone.unwind.service.ServiceInterface.CustomerService;
@@ -38,4 +39,9 @@ public class CustomerController {
         return ResponseEntity.ok(customerDto);
     }
 
+    @GetMapping("/initialize")
+    public ResponseEntity<CustomerInitDto> getMyInitValue() throws OptionalNotFoundException {
+        CustomerInitDto customerInitDto = customerService.getLoginCustomer();
+        return ResponseEntity.ok(customerInitDto);
+    }
 }
