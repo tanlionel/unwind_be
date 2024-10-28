@@ -3,9 +3,7 @@ package com.capstone.unwind.service.ServiceImplement;
 import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
-import com.capstone.unwind.model.CustomerDTO.CustomerDto;
-import com.capstone.unwind.model.CustomerDTO.CustomerMapper;
-import com.capstone.unwind.model.CustomerDTO.CustomerRequestDto;
+import com.capstone.unwind.model.CustomerDTO.*;
 import com.capstone.unwind.model.WalletDTO.*;
 import com.capstone.unwind.repository.CustomerRepository;
 import com.capstone.unwind.repository.MembershipRepository;
@@ -41,6 +39,8 @@ public class CustomerServiceImplement implements CustomerService {
     private final WalletTransactionMapper walletTransactionMapper;
     @Autowired
     private final WalletMapper walletMapper;
+    @Autowired
+    private final CustomerInitMapper customerInitMapper;
     @Override
     public CustomerDto createCustomer(CustomerRequestDto customerRequestDto) throws OptionalNotFoundException {
         User user = userService.getLoginUser();
@@ -79,6 +79,16 @@ public class CustomerServiceImplement implements CustomerService {
         boolean isMember = checkIsMember(customer);
         customerDto.setIsMember(isMember);
         return customerDto;
+    }
+
+    @Override
+    public CustomerInitDto getLoginCustomer() throws OptionalNotFoundException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer()==null) throw new OptionalNotFoundException("not init customer yet");
+        CustomerInitDto customerInitDto = customerInitMapper.toDto(user.getCustomer());
+        boolean isMember = checkIsMember(user.getCustomer());
+        customerInitDto.setIsMember(isMember);
+        return customerInitDto;
     }
 
     @Override

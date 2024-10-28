@@ -3,7 +3,7 @@ package com.capstone.unwind.model.WalletDTO;
 import com.capstone.unwind.entity.Wallet;
 import com.capstone.unwind.entity.WalletTransaction;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Value;
+import lombok.*;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -13,7 +13,11 @@ import java.util.UUID;
 /**
  * DTO for {@link Wallet}
  */
-@Value
+@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class WalletDto implements Serializable {
     Integer id;
     Integer ownerId;
