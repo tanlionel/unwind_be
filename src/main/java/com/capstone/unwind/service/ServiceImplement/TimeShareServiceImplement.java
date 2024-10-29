@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Year;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -180,10 +181,11 @@ public class TimeShareServiceImplement implements TimeShareService {
         if (!timeshare.isPresent()) throw new OptionalNotFoundException("not found timeshare");
         int startYears = timeshare.get().getStartYear();
         int endYears = timeshare.get().getEndYear();
+        int currentYear = Year.now().getValue();
         List<Integer> notValidYears = rentalPostingRepository.findAllNotValidYears(timeshareId);
         List<Integer> validYears = IntStream.rangeClosed(startYears, endYears)
                 .boxed()
-                .filter(year -> !notValidYears.contains(year))
+                .filter(year ->year>=currentYear && !notValidYears.contains(year))
                 .collect(Collectors.toList());
 
         return validYears;

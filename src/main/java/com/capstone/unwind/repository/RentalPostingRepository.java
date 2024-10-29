@@ -36,7 +36,8 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
             "LEFT JOIN RentalBooking rb ON r.id = rb.rentalPosting.id " +
             "WHERE r.timeshare.id = :timeshareId " +
             "AND r.isActive = true " +
-            "AND (rb.status IN ('Booked', 'NoShow', 'CheckIn', 'CheckOut', 'Refund', 'PaymentComplete') " +
-            "     OR (r.rentalPackage.id = 4 AND r.status not IN ('Closed')))")
+            "AND (rb.status IN ('Booked', 'NoShow', 'CheckIn', 'CheckOut', 'Refund', 'PaymentCompleted') " +
+            "     OR (r.rentalPackage.id = 4 AND r.status not IN ('Closed')))"+
+            "   OR(r.rentalPackage.id = 1 and r.status = 'Completed')")
     List<Integer> findAllNotValidYears(@Param("timeshareId") Integer timeshareId);
 }
