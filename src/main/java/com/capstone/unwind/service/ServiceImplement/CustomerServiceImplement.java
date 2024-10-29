@@ -5,10 +5,7 @@ import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.CustomerDTO.*;
 import com.capstone.unwind.model.WalletDTO.*;
-import com.capstone.unwind.repository.CustomerRepository;
-import com.capstone.unwind.repository.MembershipRepository;
-import com.capstone.unwind.repository.UserRepository;
-import com.capstone.unwind.repository.WalletRepository;
+import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.CustomerService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import com.capstone.unwind.service.ServiceInterface.WalletService;
@@ -41,6 +38,8 @@ public class CustomerServiceImplement implements CustomerService {
     private final WalletMapper walletMapper;
     @Autowired
     private final CustomerInitMapper customerInitMapper;
+    @Autowired
+    private final RentalPackageRepository rentalPackageRepository;
     @Override
     public CustomerDto createCustomer(CustomerRequestDto customerRequestDto) throws OptionalNotFoundException {
         User user = userService.getLoginUser();
@@ -181,6 +180,44 @@ public class CustomerServiceImplement implements CustomerService {
                 .build();
 
         return membershipResponseDto;
+    }
+
+    @Override
+    public WalletTransactionDto paymentRentalPostingVNPAY(UUID uuid, Integer rentalPackageId) throws OptionalNotFoundException, ErrMessageException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+
+        Optional<RentalPackage> rentalPackage =rentalPackageRepository.findById(rentalPackageId);
+        if (!rentalPackage.isPresent()) throw new OptionalNotFoundException("Not found rental pacakge");
+        String description = "Thanh toán đăng bài" + rentalPackage.get().getRentalPackageName();
+        String transactionType = "RENTALPOSTING";
+        //update transaction
+        WalletTransaction walletTransaction = walletService.updateTransaction(uuid,description,transactionType);
+
+        return walletTransactionMapper.toDto(walletTransaction);
+    }
+
+    @Override
+    public WalletTransactionDto paymentRentalPostingWallet(Integer rentalPackageId) throws OptionalNotFoundException, ErrMessageException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+        Optional<RentalPackage> rentalPackage =rentalPackageRepository.findById(rentalPackageId);
+        if (!rentalPackage.isPresent()) throw new OptionalNotFoundException("Not found rental pacakge");
+
+        if (rentalPackage.get().getPrice()>user.getCustomer().getWallet().getAvailableMoney()) throw new ErrMessageException("not enough money");
+        user.getCustomer().getWallet().setAvailableMoney(user.getCustomer().getWallet().getAvailableMoney()-rentalPackage.get().getPrice());
+        WalletTransaction walletTransaction = walletService.createTransactionWallet(0,rentalPackage.get().getPrice(), "WALLET");
+        walletRepository.save(user.getCustomer().getWallet());
+
+
+        String description = "Thanh toán đăng bài" + rentalPackage.get().getRentalPackageName();
+        String transactionType = "RENTALPOSTING";
+        //update transaction
+        WalletTransaction walletTransactionAfterUpdate = walletService.updateTransaction(walletTransaction.getId(),description,transactionType);
+
+        return walletTransactionMapper.toDto(walletTransactionAfterUpdate);
     }
 
     public boolean checkIsMember(Customer customer){
