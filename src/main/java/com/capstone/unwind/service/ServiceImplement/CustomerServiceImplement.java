@@ -190,7 +190,7 @@ public class CustomerServiceImplement implements CustomerService {
 
         Optional<RentalPackage> rentalPackage =rentalPackageRepository.findById(rentalPackageId);
         if (!rentalPackage.isPresent()) throw new OptionalNotFoundException("Not found rental pacakge");
-        String description = "Thanh toán đăng bài" + rentalPackage.get().getRentalPackageName();
+        String description = "Thanh toán đăng bài " + rentalPackage.get().getRentalPackageName();
         String transactionType = "RENTALPOSTING";
         //update transaction
         WalletTransaction walletTransaction = walletService.updateTransaction(uuid,description,transactionType);
@@ -204,7 +204,7 @@ public class CustomerServiceImplement implements CustomerService {
         if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
         if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
         Optional<RentalPackage> rentalPackage =rentalPackageRepository.findById(rentalPackageId);
-        if (!rentalPackage.isPresent()) throw new OptionalNotFoundException("Not found rental pacakge");
+        if (!rentalPackage.isPresent()) throw new OptionalNotFoundException("Not found rental package");
 
         if (rentalPackage.get().getPrice()>user.getCustomer().getWallet().getAvailableMoney()) throw new ErrMessageException("not enough money");
         user.getCustomer().getWallet().setAvailableMoney(user.getCustomer().getWallet().getAvailableMoney()-rentalPackage.get().getPrice());
@@ -212,7 +212,7 @@ public class CustomerServiceImplement implements CustomerService {
         walletRepository.save(user.getCustomer().getWallet());
 
 
-        String description = "Thanh toán đăng bài" + rentalPackage.get().getRentalPackageName();
+        String description = "Thanh toán đăng bài " + rentalPackage.get().getRentalPackageName();
         String transactionType = "RENTALPOSTING";
         //update transaction
         WalletTransaction walletTransactionAfterUpdate = walletService.updateTransaction(walletTransaction.getId(),description,transactionType);
