@@ -16,6 +16,7 @@ public interface PostingDetailTsStaffMapper {
     PostingDetailTsStaffMapper INSTANCE = Mappers.getMapper(PostingDetailTsStaffMapper.class);
 
     @Mapping(source = "id", target = "rentalPostingId")
+    @Mapping(source = "description", target = "description")
     @Mapping(source = "createdDate", target = "createdDate")
     @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(source = "owner.fullName", target = "ownerName")

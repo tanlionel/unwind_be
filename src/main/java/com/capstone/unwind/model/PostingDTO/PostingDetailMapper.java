@@ -16,6 +16,7 @@ public interface PostingDetailMapper {
     PostingDetailMapper INSTANCE = Mappers.getMapper(PostingDetailMapper.class);
 
     @Mapping(source = "id", target = "rentalPostingId")
+    @Mapping(source = "description", target = "description")
     @Mapping(source = "expiredDate", target = "expiredDate")
     @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(source = "owner.fullName", target = "ownerName")

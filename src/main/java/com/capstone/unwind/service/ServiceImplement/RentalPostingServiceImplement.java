@@ -53,9 +53,9 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     private final RentalPackageRepository rentalPackageRepository;
     @Autowired
     private final RentalPostingResponseMapper rentalPostingResponseMapper;
-    private final String processing = "Processing";
+/*    private final String processing = "Processing";
     private final String pendingPricing = "PendingPricing";
-    private final String  pendingApproval = "PendingApproval";
+    private final String  pendingApproval = "PendingApproval";*/
     @Override
     public List<PostingResponseDTO> getAllPostings() throws OptionalNotFoundException {
         User user = userService.getLoginUser();
@@ -69,7 +69,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     @Override
     public Page<PostingResponseDTO> getAllPublicPostings(String resortName, Pageable pageable) throws OptionalNotFoundException {
         Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatus(true,
-                resortName, processing, pageable);
+                resortName, String.valueOf(RentalPostingEnum.Processing), pageable);
         return listRentalPostingMapper.entitiesToDTOs(rentalPostings);
     }
     @Override
@@ -87,13 +87,13 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         }
         TimeshareCompanyStaff timeshareCompanyStaff = timeshareCompanyStaffOpt.get();
         Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndStatusAndRoomInfo_Resort_Id(
-                true, roomInfoCode,pendingApproval, timeshareCompanyStaff.getResort().getId(), pageable);
+                true, roomInfoCode,String.valueOf(RentalPostingEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), pageable);
         return listRentalPostingTsStaffMapper.entitiesToDTOs(rentalPostings);
     }
     @Override
     public Page<PostingResponseTsStaffDTO> getAllPostingsSystemStaff(String resortName, Pageable pageable) throws OptionalNotFoundException {
         Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatusAndRentalPackage_Id(
-                true, resortName,pendingApproval,4 ,pageable);
+                true, resortName,String.valueOf(RentalPostingEnum.PendingApproval),4 ,pageable);
         return listRentalPostingTsStaffMapper.entitiesToDTOs(rentalPostings);
     }
 
