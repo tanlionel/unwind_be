@@ -4,6 +4,7 @@ import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
 import com.capstone.unwind.model.PostingDTO.PostingResponseDTO;
 import com.capstone.unwind.service.ServiceInterface.RentalPostingService;
+import com.capstone.unwind.service.ServiceInterface.TimeShareService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,7 @@ import java.util.List;
 @RequestMapping("/api/customer")
 @RequiredArgsConstructor
 @CrossOrigin
-public class RentalPostingController {
+public class CustomerRentalController {
     @Autowired
     RentalPostingService rentalPostingService;
     @GetMapping("rental/posting")
@@ -28,4 +29,5 @@ public class RentalPostingController {
     public PostingDetailResponseDTO getRentalPostingDetail(@PathVariable Integer postingId) throws OptionalNotFoundException {
         return rentalPostingService.getRentalPostingDetailById(postingId);
     }
+
 }

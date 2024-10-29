@@ -21,7 +21,6 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
 
     List<RentalPosting> findAllByOwnerIdAndIsActive(Integer id, boolean isActive);
 
-
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRoomInfo_IsActive(boolean b, String resortName, boolean b1,
                                                                                                      Pageable pageable);
 
@@ -38,4 +37,12 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
     Optional<RentalPosting> findByIdAndIsActive(@Param("postingId") Integer postingId);
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndRoomInfo_Resort_IdAndRentalPackage_IdIn(
             boolean isActive, String roomInfoCode, Integer resortId, List<Integer> packageIds, Pageable pageable);
+
+    @Query("SELECT YEAR(r.checkinDate) FROM RentalPosting r " +
+            "LEFT JOIN RentalBooking rb ON r.id = rb.rentalPosting.id " +
+            "WHERE r.timeshare.id = :timeshareId " +
+            "AND r.isActive = true " +
+            "AND (rb.status IN ('Booked', 'NoShow', 'CheckIn', 'CheckOut', 'Refund', 'PaymentComplete') " +
+            "     OR (r.rentalPackage.id = 4 AND r.status not IN ('Closed')))")
+    List<Integer> findAllNotValidYears(@Param("timeshareId") Integer timeshareId);
 }
