@@ -33,10 +33,13 @@ public class TimeshareController {
         return ResponseEntity.ok(timeShares);
     }
 
-
-    //fix please
     @GetMapping("/timeshare/{timeShareID}")
     public TimeShareDetailDTO getTimeShareDetails(@PathVariable Integer timeShareID) throws OptionalNotFoundException {
         return timeShareService.getTimeShareDetails(timeShareID);
+    }
+    @GetMapping("/timeshare/valid-year/{timeshareId}")
+    public ResponseEntity<List<Integer>> getValidTimeshareYear(@PathVariable Integer timeshareId) throws OptionalNotFoundException {
+        List<Integer> validYearsList = timeShareService.getTimeshareValidYears(timeshareId);
+        return ResponseEntity.ok(validYearsList);
     }
 }

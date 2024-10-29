@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
 @Service
@@ -40,7 +41,8 @@ public class TimeShareServiceImplement implements TimeShareService {
     private final UnitTypeRepository unitTypeRepository;
     @Autowired
     private RoomInfoMapper roomInfoMapper;
-
+    @Autowired
+    private final RentalPostingRepository rentalPostingRepository;
 
     @Override
     public TimeShareResponseDTO createTimeShare(TimeShareRequestDTO timeShareRequestDTO) throws EntityDoesNotExistException, ErrMessageException, OptionalNotFoundException {
@@ -170,5 +172,20 @@ public class TimeShareServiceImplement implements TimeShareService {
                         .build())
                 .build();
         return timeShareDetailDTO;
+    }
+
+    @Override
+    public List<Integer> getTimeshareValidYears(Integer timeshareId) throws OptionalNotFoundException {
+        Optional<Timeshare> timeshare = timeShareRepository.findById(timeshareId);
+        if (!timeshare.isPresent()) throw new OptionalNotFoundException("not found timeshare");
+        int startYears = timeshare.get().getStartYear();
+        int endYears = timeshare.get().getEndYear();
+        List<Integer> notValidYears = rentalPostingRepository.findAllNotValidYears(timeshareId);
+        List<Integer> validYears = IntStream.rangeClosed(startYears, endYears)
+                .boxed()
+                .filter(year -> !notValidYears.contains(year))
+                .collect(Collectors.toList());
+
+        return validYears;
     }
 }
