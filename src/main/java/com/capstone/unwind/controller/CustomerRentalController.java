@@ -1,8 +1,11 @@
 package com.capstone.unwind.controller;
 
+import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
 import com.capstone.unwind.model.PostingDTO.PostingResponseDTO;
+import com.capstone.unwind.model.PostingDTO.RentalPostingRequestDto;
+import com.capstone.unwind.model.PostingDTO.RentalPostingResponseDto;
 import com.capstone.unwind.service.ServiceInterface.RentalPostingService;
 import com.capstone.unwind.service.ServiceInterface.TimeShareService;
 import lombok.RequiredArgsConstructor;
@@ -29,5 +32,9 @@ public class CustomerRentalController {
     public PostingDetailResponseDTO getRentalPostingDetail(@PathVariable Integer postingId) throws OptionalNotFoundException {
         return rentalPostingService.getRentalPostingDetailById(postingId);
     }
-
+    @PostMapping("rental/posting")
+    public ResponseEntity<RentalPostingResponseDto> createPosting(@RequestBody RentalPostingRequestDto rentalPostingRequestDto) throws ErrMessageException, OptionalNotFoundException {
+        RentalPostingResponseDto rentalPostingResponseDto = rentalPostingService.createRentalPosting(rentalPostingRequestDto);
+        return ResponseEntity.ok(rentalPostingResponseDto);
+    }
 }

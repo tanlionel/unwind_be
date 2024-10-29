@@ -1,8 +1,7 @@
 package com.capstone.unwind.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -11,6 +10,9 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "rental_posting")
 public class RentalPosting {
     @Id
@@ -18,8 +20,8 @@ public class RentalPosting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "name", length = 45)
-    private String name;
+    @Column(name = "description", length = 1000)
+    private String description;
 
     @Column(name = "nights")
     private Integer nights;
@@ -43,7 +45,7 @@ public class RentalPosting {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cancellation_type")
-    private CancelationPolicy cancellationType;
+    private CancellationPolicy cancellationType;
 
     @Column(name = "checkin_date")
     private LocalDate checkinDate;
@@ -82,5 +84,14 @@ public class RentalPosting {
 
     @Column(name = "price_valuation")
     private Float priceValuation;
+    @PrePersist
+    protected void onCreate() {
+        this.createdDate = Timestamp.from(Instant.now());
+        this.updatedDate = Timestamp.from(Instant.now());
+    }
 
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedDate = Timestamp.from(Instant.now());
+    }
 }

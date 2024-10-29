@@ -1,13 +1,12 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
+import com.capstone.unwind.enums.RentalPostingEnum;
+import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.PostingDTO.*;
 import com.capstone.unwind.model.SystemDTO.PolicyMapper;
-import com.capstone.unwind.repository.CustomerRepository;
-import com.capstone.unwind.repository.PolicyRespository;
-import com.capstone.unwind.repository.RentalPostingRepository;
-import com.capstone.unwind.repository.TimeshareCompanyStaffRepository;
+import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.RentalPostingService;
 import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
@@ -18,6 +17,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
+
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +45,14 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     private final CustomerRepository customerRepository;
     @Autowired
     private final TimeshareCompanyStaffRepository timeshareCompanyStaffRepository;
+    @Autowired
+    private final TimeShareRepository timeShareRepository;
+    @Autowired
+    private final CancellationPolicyRepository cancellationPolicyRepository;
+    @Autowired
+    private final RentalPackageRepository rentalPackageRepository;
+    @Autowired
+    private final RentalPostingResponseMapper rentalPostingResponseMapper;
     private final String processing = "Processing";
     private final String pendingPricing = "PendingPricing";
     private final String  pendingApproval = "PendingApproval";
@@ -87,6 +96,39 @@ public class RentalPostingServiceImplement implements RentalPostingService {
                 true, resortName,pendingApproval,4 ,pageable);
         return listRentalPostingTsStaffMapper.entitiesToDTOs(rentalPostings);
     }
+
+    @Override
+    public RentalPostingResponseDto createRentalPosting(RentalPostingRequestDto rentalPostingRequestDto) throws ErrMessageException, OptionalNotFoundException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer()==null) throw new ErrMessageException("Not init customer yet");
+        Optional<Timeshare> timeshare = timeShareRepository.findById(rentalPostingRequestDto.getTimeshareId());
+        if (!timeshare.isPresent()) throw new OptionalNotFoundException("Not found timeshare");
+        Optional<CancellationPolicy> cancellationPolicy = cancellationPolicyRepository.findById(rentalPostingRequestDto.getCancellationTypeId());
+        if (!cancellationPolicy.isPresent()) throw new OptionalNotFoundException("Not found cancellation");
+        Optional<RentalPackage> rentalPackage = rentalPackageRepository.findById(rentalPostingRequestDto.getRentalPackageId());
+        if (!rentalPackage.isPresent()) throw new OptionalNotFoundException("Not found rental package");
+        RentalPosting rentalPosting = RentalPosting.builder()
+                .description(rentalPostingRequestDto.getDescription())
+                .nights(rentalPostingRequestDto.getNights())
+                .pricePerNights(rentalPostingRequestDto.getPricePerNights())
+                .isVerify(false)
+                .isBookable(false)
+                .timeshare(timeshare.get())
+                .roomInfo(timeshare.get().getRoomInfo())
+                .cancellationType(cancellationPolicy.get())
+                .checkinDate(rentalPostingRequestDto.getCheckinDate())
+                .checkoutDate(rentalPostingRequestDto.getCheckoutDate())
+                .expiredDate(LocalDate.now().plusDays(rentalPackage.get().getDuration()))
+                .status(String.valueOf(RentalPostingEnum.PendingApproval))
+                .owner(user.getCustomer())
+                .rentalPackage(rentalPackage.get())
+                .isActive(true)
+                .build();
+        if (rentalPostingRequestDto.getRentalPackageId()==1) rentalPosting.setStatus(String.valueOf(RentalPostingEnum.Processing));
+        RentalPosting rentalPostingInDb = rentalPostingRepository.save(rentalPosting);
+        return rentalPostingResponseMapper.toDto(rentalPostingInDb);
+    }
+
     @Override
     public PostingDetailTsStaffResponseDTO getRentalPostingDetailTsStaffById(Integer postingId) throws OptionalNotFoundException {
         RentalPosting rentalPosting = rentalPostingRepository.findByIdAndIsActive(postingId)

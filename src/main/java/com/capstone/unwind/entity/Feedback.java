@@ -33,5 +33,11 @@ public class Feedback {
 
     @Column(name = "created_date")
     private Timestamp createdDate;
+    @PrePersist
+    protected void onCreate() {
+        this.createdDate = Timestamp.from(Instant.now());
+    }
+
+
 
 }
