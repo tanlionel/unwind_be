@@ -14,19 +14,13 @@ import java.util.Optional;
 
 @Repository
 public interface RentalPostingRepository extends JpaRepository<RentalPosting,Integer> {
-
     List<RentalPosting> findAllByIsActive(boolean isActive);
-
     List<RentalPosting> findAllByOwnerId(Integer id);
-
     List<RentalPosting> findAllByOwnerIdAndIsActive(Integer id, boolean isActive);
-
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRoomInfo_IsActive(boolean b, String resortName, boolean b1,
                                                                                                      Pageable pageable);
-
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRoomInfo_IsActiveAndStatus(
             boolean isActive, String resortName, boolean roomInfoIsActive, String status, Pageable pageable);
-
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatus(boolean isActive,
           String resortName, String status, Pageable pageable);
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatusAndRentalPackage_Id(boolean isActive,
