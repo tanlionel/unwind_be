@@ -98,4 +98,14 @@ public class ExchangeBooking {
     @Column(name = "updated_date")
     private Timestamp updatedDate;
 
+    @PrePersist
+    protected void onCreate() {
+        this.createdDate = Timestamp.from(Instant.now());
+        this.updatedDate = Timestamp.from(Instant.now());
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedDate = Timestamp.from(Instant.now());
+    }
 }

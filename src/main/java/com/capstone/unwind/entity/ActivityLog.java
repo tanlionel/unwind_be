@@ -31,5 +31,11 @@ public class ActivityLog {
 
     @Column(name = "note", length = 1000)
     private String note;
+    @PrePersist
+    protected void onCreate() {
+        this.createdDate = Timestamp.from(Instant.now());
+    }
+
+
 
 }

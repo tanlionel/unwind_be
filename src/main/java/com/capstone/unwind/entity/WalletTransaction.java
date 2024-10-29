@@ -46,6 +46,8 @@ public class WalletTransaction {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = new Timestamp(Instant.now().toEpochMilli());  // Đặt thời gian tạo
+        this.createdAt = Timestamp.from(Instant.now());
     }
+
+    
 }

@@ -51,9 +51,16 @@ public class Timeshare {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_info_id")
     private RoomInfo roomInfo;
+
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = Timestamp.from(Instant.now());
+        this.updatedAt = Timestamp.from(Instant.now());
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
         this.updatedAt = Timestamp.from(Instant.now());
     }
 

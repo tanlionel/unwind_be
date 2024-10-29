@@ -54,5 +54,14 @@ public class ExchangeRequest {
 
     @Column(name = "is_active")
     private Boolean isActive;
+    @PrePersist
+    protected void onCreate() {
+        this.createdDate = Timestamp.from(Instant.now());
+        this.updatedDate = Timestamp.from(Instant.now());
+    }
 
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedDate = Timestamp.from(Instant.now());
+    }
 }

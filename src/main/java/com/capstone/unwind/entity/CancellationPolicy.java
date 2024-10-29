@@ -7,10 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "cancelation_policy")
-public class CancelationPolicy {
+@Table(name = "cancellation_policy")
+public class CancellationPolicy {
     @Id
-    @Column(name = "cancelation_policy_id", nullable = false)
+    @Column(name = "cancellation_policy_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
@@ -18,10 +18,10 @@ public class CancelationPolicy {
     private String name;
 
     @Column(name = "refund_rate")
-    private Float refundRate;
+    private Integer refundRate;
 
-    @Column(name = "duration_before", length = 45)
-    private String durationBefore;
+    @Column(name = "duration_before")
+    private Integer durationBefore;
 
     @Column(name = "description", length = 45)
     private String description;

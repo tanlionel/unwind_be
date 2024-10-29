@@ -86,5 +86,15 @@ public class RentalBooking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "renter_id")
     private Customer renter;
+    @PrePersist
+    protected void onCreate() {
+        this.createdDate = Timestamp.from(Instant.now());
+        this.updatedDate = Timestamp.from(Instant.now());
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedDate = Timestamp.from(Instant.now());
+    }
 
 }
