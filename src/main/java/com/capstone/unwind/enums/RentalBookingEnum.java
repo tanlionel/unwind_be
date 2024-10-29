@@ -7,5 +7,5 @@ public enum RentalBookingEnum {
     CheckIn,
     CheckOut,
     Refund,
-    PaymentComplete
+    PaymentCompleted
 }
