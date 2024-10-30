@@ -134,5 +134,35 @@ public class PaymentController {
                 .build();
         return ResponseEntity.ok(vnPayTransactionDetailDTO);
     }
+    @PostMapping("/IPN")
+    public ResponseEntity<Map<String, String>> handleIPN(HttpServletRequest request) {
+        Map<String, String> fields = new HashMap<>();
 
+        // Lấy tất cả các tham số từ request và đưa vào map `fields`
+        request.getParameterMap().forEach((key, value) -> {
+            fields.put(key, String.join(",", value));
+        });
+
+        // Lấy giá trị của `vnp_SecureHash` từ request
+        String vnp_SecureHash = fields.get("vnp_SecureHash");
+        fields.remove("vnp_SecureHash");
+        fields.remove("vnp_SecureHashType");
+
+        // Xác thực chữ ký
+        String generatedHash = VNpayConfig.hashAllFields(fields);
+        if (!generatedHash.equals(vnp_SecureHash)) {
+            return ResponseEntity.ok(Map.of("RspCode", "97", "Message", "Invalid Checksum"));
+        }
+
+        // Kiểm tra trạng thái giao dịch và xử lý theo yêu cầu
+        String responseCode = fields.get("vnp_ResponseCode");
+        if ("00".equals(responseCode)) {
+            // Cập nhật trạng thái giao dịch thành công trong database
+            System.out.println("siuuu");
+            return ResponseEntity.ok(Map.of("RspCode", "00", "Message", "Confirm Success"));
+        } else {
+            // Cập nhật trạng thái giao dịch thất bại trong database
+            return ResponseEntity.ok(Map.of("RspCode", "01", "Message", "Transaction Failed"));
+        }
+    }
 }
