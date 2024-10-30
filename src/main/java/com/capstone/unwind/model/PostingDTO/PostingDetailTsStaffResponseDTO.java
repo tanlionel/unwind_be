@@ -17,6 +17,7 @@ import java.util.List;
 @Builder
 public class PostingDetailTsStaffResponseDTO {
     private Integer rentalPostingId;
+    private String description;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private Timestamp createdDate;
     private Integer timeShareId;

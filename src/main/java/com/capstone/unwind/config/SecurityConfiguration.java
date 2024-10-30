@@ -55,6 +55,8 @@ public class SecurityConfiguration {
                                 .hasAuthority("TIMESHARECOMPANYSTAFF")
                                 .requestMatchers("api/system-staff/**")
                                 .hasAuthority("SYSTEMSTAFF")
+                                .requestMatchers("/s3/file/**")
+                                .permitAll()
                                 .requestMatchers("api/timeshare-staff/**")
                                 .hasAuthority("TIMESHARECOMPANYSTAFF")
                                 .requestMatchers("api/test/api/some-endpoint")
