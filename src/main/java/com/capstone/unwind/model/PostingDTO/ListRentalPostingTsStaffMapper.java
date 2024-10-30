@@ -6,6 +6,7 @@ import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,13 +44,14 @@ public interface ListRentalPostingTsStaffMapper {
                 .filter(PostingResponseTsStaffDTO::getIsValid)
                 .collect(Collectors.toList());
 
-        int totalElements = validDtos.size();
-        int start = Math.toIntExact(entities.getPageable().getOffset());
-        int end = Math.min((start + entities.getPageable().getPageSize()), totalElements);
+        int totalElements = (int) entities.getTotalElements();
+        Pageable pageable = entities.getPageable();
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), validDtos.size());
 
         List<PostingResponseTsStaffDTO> pageContent = validDtos.subList(start, end);
 
-        return new PageImpl<>(pageContent, entities.getPageable(), totalElements);
+        return new PageImpl<>(pageContent, pageable, totalElements);
     }
     RentalPosting dtoToEntity(PostingResponseTsStaffDTO dto);
     List<RentalPosting> dtosToEntities(List<PostingResponseTsStaffDTO> dtos);

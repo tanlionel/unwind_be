@@ -55,13 +55,14 @@ public interface ListRentalPostingMapper {
                 .filter(PostingResponseDTO::getIsValid)
                 .collect(Collectors.toList());
 
-        int totalElements = validDtos.size();
-        int start = Math.toIntExact(entities.getPageable().getOffset());
-        int end = Math.min((start + entities.getPageable().getPageSize()), totalElements);
+        int totalElements = (int) entities.getTotalElements();
+        Pageable pageable = entities.getPageable();
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), validDtos.size());
 
         List<PostingResponseDTO> pageContent = validDtos.subList(start, end);
 
-        return new PageImpl<>(pageContent, entities.getPageable(), totalElements);
+        return new PageImpl<>(pageContent, pageable, totalElements);
     }
     RentalPosting dtoToEntity(PostingResponseDTO dto);
     List<RentalPosting> dtosToEntities(List<PostingResponseDTO> dtos);
