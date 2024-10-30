@@ -14,4 +14,5 @@ public interface UnitTypeRepository extends JpaRepository<UnitType, Integer> {
     List<UnitType> findAllByResortIdAndIsActiveTrue(Integer resortId);
 
     Optional<UnitType> findByIdAndIsActiveTrue(Integer id);
+
 }

@@ -18,4 +18,5 @@ public interface WalletService {
     WalletTransactionDto findWalletTransactionById(UUID uuid) throws OptionalNotFoundException;
     WalletTransaction updateTransactionMembershipByVNPAY(UUID uuid,Integer membership_id) throws OptionalNotFoundException, ErrMessageException;
     WalletTransaction updateTransactionDepositMoneyByVNPAY(UUID uuid) throws OptionalNotFoundException, ErrMessageException;
+    WalletTransaction refundMoneyToCustomer(Integer customerId, float fee, float money, String paymentMethod, String description,String transactionType) throws OptionalNotFoundException;
 }
