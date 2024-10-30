@@ -17,4 +17,10 @@ public interface RentalPostingService {
     Page<PostingResponseTsStaffDTO> getAllPostingsSystemStaff(String roomInfoCode, Pageable pageable) throws OptionalNotFoundException;
 
     RentalPostingResponseDto createRentalPosting(RentalPostingRequestDto rentalPostingRequestDto) throws ErrMessageException, OptionalNotFoundException;
+
+    RentalPostingApprovalResponseDto approvalPostingTimeshareStaff(Integer postingId, RentalPostingApprovalDto rentalPostingApprovalDto) throws OptionalNotFoundException, ErrMessageException;
+
+    RentalPostingApprovalResponseDto rejectPostingTimeshareStaff(Integer postingId, String note) throws OptionalNotFoundException, ErrMessageException;
+
+    RentalPostingApprovalResponseDto approvalPostingSystemStaff(Integer postingId, Float newPriceValuation) throws OptionalNotFoundException, ErrMessageException;
 }

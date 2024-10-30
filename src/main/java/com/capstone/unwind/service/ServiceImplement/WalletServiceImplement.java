@@ -1,14 +1,12 @@
 package com.capstone.unwind.service.ServiceImplement;
 
-import com.capstone.unwind.entity.Membership;
-import com.capstone.unwind.entity.User;
-import com.capstone.unwind.entity.Wallet;
-import com.capstone.unwind.entity.WalletTransaction;
+import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.WalletDTO.*;
 import com.capstone.unwind.repository.CustomerRepository;
 import com.capstone.unwind.repository.MembershipRepository;
+import com.capstone.unwind.repository.WalletRepository;
 import com.capstone.unwind.repository.WalletTransactionRepository;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import com.capstone.unwind.service.ServiceInterface.WalletService;
@@ -36,9 +34,11 @@ public class WalletServiceImplement implements WalletService {
     @Autowired
     private final MembershipRepository membershipRepository;
     @Autowired
-    private WalletTransactionMapper walletTransactionMapper;
+    private final WalletTransactionMapper walletTransactionMapper;
     @Autowired
-    private WalletRefreshMapper walletRefreshMapper;
+    private final WalletRefreshMapper walletRefreshMapper;
+    @Autowired
+    private final WalletRepository walletRepository;
 
     @Override
     public WalletDto getLoginCustomerWalletTransaction() throws OptionalNotFoundException {
@@ -156,5 +156,23 @@ public class WalletServiceImplement implements WalletService {
         }
 
         return walletTransactionInDB;
+    }
+
+    @Override
+    public WalletTransaction refundMoneyToCustomer(Integer customerId, float fee, float money, String paymentMethod, String description, String transactionType) throws OptionalNotFoundException {
+        Customer customer = customerRepository.findById(customerId).orElseThrow(()->new OptionalNotFoundException("not found customer"));
+        Wallet wallet = customer.getWallet();
+        WalletTransaction walletTransaction = WalletTransaction.builder()
+                .fee(fee)
+                .money(money)
+                .description(description)
+                .paymentMethod(paymentMethod)
+                .transactionType(transactionType)
+                .wallet(wallet)
+                .build();
+        wallet.setAvailableMoney(wallet.getAvailableMoney()+money);
+        Wallet walletInDb = walletRepository.save(wallet);
+        WalletTransaction walletTransactionInDb = walletTransactionRepository.save(walletTransaction);
+        return walletTransactionInDb;
     }
 }
