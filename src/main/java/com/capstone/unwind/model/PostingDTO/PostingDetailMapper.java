@@ -7,6 +7,7 @@ import com.capstone.unwind.exception.ErrMessageException;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,34 +48,31 @@ public interface PostingDetailMapper {
     PostingDetailResponseDTO.unitType toUnitTypeDTO(UnitType unitType);
     @AfterMapping
     default void filterActiveEntities(RentalPosting entity, @MappingTarget PostingDetailResponseDTO.PostingDetailResponseDTOBuilder responseDTOBuilder) {
-        boolean isValid = true;
 
         if (entity.getTimeshare() != null && Boolean.FALSE.equals(entity.getTimeshare().getIsActive())) {
             responseDTOBuilder.timeShareId(null);
-            isValid = false;
         }
 
         if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null) {
             if (Boolean.FALSE.equals(entity.getTimeshare().getRoomInfo().getIsActive())) {
                 responseDTOBuilder.roomInfoId(null);
                 responseDTOBuilder.roomName(null);
-                isValid = false;
             }
         }
+
         if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
                 entity.getTimeshare().getRoomInfo().getUnitType() != null) {
             if (Boolean.FALSE.equals(entity.getTimeshare().getRoomInfo().getUnitType().getIsActive())) {
                 responseDTOBuilder.unitType(null);
-                isValid = false;
             }
         }
+
         if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
                 entity.getTimeshare().getRoomInfo().getResort() != null) {
             if (Boolean.FALSE.equals(entity.getTimeshare().getRoomInfo().getResort().getIsActive())) {
                 responseDTOBuilder.resortId(null);
                 responseDTOBuilder.resortName(null);
                 responseDTOBuilder.address(null);
-                isValid = false;
             }
         }
 
@@ -88,44 +86,32 @@ public interface PostingDetailMapper {
                             .type(amenity.getType())
                             .build())
                     .collect(Collectors.toList());
-            responseDTOBuilder.resortAmenities(activeAmenities);
-            if (activeAmenities.isEmpty()) {
-                isValid = false;
-            }
+            responseDTOBuilder.resortAmenities(activeAmenities.isEmpty() ? Collections.emptyList() : activeAmenities);
         }
 
-            if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
-                    entity.getTimeshare().getRoomInfo().getResort() != null) {
-                List<PostingDetailResponseDTO.RoomAmenityDTO> activeRoomAmenities = entity.getTimeshare().getRoomInfo().getAmenities().stream()
-                        .filter(amenity -> Boolean.TRUE.equals(amenity.getIsActive()))
-                        .map(amenity -> PostingDetailResponseDTO.RoomAmenityDTO.builder()
-                                .id(amenity.getId())
-                                .name(amenity.getName())
-                                .type(amenity.getType())
-                                .build())
-                        .collect(Collectors.toList());
-                responseDTOBuilder.roomAmenities(activeRoomAmenities);
-                if (activeRoomAmenities.isEmpty()) {
-                    isValid = false;
-                }
-            }
-                if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
-                        entity.getTimeshare().getRoomInfo().getResort() != null) {
-                    List<PostingDetailResponseDTO.UnitTypeAmenityDTO> activeUnitTypeAmenities = entity.getTimeshare().getRoomInfo().getUnitType().getAmenities().stream()
-                            .filter(amenity -> Boolean.TRUE.equals(amenity.getIsActive()))
-                            .map(amenity -> PostingDetailResponseDTO.UnitTypeAmenityDTO.builder()
-                                    .id(amenity.getId())
-                                    .name(amenity.getName())
-                                    .type(amenity.getType())
-                                    .build())
-                            .collect(Collectors.toList());
-                    responseDTOBuilder.unitTypeAmenities(activeUnitTypeAmenities);
-            if (activeUnitTypeAmenities.isEmpty()) {
-                isValid = false;
-            }
+        if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null) {
+            List<PostingDetailResponseDTO.RoomAmenityDTO> activeRoomAmenities = entity.getTimeshare().getRoomInfo().getAmenities().stream()
+                    .filter(amenity -> Boolean.TRUE.equals(amenity.getIsActive()))
+                    .map(amenity -> PostingDetailResponseDTO.RoomAmenityDTO.builder()
+                            .id(amenity.getId())
+                            .name(amenity.getName())
+                            .type(amenity.getType())
+                            .build())
+                    .collect(Collectors.toList());
+            responseDTOBuilder.roomAmenities(activeRoomAmenities.isEmpty() ? Collections.emptyList() : activeRoomAmenities);
         }
-        if (!isValid) {
-            throw new IllegalStateException("TimeShare or room , unitType related entities are inactive.");
+
+        if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
+                entity.getTimeshare().getRoomInfo().getUnitType() != null) {
+            List<PostingDetailResponseDTO.UnitTypeAmenityDTO> activeUnitTypeAmenities = entity.getTimeshare().getRoomInfo().getUnitType().getAmenities().stream()
+                    .filter(amenity -> Boolean.TRUE.equals(amenity.getIsActive()))
+                    .map(amenity -> PostingDetailResponseDTO.UnitTypeAmenityDTO.builder()
+                            .id(amenity.getId())
+                            .name(amenity.getName())
+                            .type(amenity.getType())
+                            .build())
+                    .collect(Collectors.toList());
+            responseDTOBuilder.unitTypeAmenities(activeUnitTypeAmenities.isEmpty() ? Collections.emptyList() : activeUnitTypeAmenities);
         }
     }
     List<PostingDetailResponseDTO> entitiesToDtos(List<RentalPosting> entities);
