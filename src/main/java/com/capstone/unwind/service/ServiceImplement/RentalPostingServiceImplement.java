@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Arrays;
@@ -101,8 +102,8 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     }
     @Override
     public Page<PostingResponseTsStaffDTO> getAllPostingsSystemStaff(String resortName, Pageable pageable) throws OptionalNotFoundException {
-        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatusAndRentalPackage_Id(
-                true, resortName,String.valueOf(RentalPostingEnum.PendingApproval),4 ,pageable);
+        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRentalPackage_Id(
+                true, resortName,4 ,pageable);
         return listRentalPostingTsStaffMapper.entitiesToDTOs(rentalPostings);
     }
 
@@ -192,6 +193,18 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         String transactionType = "RENTALPOSTING";
         WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(customer.get().getId(),fee,money,paymentMethod,description,transactionType);
         return rentalPostingApprovalMapper.toDto(rentalPostingInDb);
+    }
+
+    @Override
+    public RentalPostingApprovalResponseDto approvalPostingSystemStaff(Integer postingId, Float newPriceValuation) throws OptionalNotFoundException, ErrMessageException {
+        RentalPosting rentalPosting = rentalPostingRepository.findById(postingId).orElseThrow(()->new OptionalNotFoundException("Not found posting"));
+        if (rentalPosting.getRentalPackage().getId()!=4) throw new ErrMessageException("Package must be 4");
+        if (!rentalPosting.getStatus().equals(String.valueOf(RentalPostingEnum.PendingPricing))) throw new ErrMessageException("Status must be pending pricing");
+        if (newPriceValuation<=0) throw new ErrMessageException("New price valuation must be quarter than 0");
+        rentalPosting.setStatus(String.valueOf(RentalPostingEnum.AwaitingConfirmation));
+        rentalPosting.setPriceValuation(newPriceValuation);
+        RentalPostingApprovalResponseDto rentalPostingApprovalResponseDto = rentalPostingApprovalMapper.toDto(rentalPostingRepository.save(rentalPosting));
+        return rentalPostingApprovalResponseDto;
     }
 
     @Override
