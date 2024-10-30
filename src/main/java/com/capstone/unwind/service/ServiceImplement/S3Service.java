@@ -11,6 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -22,12 +24,26 @@ public class S3Service{
     @Autowired
     private AmazonS3 s3Client;
 
-    public String uploadFile(MultipartFile file)  {
-        File fileObj=convertMultiPartToFile(file);
-        String fileName=System.currentTimeMillis()+"_"+ file.getOriginalFilename();
-        s3Client.putObject(new PutObjectRequest(bucketName,fileName,fileObj));
-        fileObj.delete();
-        return "File uploaded : " + fileName;
+    @Value("${aws.bucket.url}")
+    private String url;
+
+    public List<String> uploadFiles(List<MultipartFile> files) {
+        List<String> uploadedFileNames = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            try {
+                File fileObj = convertMultiPartToFile(file);
+                String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                s3Client.putObject(new PutObjectRequest(bucketName, fileName, fileObj));
+                fileObj.delete();
+                uploadedFileNames.add(url + "/" +fileName);
+            } catch (Exception e) {
+                log.error("Error uploading file: " + file.getOriginalFilename(), e);
+                uploadedFileNames.add("Failed to upload: " + file.getOriginalFilename());
+            }
+        }
+
+        return uploadedFileNames;
     }
     public String deleteFile(String fileName){
         s3Client.deleteObject(bucketName,fileName);
