@@ -25,6 +25,7 @@ public interface ListRentalPostingTsStaffMapper {
     @Mapping(source = "timeshare.roomInfo.resort.id", target = "resortId")
     @Mapping(source = "timeshare.roomInfo.resort.resortName", target = "resortName")
     @Mapping(source = "pricePerNights", target = "pricePerNights")
+    @Mapping(target = "totalPrice", expression = "java(calculateTotalPrice(entity.getNights(), entity.getPricePerNights()))")
     @Mapping(source = "checkinDate", target = "checkinDate")
     @Mapping(source = "checkoutDate", target = "checkoutDate")
     @Mapping(source = "status", target = "status")
@@ -75,11 +76,11 @@ public interface ListRentalPostingTsStaffMapper {
 
         responseDTOBuilder.isValid(isValid);
     }
-   /* default Float calculateTotalPrice(Integer nights, Float pricePerNights) {
+    default Float calculateTotalPrice(Integer nights, Float pricePerNights) {
         if (nights != null && pricePerNights != null) {
             return nights * pricePerNights;
         }
         return 0f;
-    }*/
+    }
 
 }
