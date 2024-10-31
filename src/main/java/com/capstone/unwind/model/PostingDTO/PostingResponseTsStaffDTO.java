@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @Builder
 public class PostingResponseTsStaffDTO {
     private Integer rentalPostingId;
+    private Float priceValuation;
     private Integer timeShareId;
     private Integer roomInfoId;
     private String roomCode;

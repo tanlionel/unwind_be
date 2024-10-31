@@ -18,6 +18,7 @@ import java.util.List;
 public class PostingDetailTsStaffResponseDTO {
     private Integer rentalPostingId;
     private String description;
+    private Float priceValuation;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private Timestamp createdDate;
     private Integer timeShareId;
