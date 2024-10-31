@@ -15,12 +15,14 @@ import java.time.LocalDate;
 @Builder
 public class PostingResponseTsStaffDTO {
     private Integer rentalPostingId;
+    private Float priceValuation;
     private Integer timeShareId;
     private Integer roomInfoId;
     private String roomCode;
     private Integer resortId;
     private String resortName;
     private Float pricePerNights;
+    private Float totalPrice;
     private Integer rentalPackageId;
     private String rentalPackageName;
     @JsonFormat(pattern = "dd-MM-yyyy")
