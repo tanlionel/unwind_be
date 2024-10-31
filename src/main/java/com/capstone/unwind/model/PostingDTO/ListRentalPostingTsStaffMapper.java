@@ -40,43 +40,10 @@ public interface ListRentalPostingTsStaffMapper {
                 .collect(Collectors.toList());
 
     }
-    default Page<PostingResponseTsStaffDTO> entitiesToDTOs(Page<RentalPosting> entities) {
-        List<PostingResponseTsStaffDTO> validDtos = entities.stream()
-                .map(this::entityToDto)
-                .filter(PostingResponseTsStaffDTO::getIsValid)
-                .collect(Collectors.toList());
 
-        int totalElements = (int) entities.getTotalElements();
-        Pageable pageable = entities.getPageable();
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), validDtos.size());
-
-        List<PostingResponseTsStaffDTO> pageContent = validDtos.subList(start, end);
-
-        return new PageImpl<>(pageContent, pageable, totalElements);
-    }
     RentalPosting dtoToEntity(PostingResponseTsStaffDTO dto);
     List<RentalPosting> dtosToEntities(List<PostingResponseTsStaffDTO> dtos);
-    @AfterMapping
-    default void filterActiveEntities(RentalPosting entity, @MappingTarget PostingResponseTsStaffDTO.PostingResponseTsStaffDTOBuilder responseDTOBuilder) {
-        boolean isValid = true;
-        if (entity.getTimeshare() != null && Boolean.FALSE.equals(entity.getTimeshare().getIsActive())) {
-            responseDTOBuilder.timeShareId(null);
-            isValid = false;
-        }
 
-        if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null) {
-            if (Boolean.FALSE.equals(entity.getTimeshare().getRoomInfo().getIsActive())) {
-                responseDTOBuilder.roomInfoId(null);
-                responseDTOBuilder.roomCode(null);
-                isValid = false;
-            }
-        }
-
-
-
-        responseDTOBuilder.isValid(isValid);
-    }
     default Float calculateTotalPrice(Integer nights, Float pricePerNights) {
         if (nights != null && pricePerNights != null) {
             return nights * pricePerNights;

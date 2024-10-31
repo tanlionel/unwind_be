@@ -37,6 +37,7 @@ public class PostingDetailResponseDTO {
     private Integer nights;
     private Float pricePerNights;
     private Float totalPrice;
+    private Integer cancelTypeId;
     private String cancelType;
     private Integer rentalPackageId;
     private String rentalPackageName;
