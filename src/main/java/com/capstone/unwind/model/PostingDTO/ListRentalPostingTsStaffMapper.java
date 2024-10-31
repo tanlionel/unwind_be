@@ -33,13 +33,7 @@ public interface ListRentalPostingTsStaffMapper {
     @Mapping(source = "isActive", target = "isActive")
     PostingResponseTsStaffDTO entityToDto(RentalPosting entity);
 
-    default List<PostingResponseTsStaffDTO> entitiesToDtos(List<RentalPosting> entities) {
-        return entities.stream()
-                .map(this::entityToDto)
-                .filter(PostingResponseTsStaffDTO::getIsValid)
-                .collect(Collectors.toList());
 
-    }
 
     RentalPosting dtoToEntity(PostingResponseTsStaffDTO dto);
     List<RentalPosting> dtosToEntities(List<PostingResponseTsStaffDTO> dtos);

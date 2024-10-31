@@ -45,7 +45,6 @@ public interface ListRentalPostingMapper {
     default List<PostingResponseDTO> entitiesToDtos(List<RentalPosting> entities) {
         return entities.stream()
                 .map(this::entityToDto)
-                .filter(PostingResponseDTO::getIsValid)
                 .collect(Collectors.toList());
 
     }
