@@ -30,6 +30,7 @@ public interface PostingDetailTsStaffMapper {
     @Mapping(source = "timeshare.roomInfo.roomInfoCode", target = "roomCode")
     @Mapping(source = "timeshare.roomInfo.resort.id", target = "resortId")
     @Mapping(source = "timeshare.roomInfo.resort.resortName", target = "resortName")
+    @Mapping(source = "timeshare.roomInfo.resort.description", target = "resortDescription")
     @Mapping(source = "timeshare.roomInfo.resort.address", target = "address")
     @Mapping(source = "isVerify", target = "isVerify")
     @Mapping(source = "nights", target = "nights")
