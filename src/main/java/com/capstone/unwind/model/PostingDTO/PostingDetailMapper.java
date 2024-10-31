@@ -19,6 +19,7 @@ public interface PostingDetailMapper {
     @Mapping(source = "id", target = "rentalPostingId")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "expiredDate", target = "expiredDate")
+    @Mapping(source = "cancellationType", target = "cancelType")
     @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(source = "owner.fullName", target = "ownerName")
     @Mapping(source = "timeshare.id", target = "timeShareId")
