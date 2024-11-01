@@ -5,6 +5,7 @@ import com.capstone.unwind.enums.RentalPostingEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.PostingDTO.*;
+import com.capstone.unwind.model.ResortDTO.ResortDto;
 import com.capstone.unwind.model.SystemDTO.PolicyMapper;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.*;
@@ -80,7 +81,8 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     public Page<PostingResponseDTO> getAllPublicPostings(String resortName, Pageable pageable) throws OptionalNotFoundException {
         Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatus(true,
                 resortName, String.valueOf(RentalPostingEnum.Processing), pageable);
-        return listRentalPostingMapper.entitiesToDTOs(rentalPostings);
+        Page<PostingResponseDTO> postingDtoPage = rentalPostings.map(listRentalPostingMapper::entityToDto);
+        return postingDtoPage;
     }
     @Override
     public PostingDetailResponseDTO getRentalPostingDetailById(Integer postingId) throws OptionalNotFoundException {
@@ -98,13 +100,15 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         TimeshareCompanyStaff timeshareCompanyStaff = timeshareCompanyStaffOpt.get();
         Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndStatusAndRoomInfo_Resort_Id(
                 true, roomInfoCode,String.valueOf(RentalPostingEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), pageable);
-        return listRentalPostingTsStaffMapper.entitiesToDTOs(rentalPostings);
+        Page<PostingResponseTsStaffDTO> postingDtoPage = rentalPostings.map(listRentalPostingTsStaffMapper::entityToDto);
+        return postingDtoPage;
     }
     @Override
     public Page<PostingResponseTsStaffDTO> getAllPostingsSystemStaff(String resortName, Pageable pageable) throws OptionalNotFoundException {
         Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRentalPackage_Id(
                 true, resortName,4 ,pageable);
-        return listRentalPostingTsStaffMapper.entitiesToDTOs(rentalPostings);
+        Page<PostingResponseTsStaffDTO> postingDtoPage = rentalPostings.map(listRentalPostingTsStaffMapper::entityToDto);
+        return postingDtoPage;
     }
 
     @Override

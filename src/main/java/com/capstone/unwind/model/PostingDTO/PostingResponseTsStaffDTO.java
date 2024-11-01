@@ -18,13 +18,13 @@ public class PostingResponseTsStaffDTO {
     private Float priceValuation;
     private Integer timeShareId;
     private Integer roomInfoId;
+    private Integer rentalPackageId;
+    private String rentalPackageName;
     private String roomCode;
     private Integer resortId;
     private String resortName;
     private Float pricePerNights;
     private Float totalPrice;
-    private Integer rentalPackageId;
-    private String rentalPackageName;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate checkinDate;
     @JsonFormat(pattern = "dd-MM-yyyy")

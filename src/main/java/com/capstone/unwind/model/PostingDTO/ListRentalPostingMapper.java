@@ -45,54 +45,14 @@ public interface ListRentalPostingMapper {
     default List<PostingResponseDTO> entitiesToDtos(List<RentalPosting> entities) {
         return entities.stream()
                 .map(this::entityToDto)
-                .filter(PostingResponseDTO::getIsValid)
                 .collect(Collectors.toList());
 
     }
-    default Page<PostingResponseDTO> entitiesToDTOs(Page<RentalPosting> entities) {
-        List<PostingResponseDTO> validDtos = entities.stream()
-                .map(this::entityToDto)
-                .filter(PostingResponseDTO::getIsValid)
-                .collect(Collectors.toList());
 
-        int totalElements = (int) entities.getTotalElements();
-        Pageable pageable = entities.getPageable();
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), validDtos.size());
-
-        List<PostingResponseDTO> pageContent = validDtos.subList(start, end);
-
-        return new PageImpl<>(pageContent, pageable, totalElements);
-    }
     RentalPosting dtoToEntity(PostingResponseDTO dto);
     List<RentalPosting> dtosToEntities(List<PostingResponseDTO> dtos);
     PostingResponseDTO.unitTypeDTO toUnitTypeDTO(UnitType unitType);
-    @AfterMapping
-    default void filterActiveEntities(RentalPosting entity, @MappingTarget PostingResponseDTO.PostingResponseDTOBuilder responseDTOBuilder) {
-        boolean isValid = true;
-        if (entity.getTimeshare() != null && Boolean.FALSE.equals(entity.getTimeshare().getIsActive())) {
-            responseDTOBuilder.timeShareId(null);
-            isValid = false;
-        }
 
-        if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null) {
-            if (Boolean.FALSE.equals(entity.getTimeshare().getRoomInfo().getIsActive())) {
-                responseDTOBuilder.roomInfoId(null);
-                responseDTOBuilder.roomName(null);
-                isValid = false;
-            }
-        }
-
-        if (entity.getTimeshare() != null && entity.getTimeshare().getRoomInfo() != null &&
-                entity.getTimeshare().getRoomInfo().getUnitType() != null) {
-            if (Boolean.FALSE.equals(entity.getTimeshare().getRoomInfo().getUnitType().getIsActive())) {
-                responseDTOBuilder.unitTypeDTO(null);
-                isValid = false;
-            }
-        }
-
-        responseDTOBuilder.isValid(isValid);
-    }
     default Float calculateTotalPrice(Integer nights, Float pricePerNights) {
         if (nights != null && pricePerNights != null) {
             return nights * pricePerNights;

@@ -39,8 +39,7 @@ public class PostingResponseDTO {
     private String status;
     private boolean isActive;
     private unitTypeDTO unitTypeDTO;
-    @JsonIgnore
-    private Boolean isValid;
+
     @Data
     @Getter
     @Setter
