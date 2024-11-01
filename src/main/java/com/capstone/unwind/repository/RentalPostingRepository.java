@@ -17,6 +17,13 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
     List<RentalPosting> findAllByIsActive(boolean isActive);
     List<RentalPosting> findAllByOwnerId(Integer id);
     List<RentalPosting> findAllByOwnerIdAndIsActive(Integer id, boolean isActive);
+    @Query("SELECT rp FROM RentalPosting rp WHERE rp.owner.id = :ownerId AND rp.isActive = true ORDER BY rp.createdDate DESC")
+    List<RentalPosting> findByOwnerIdAndIsActive(@Param("ownerId") Integer ownerId);
+    @Query("SELECT rp FROM RentalPosting rp WHERE rp.owner.id = :ownerId AND rp.isActive = true AND rp.roomInfo.resort.id = :resortId ORDER BY rp.createdDate DESC")
+    List<RentalPosting> findAllByOwnerIdAndIsActiveAndResortId(
+            @Param("ownerId") Integer ownerId,
+            @Param("resortId") Integer resortId
+    );
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRoomInfo_IsActive(boolean b, String resortName, boolean b1,
                                                                                                      Pageable pageable);
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRoomInfo_IsActiveAndStatus(

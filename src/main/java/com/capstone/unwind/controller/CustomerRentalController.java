@@ -24,8 +24,9 @@ public class CustomerRentalController {
     @Autowired
     RentalPostingService rentalPostingService;
     @GetMapping("rental/posting")
-    public ResponseEntity<List<PostingResponseDTO>> getAllActivePostings() throws OptionalNotFoundException {
-        List<PostingResponseDTO> postings = rentalPostingService.getAllPostings();
+    public ResponseEntity<List<PostingResponseDTO>> getAllActivePostings(
+            @RequestParam(required = false) Integer resortId) throws OptionalNotFoundException {
+        List<PostingResponseDTO> postings = rentalPostingService.getAllPostings(resortId);
         return new ResponseEntity<>(postings, HttpStatus.OK);
     }
     @GetMapping("rental/posting/{postingId}")

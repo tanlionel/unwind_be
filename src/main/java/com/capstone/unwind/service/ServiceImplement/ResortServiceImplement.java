@@ -39,7 +39,11 @@ public class ResortServiceImplement implements ResortService {
     @Autowired
     private final UnitTypeRepository unitTypeRepository;
     @Autowired
+    private final FeedbackRepository feedbackRepository;
+    @Autowired
     private final UnitTypeAmentitiesRepository unitTypeAmentitiesRepository;
+    @Autowired
+    private final CustomerRepository customerRepository;
     @Autowired
     private final UserService userService;
 
@@ -178,7 +182,8 @@ public class ResortServiceImplement implements ResortService {
         Resort resortInDb = resort.get();
         List<ResortAmenity> resortAmenityList = resortAmenityRepository.findAllByResortIdAndIsActiveTrue(resortId);
         List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortIdAndIsActiveTrue(resortInDb.getId()).stream().map(unitTypeMapper::toDto).toList();
-
+        Pageable pageable = PageRequest.of(0, 8);
+        List<Feedback> feedbackList = feedbackRepository.findTop8ByResortIdAndIsActive(resortId,pageable);
         //mapping unit type amenities
         for (UnitTypeDto tmp : unitTypeDtoListResponse) {
             List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(tmp.getId());
@@ -204,6 +209,18 @@ public class ResortServiceImplement implements ResortService {
                         .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
                                 .name(p.getName())
                                 .type(p.getType())
+                                .build())
+                        .toList())
+                .feedbackList(feedbackList.stream()
+                        .map(feedback -> ResortDetailResponseDTO.Feedback.builder()
+                                .comment(feedback.getComment())
+                                .createdDate(feedback.getCreatedDate())
+                                .ratingPoint(feedback.getRatingPoint())
+                                .user(ResortDetailResponseDTO.CustomerDto.builder()
+                                        .fullName(feedback.getUser().getFullName())
+                                        .avatar(feedback.getUser().getAvatar())
+                                        .build())
+                                .isActive(feedback.getIsActive())
                                 .build())
                         .toList())
                 .isActive(resortInDb.getIsActive())
@@ -233,7 +250,8 @@ public class ResortServiceImplement implements ResortService {
         Resort resortInDb = resort.get();
         List<ResortAmenity> resortAmenityList = resortAmenityRepository.findAllByResortIdAndIsActiveTrue(resortId);
         List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortIdAndIsActiveTrue(resortInDb.getId()).stream().map(unitTypeMapper::toDto).toList();
-
+        Pageable pageable = PageRequest.of(0, 8);
+        List<Feedback> feedbackList = feedbackRepository.findTop8ByResortIdAndIsActive(resortId,pageable);
         //mapping unit type amenities
         for (UnitTypeDto tmp : unitTypeDtoListResponse) {
             List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(tmp.getId());
@@ -262,6 +280,18 @@ public class ResortServiceImplement implements ResortService {
                                 .build())
                         .toList())
                 .isActive(resortInDb.getIsActive())
+                .feedbackList(feedbackList.stream()
+                        .map(feedback -> ResortDetailResponseDTO.Feedback.builder()
+                                .comment(feedback.getComment())
+                                .createdDate(feedback.getCreatedDate())
+                                .ratingPoint(feedback.getRatingPoint())
+                                .user(ResortDetailResponseDTO.CustomerDto.builder()
+                                        .fullName(feedback.getUser().getFullName())
+                                        .avatar(feedback.getUser().getAvatar())
+                                        .build())
+                                .isActive(feedback.getIsActive())
+                                .build())
+                        .toList())
                 .unitTypeDtoList(unitTypeDtoListResponse)
                 .build();
         return resortDetailResponseDTO;
