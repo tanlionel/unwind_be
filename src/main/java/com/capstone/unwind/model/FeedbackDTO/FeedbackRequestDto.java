@@ -12,4 +12,5 @@ import java.io.Serializable;
 public class FeedbackRequestDto implements Serializable {
     Float ratingPoint;
     String comment;
+    Integer bookingId;
 }

@@ -42,17 +42,14 @@ public class FeedbackServiceImplement implements FeedbackService {
 
 @Override
     public FeedbackResponseDto createRentalFeedback(FeedbackRequestDto feedbackRequestDto) {
-
-        User user = userService.getLoginUser();
-        Customer customer = customerRepository.findByUserId(user.getId());
-        RentalBooking booking = rentalBookingRepository.findByRenter_Id(customer.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Renter not found"));
+    RentalBooking booking = rentalBookingRepository.findById(feedbackRequestDto.getBookingId())
+            .orElseThrow(() -> new IllegalArgumentException("Booking not found for this renter"));
 
         Feedback feedback = Feedback.builder()
                 .comment(feedbackRequestDto.getComment())
                 .ratingPoint(feedbackRequestDto.getRatingPoint())
                 .resort(booking.getRentalPosting().getTimeshare().getRoomInfo().getResort())
-                .user(customer)
+                .user(booking.getRenter())
                 .isActive(true)
                 .isReport(false)
                 .build();
@@ -65,16 +62,14 @@ public class FeedbackServiceImplement implements FeedbackService {
     @Override
     public FeedbackResponseDto createExchangeFeedback(FeedbackRequestDto feedbackRequestDto) {
 
-        User user = userService.getLoginUser();
-        Customer customer = customerRepository.findByUserId(user.getId());
-        ExchangeBooking booking = exchangeBookingRepository.findByRenter_Id(customer.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Renter not found"));
+        ExchangeBooking booking = exchangeBookingRepository.findById(feedbackRequestDto.getBookingId())
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found for this renter"));
 
         Feedback feedback = Feedback.builder()
                 .comment(feedbackRequestDto.getComment())
                 .ratingPoint(feedbackRequestDto.getRatingPoint())
                 .resort(booking.getExchangePosting().getTimeshare().getRoomInfo().getResort())
-                .user(customer)
+                .user(booking.getRenter())
                 .isActive(true)
                 .isReport(false)
                 .build();
