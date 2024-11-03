@@ -1,8 +1,7 @@
 package com.capstone.unwind.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -10,6 +9,9 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "feedback")
 public class Feedback {
     @Id
@@ -23,6 +25,9 @@ public class Feedback {
     @Column(name = "comment", length = 300)
     private String comment;
 
+    @Column(name = "note", length = 300)
+    private String note;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "resort_id")
     private Resort resort;
@@ -33,6 +38,12 @@ public class Feedback {
 
     @Column(name = "created_date")
     private Timestamp createdDate;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
+
+    @Column(name = "is_report")
+    private Boolean isReport;
     @PrePersist
     protected void onCreate() {
         this.createdDate = Timestamp.from(Instant.now());

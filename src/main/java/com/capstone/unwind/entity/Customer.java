@@ -20,6 +20,9 @@ public class Customer {
     @Column(name = "full_name", length = 45)
     private String fullName;
 
+    @Column(name = "avatar", length = 200)
+    private String avatar;
+
     @Column(name = "dob")
     private LocalDate dob;
 

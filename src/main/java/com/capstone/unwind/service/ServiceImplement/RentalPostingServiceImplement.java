@@ -68,13 +68,18 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     private final String pendingPricing = "PendingPricing";
     private final String  pendingApproval = "PendingApproval";*/
     @Override
-    public List<PostingResponseDTO> getAllPostings() throws OptionalNotFoundException {
+    public List<PostingResponseDTO> getAllPostings(Integer resortId) throws OptionalNotFoundException {
         User user = userService.getLoginUser();
         Customer customer = customerRepository.findByUserId(user.getId());
         if (customer == null) {
             throw new OptionalNotFoundException("Customer does not exist for user with ID: " + user.getId());
         }
-        List<RentalPosting> rentalPostings = rentalPostingRepository.findAllByOwnerIdAndIsActive(customer.getId(),true);
+        List<RentalPosting> rentalPostings;
+        if (resortId == null) {
+            rentalPostings = rentalPostingRepository.findByOwnerIdAndIsActive(customer.getId());
+        } else {
+            rentalPostings = rentalPostingRepository.findAllByOwnerIdAndIsActiveAndResortId(customer.getId(), resortId);
+        }
         return listRentalPostingMapper.entitiesToDtos(rentalPostings);
     }
     @Override
