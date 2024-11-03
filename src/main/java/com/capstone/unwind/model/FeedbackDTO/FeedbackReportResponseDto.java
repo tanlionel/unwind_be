@@ -39,5 +39,7 @@ public class FeedbackReportResponseDto implements Serializable {
     public static class CustomerDto implements Serializable {
         Integer id;
         String fullName;
+        String avatar;
+
     }
 }

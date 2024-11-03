@@ -19,5 +19,6 @@ public interface FeedbackReportMapper {
     @Mapping(source = "resort.resortName", target = "resort.resortName")
     @Mapping(source = "user.id", target = "user.id")
     @Mapping(source = "user.fullName", target = "user.fullName")
+    @Mapping(source = "user.avatar", target = "user.avatar")
     FeedbackReportResponseDto toFeedbackResponseDto(Feedback feedback);
 }
