@@ -43,7 +43,7 @@ public class FeedbackServiceImplement implements FeedbackService {
 @Override
     public FeedbackResponseDto createRentalFeedback(FeedbackRequestDto feedbackRequestDto) {
     RentalBooking booking = rentalBookingRepository.findById(feedbackRequestDto.getBookingId())
-            .orElseThrow(() -> new IllegalArgumentException("Booking not found for this renter"));
+            .orElseThrow(() -> new IllegalArgumentException("Booking not found "));
 
         Feedback feedback = Feedback.builder()
                 .comment(feedbackRequestDto.getComment())
@@ -61,10 +61,8 @@ public class FeedbackServiceImplement implements FeedbackService {
     }
     @Override
     public FeedbackResponseDto createExchangeFeedback(FeedbackRequestDto feedbackRequestDto) {
-
         ExchangeBooking booking = exchangeBookingRepository.findById(feedbackRequestDto.getBookingId())
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found for this renter"));
-
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found "));
         Feedback feedback = Feedback.builder()
                 .comment(feedbackRequestDto.getComment())
                 .ratingPoint(feedbackRequestDto.getRatingPoint())
