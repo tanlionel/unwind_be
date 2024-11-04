@@ -33,8 +33,8 @@ public class Feedback {
     private Resort resort;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private Customer user;
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
     @Column(name = "created_date")
     private Timestamp createdDate;

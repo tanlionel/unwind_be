@@ -49,7 +49,7 @@ public class FeedbackServiceImplement implements FeedbackService {
                 .comment(feedbackRequestDto.getComment())
                 .ratingPoint(feedbackRequestDto.getRatingPoint())
                 .resort(booking.getRentalPosting().getTimeshare().getRoomInfo().getResort())
-                .user(booking.getRenter())
+                .customer(booking.getRenter())
                 .isActive(true)
                 .isReport(false)
                 .build();
@@ -69,7 +69,7 @@ public class FeedbackServiceImplement implements FeedbackService {
                 .comment(feedbackRequestDto.getComment())
                 .ratingPoint(feedbackRequestDto.getRatingPoint())
                 .resort(booking.getExchangePosting().getTimeshare().getRoomInfo().getResort())
-                .user(booking.getRenter())
+                .customer(booking.getRenter())
                 .isActive(true)
                 .isReport(false)
                 .build();

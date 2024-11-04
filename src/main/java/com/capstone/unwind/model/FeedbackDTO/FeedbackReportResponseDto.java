@@ -3,6 +3,7 @@ package com.capstone.unwind.model.FeedbackDTO;
 import com.capstone.unwind.entity.Customer;
 import com.capstone.unwind.entity.Feedback;
 import com.capstone.unwind.entity.Resort;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Value;
 
 import java.io.Serializable;
@@ -18,7 +19,8 @@ public class FeedbackReportResponseDto implements Serializable {
     String comment;
     String note;
     ResortDto resort;
-    CustomerDto user;
+    CustomerDto customer;
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     Timestamp createdDate;
     Boolean isActive;
     Boolean isReport;

@@ -16,7 +16,7 @@ public class FeedbackResponseDto implements Serializable {
     Float ratingPoint;
     String comment;
     ResortDto resort;
-    CustomerDto user;
+    CustomerDto customer;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     Timestamp createdDate;
     Boolean isActive;
