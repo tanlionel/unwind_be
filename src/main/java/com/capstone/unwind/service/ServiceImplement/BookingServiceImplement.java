@@ -1,6 +1,7 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.Customer;
+import com.capstone.unwind.entity.MergedBooking;
 import com.capstone.unwind.entity.RentalBooking;
 import com.capstone.unwind.entity.RentalPosting;
 import com.capstone.unwind.enums.RentalBookingEnum;
@@ -10,13 +11,20 @@ import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.BookingDTO.RentalBookingDetailDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingDetailMapper;
 import com.capstone.unwind.model.BookingDTO.RentalBookingRequestDto;
+import com.capstone.unwind.repository.MergedBookingRepository;
 import com.capstone.unwind.repository.RentalBookingRepository;
 import com.capstone.unwind.repository.RentalPostingRepository;
 import com.capstone.unwind.service.ServiceInterface.BookingService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import static org.springframework.data.domain.Sort.sort;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +37,8 @@ public class BookingServiceImplement implements BookingService {
     private final UserService userService;
     @Autowired
     private final RentalBookingDetailMapper rentalBookingDetailMapper;
+    @Autowired
+    private final MergedBookingRepository mergedBookingRepository;
 
     @Override
     public RentalBookingDetailDto createBookingRentalPosting(Integer postingId, RentalBookingRequestDto rentalBookingRequestDto) throws OptionalNotFoundException, ErrMessageException {
@@ -68,6 +78,14 @@ public class BookingServiceImplement implements BookingService {
         RentalBooking rentalBooking = rentalBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
         if (!rentalBooking.getIsActive()) throw new OptionalNotFoundException("Inactive booking");
         return rentalBookingDetailMapper.toDto(rentalBooking);
+    }
+
+    @Override
+    public Page<MergedBooking> getPaginationBookingCustomer(int page, int size) {
+        Pageable pageable = PageRequest.of(page,size,Sort.by("checkinDate").ascending());
+        Customer customer = userService.getLoginUser().getCustomer();
+        Page<MergedBooking> mergedBookingPage = mergedBookingRepository.findAllByRenterId(customer.getId(),pageable);
+        return mergedBookingPage;
     }
 
 }
