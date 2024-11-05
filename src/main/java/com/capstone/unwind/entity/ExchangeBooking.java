@@ -82,6 +82,11 @@ public class ExchangeBooking {
 
     @Column(name = "renter_full_legal_name", length = 45)
     private String renterFullLegalName;
+    @Column(name = "renter_legal_phone")
+    private String renterLegalPhone;
+
+    @Column(name = "renter_legal_avatar",length = 350)
+    private String renterLegalAvatar;
 
     @Column(name = "service_fee")
     private Float serviceFee;

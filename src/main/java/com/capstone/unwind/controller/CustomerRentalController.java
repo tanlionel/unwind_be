@@ -1,5 +1,6 @@
 package com.capstone.unwind.controller;
 
+import com.capstone.unwind.entity.MergedBooking;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.BookingDTO.RentalBookingDetailDto;
@@ -60,5 +61,11 @@ public class CustomerRentalController {
     public ResponseEntity<RentalBookingDetailDto> getRentalBookingDetailById(@PathVariable Integer bookingId) throws OptionalNotFoundException {
         RentalBookingDetailDto rentalBookingDetailDto = bookingService.getRentalBookingDetailById(bookingId);
         return ResponseEntity.ok(rentalBookingDetailDto);
+    }
+    @GetMapping("booking")
+    public Page<MergedBooking> getAllBookingPagination( @RequestParam(defaultValue = "0") int page,
+                                                         @RequestParam(defaultValue = "10") int size){
+        Page<MergedBooking> mergedBookingPage = bookingService.getPaginationBookingCustomer(page,size);
+        return mergedBookingPage;
     }
 }
