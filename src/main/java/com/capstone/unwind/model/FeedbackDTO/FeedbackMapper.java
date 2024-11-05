@@ -16,8 +16,8 @@ public interface FeedbackMapper {
     @Mapping(source = "isActive", target = "isActive")
     @Mapping(source = "resort.id", target = "resort.id")
     @Mapping(source = "resort.resortName", target = "resort.resortName")
-    @Mapping(source = "user.id", target = "user.id")
-    @Mapping(source = "user.fullName", target = "user.fullName")
-    @Mapping(source = "user.avatar", target = "user.avatar")
+    @Mapping(source = "customer.id", target = "customer.id")
+    @Mapping(source = "customer.fullName", target = "customer.fullName")
+    @Mapping(source = "customer.avatar", target = "customer.avatar")
     FeedbackResponseDto toFeedbackResponseDto(Feedback feedback);
 }

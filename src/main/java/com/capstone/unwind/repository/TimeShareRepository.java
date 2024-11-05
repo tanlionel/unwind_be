@@ -3,6 +3,8 @@ package com.capstone.unwind.repository;
 import com.capstone.unwind.entity.RoomInfo;
 import com.capstone.unwind.entity.Timeshare;
 import com.capstone.unwind.model.TimeShareDTO.ListTimeShareDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,5 +24,5 @@ public interface TimeShareRepository extends JpaRepository<Timeshare, Integer> {
                                          @Param("endDate") LocalDate endDate);
     @EntityGraph(attributePaths = {"roomInfo", "roomInfo.resort", "roomInfo.unitType"})
     List<Timeshare> findAllByOwnerId(Integer ownerId);
-
+    Page<Timeshare> findAllByOwnerIdAndIsActive(Integer ownerId, Pageable pageable,Boolean IsActive);
 }

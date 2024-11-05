@@ -11,6 +11,8 @@ import com.capstone.unwind.service.ServiceInterface.TimeShareService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Year;
@@ -105,28 +107,14 @@ public class TimeShareServiceImplement implements TimeShareService {
     }
 
     @Override
-    public List<ListTimeShareDTO> getAllTimeShares() throws OptionalNotFoundException {
+    public Page<ListTimeShareDTO> getAllTimeShares(Pageable pageable) throws OptionalNotFoundException {
         User user = userService.getLoginUser();
         Customer customer = customerRepository.findByUserId(user.getId());
         if (customer == null) {
             throw new OptionalNotFoundException("Customer does not exist for user with ID: " + user.getId());
         }
-        List<Timeshare> timeShares = timeShareRepository.findAllByOwnerId(customer.getId());
-        List<Timeshare> validTimeShares = timeShares.stream()
-                .filter(timeShare -> {
-                    RoomInfo roomInfo = timeShare.getRoomInfo();
-                    if (roomInfo == null || !roomInfo.getIsActive()) {
-                        return false;
-                    }
-                    Resort resort = roomInfo.getResort();
-                    if (resort == null || !resort.getIsActive()) {
-                        return false;
-                    }
-                    UnitType unitType = roomInfo.getUnitType();
-                    return unitType != null && unitType.getIsActive();
-                })
-                .collect(Collectors.toList());
-        return listTimeShareMapper.toDtoList(validTimeShares);
+        Page<Timeshare> timeSharesPage = timeShareRepository.findAllByOwnerIdAndIsActive(customer.getId(), pageable,true);
+        return timeSharesPage.map(listTimeShareMapper::toDto);
     }
 @Override
     public TimeShareDetailDTO getTimeShareDetails(Integer timeShareID) throws OptionalNotFoundException {

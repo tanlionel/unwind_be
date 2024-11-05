@@ -7,6 +7,9 @@ import com.capstone.unwind.model.TimeShareDTO.*;
 import com.capstone.unwind.service.ServiceInterface.TimeShareService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +31,10 @@ public class TimeshareController {
         return new ResponseEntity<>(timeShareResponse, HttpStatus.OK);
     }
     @GetMapping("/timeshares")
-    public ResponseEntity<List<ListTimeShareDTO>> getAllTimeShares() throws OptionalNotFoundException {
-        List<ListTimeShareDTO> timeShares = timeShareService.getAllTimeShares();
+    public ResponseEntity<Page<ListTimeShareDTO>> getAllTimeShares(  @RequestParam(defaultValue = "0") int page,
+                                                                     @RequestParam(defaultValue = "10") int size) throws OptionalNotFoundException{
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ListTimeShareDTO> timeShares = timeShareService.getAllTimeShares(pageable);
         return ResponseEntity.ok(timeShares);
     }
 

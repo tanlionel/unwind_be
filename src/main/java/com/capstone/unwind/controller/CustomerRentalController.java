@@ -10,6 +10,9 @@ import com.capstone.unwind.service.ServiceInterface.RentalPostingService;
 import com.capstone.unwind.service.ServiceInterface.TimeShareService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +27,12 @@ public class CustomerRentalController {
     @Autowired
     RentalPostingService rentalPostingService;
     @GetMapping("rental/posting")
-    public ResponseEntity<List<PostingResponseDTO>> getAllActivePostings(
-            @RequestParam(required = false) Integer resortId) throws OptionalNotFoundException {
-        List<PostingResponseDTO> postings = rentalPostingService.getAllPostings(resortId);
+    public ResponseEntity<Page<PostingResponseDTO>> getAllActivePostings(
+            @RequestParam(required = false) Integer resortId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws OptionalNotFoundException {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PostingResponseDTO> postings = rentalPostingService.getAllPostings(resortId,pageable);
         return new ResponseEntity<>(postings, HttpStatus.OK);
     }
     @GetMapping("rental/posting/{postingId}")
