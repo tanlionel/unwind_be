@@ -45,6 +45,8 @@ public interface PostingDetailMapper {
     @Mapping(source = "timeshare.roomInfo.resort.amenities", target = "resortAmenities")
     @Mapping(source = "timeshare.roomInfo.unitType.amenities", target = "unitTypeAmenities")
     @Mapping(source = "timeshare.roomInfo.amenities", target = "roomAmenities")
+    @Mapping(source = "priceValuation",target = "priceValuation")
+    @Mapping(source = "staffRefinementPrice",target = "staffRefinementPrice")
     PostingDetailResponseDTO entityToDto(RentalPosting entity);
     PostingDetailResponseDTO.ResortAmenityDTO toResortAmenityDTO(ResortAmenity amenity);
     PostingDetailResponseDTO.unitType toUnitTypeDTO(UnitType unitType);

@@ -4,6 +4,7 @@ import com.capstone.unwind.entity.Wallet;
 import com.capstone.unwind.entity.WalletTransaction;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import org.springframework.data.domain.Page;
 
 import java.io.Serializable;
 import java.sql.Timestamp;

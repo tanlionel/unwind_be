@@ -6,11 +6,12 @@ import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.WalletDTO.WalletDto;
 import com.capstone.unwind.model.WalletDTO.WalletRefereshDto;
 import com.capstone.unwind.model.WalletDTO.WalletTransactionDto;
+import org.springframework.data.domain.Page;
 
 import java.util.UUID;
 
 public interface WalletService {
-    WalletDto getLoginCustomerWalletTransaction() throws OptionalNotFoundException;
+    Page<WalletTransactionDto> getLoginCustomerWalletTransaction(Integer pageNo,Integer pageSize) throws OptionalNotFoundException;
     WalletRefereshDto getLoginCustomerWalletBalance() throws OptionalNotFoundException;
     WalletTransaction createTransactionVNPAY(float fee, float money, String paymentMethod) throws OptionalNotFoundException;
     WalletTransaction createTransactionWallet(float fee, float money, String paymentMethod);

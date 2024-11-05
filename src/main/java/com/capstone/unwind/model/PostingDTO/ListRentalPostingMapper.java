@@ -40,6 +40,8 @@ public interface ListRentalPostingMapper {
     @Mapping(source = "status", target = "status")
     @Mapping(source = "isActive", target = "isActive")
     @Mapping(source = "timeshare.roomInfo.unitType", target = "unitTypeDTO")
+    @Mapping(source = "priceValuation",target = "priceValuation")
+    @Mapping(source = "staffRefinementPrice",target = "staffRefinementPrice")
     PostingResponseDTO entityToDto(RentalPosting entity);
 
     default List<PostingResponseDTO> entitiesToDtos(List<RentalPosting> entities) {
