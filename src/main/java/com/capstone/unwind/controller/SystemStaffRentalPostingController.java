@@ -1,18 +1,23 @@
 package com.capstone.unwind.controller;
 
+import com.capstone.unwind.entity.MergedBooking;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.PostingDTO.PostingDetailTsStaffResponseDTO;
 import com.capstone.unwind.model.PostingDTO.PostingResponseTsStaffDTO;
 import com.capstone.unwind.model.PostingDTO.RentalPostingApprovalResponseDto;
+import com.capstone.unwind.service.ServiceInterface.BookingService;
 import com.capstone.unwind.service.ServiceInterface.RentalPostingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/system-staff")
@@ -21,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 public class SystemStaffRentalPostingController {
     @Autowired
     RentalPostingService rentalPostingService;
+
 
     @GetMapping("rental/postings")
     public Page<PostingResponseTsStaffDTO> getPublicPostings(
@@ -42,4 +48,5 @@ public class SystemStaffRentalPostingController {
         RentalPostingApprovalResponseDto rentalPostingApprovalResponseDto = rentalPostingService.approvalPostingSystemStaff(postingId,newPriceValuation);
         return ResponseEntity.ok(rentalPostingApprovalResponseDto);
     }
+
 }
