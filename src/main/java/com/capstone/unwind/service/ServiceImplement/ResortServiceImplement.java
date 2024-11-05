@@ -635,6 +635,7 @@ public class ResortServiceImplement implements ResortService {
                 .photos(unitTypeInDb.getPhotos())
                 .view(unitTypeInDb.getView())
                 .sleeps(unitTypeInDb.getSleeps())
+                .resortId(unitTypeInDb.getResort().getId())
                 .unitTypeAmenitiesDTOS(unitAmenityList.stream()
                         .map(p -> UnitTypeResponseDTO.UnitTypeAmenitiesDTO.builder()
                                 .name(p.getName())

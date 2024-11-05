@@ -1,8 +1,7 @@
 package com.capstone.unwind.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -11,6 +10,9 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "rental_booking")
 public class RentalBooking {
     @Id
@@ -64,8 +66,14 @@ public class RentalBooking {
     @Column(name = "renter_full_legal_name", length = 45)
     private String renterFullLegalName;
 
-    @Column(name = "service_fee", length = 45)
-    private String serviceFee;
+    @Column(name = "renter_legal_phone")
+    private String renterLegalPhone;
+
+    @Column(name = "renter_legal_avatar",length = 350)
+    private String renterLegalAvatar;
+
+    @Column(name = "service_fee")
+    private Float serviceFee;
 
     @Column(name = "total_price")
     private Float totalPrice;
@@ -74,7 +82,7 @@ public class RentalBooking {
     private Integer totalNights;
 
     @Column(name = "price_per_nights")
-    private Integer pricePerNights;
+    private Float pricePerNights;
 
     @Column(name = "created_date")
     private Timestamp createdDate;
