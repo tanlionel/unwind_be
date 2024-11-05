@@ -11,6 +11,7 @@ import com.capstone.unwind.service.ServiceInterface.CustomerService;
 import com.capstone.unwind.service.ServiceInterface.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,9 +28,10 @@ public class WalletController {
     private final CustomerService customerService;
 
     @GetMapping("/customer/wallet-transaction")
-    private ResponseEntity<WalletDto> getCustomerWalletTransaction() throws OptionalNotFoundException {
-        WalletDto walletDto = walletService.getLoginCustomerWalletTransaction();
-        return ResponseEntity.ok(walletDto);
+    private ResponseEntity<Page<WalletTransactionDto>> getCustomerWalletTransaction(@RequestParam(defaultValue = "0") int page,
+                                                                                    @RequestParam(defaultValue = "10") int size) throws OptionalNotFoundException {
+        Page<WalletTransactionDto> walletDtoPage = walletService.getLoginCustomerWalletTransaction(page,size);
+        return ResponseEntity.ok(walletDtoPage);
     }
     @GetMapping("/wallet-transaction/{uuid}")
     private ResponseEntity<WalletTransactionDto> getWalletTransactionById(@PathVariable UUID uuid) throws OptionalNotFoundException {

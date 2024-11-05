@@ -43,6 +43,8 @@ public class PostingDetailResponseDTO {
     private String rentalPackageName;
     private String rentalPackageDuration;
     private String rentalPackageDescription;
+    private Float priceValuation;
+    private Float staffRefinementPrice;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate checkinDate;
     @JsonFormat(pattern = "dd-MM-yyyy")

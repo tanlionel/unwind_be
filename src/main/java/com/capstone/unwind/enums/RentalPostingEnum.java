@@ -8,6 +8,7 @@ public enum RentalPostingEnum {
     Closed,
     Expired,
     Completed,
-    Reject
+    Reject,
+    RejectPrice
 
 }

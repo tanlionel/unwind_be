@@ -12,6 +12,10 @@ import com.capstone.unwind.service.ServiceInterface.UserService;
 import com.capstone.unwind.service.ServiceInterface.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -41,17 +45,14 @@ public class WalletServiceImplement implements WalletService {
     private final WalletRepository walletRepository;
 
     @Override
-    public WalletDto getLoginCustomerWalletTransaction() throws OptionalNotFoundException {
+    public Page<WalletTransactionDto> getLoginCustomerWalletTransaction(Integer pageNo,Integer pageSize) throws OptionalNotFoundException {
         User user = userService.getLoginUser();
         if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
         if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
-        Wallet wallet = user.getCustomer().getWallet();
-        WalletDto walletDto = walletMapper.toDto(wallet);
-        List<WalletDto.WalletTransactionDto> sortedTransactions = walletDto.getTransactions().stream()
-                .sorted(Comparator.comparing(WalletDto.WalletTransactionDto::getCreatedAt).reversed())
-                .collect(Collectors.toList());
-        walletDto.setTransactions(sortedTransactions);
-        return walletDto;
+        Pageable pageable = PageRequest.of(pageNo,pageSize, Sort.by("createdAt").descending());
+        Page<WalletTransaction> walletTransactionsPage = walletTransactionRepository.findAllByWalletId(user.getCustomer().getWallet().getId(),pageable);
+        Page<WalletTransactionDto> walletTransactionDtoPage = walletTransactionsPage.map(walletTransactionMapper::toDto);
+        return walletTransactionDtoPage;
     }
 
     @Override

@@ -98,15 +98,22 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         return postingDetailMapper.entityToDto(rentalPosting);
     }
     @Override
-    public Page<PostingResponseTsStaffDTO> getAllPostingsTsStaff(String roomInfoCode, Pageable pageable) throws OptionalNotFoundException {
+    public Page<PostingResponseTsStaffDTO> getAllPostingsTsStaff(String roomInfoCode,Integer packageId, Pageable pageable) throws OptionalNotFoundException {
         TimeShareCompanyStaffDTO user = timeShareStaffService.getLoginStaff();
         Optional<TimeshareCompanyStaff> timeshareCompanyStaffOpt = timeshareCompanyStaffRepository.findById(user.getId());
         if (timeshareCompanyStaffOpt.isEmpty()) {
             throw new OptionalNotFoundException("Timeshare company staff not found with id: " + user.getId());
         }
         TimeshareCompanyStaff timeshareCompanyStaff = timeshareCompanyStaffOpt.get();
-        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndStatusAndRoomInfo_Resort_Id(
-                true, roomInfoCode,String.valueOf(RentalPostingEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), pageable);
+        Page<RentalPosting> rentalPostings = null;
+        if(packageId!=null){
+            rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndStatusAndRoomInfo_Resort_IdAndRentalPackageId(
+                    true, roomInfoCode,String.valueOf(RentalPostingEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), packageId,pageable);
+        }else{
+            rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndStatusAndRoomInfo_Resort_Id(
+                    true, roomInfoCode,String.valueOf(RentalPostingEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), pageable);
+        }
+
         Page<PostingResponseTsStaffDTO> postingDtoPage = rentalPostings.map(listRentalPostingTsStaffMapper::entityToDto);
         return postingDtoPage;
     }
@@ -216,6 +223,36 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         rentalPosting.setPriceValuation(newPriceValuation);
         RentalPostingApprovalResponseDto rentalPostingApprovalResponseDto = rentalPostingApprovalMapper.toDto(rentalPostingRepository.save(rentalPosting));
         return rentalPostingApprovalResponseDto;
+    }
+
+    @Override
+    public RentalPostingResponseDto actionConfirmPosting(Integer postingId, Float newPrice, Boolean isAccepted) throws OptionalNotFoundException, ErrMessageException {
+        RentalPosting rentalPosting = rentalPostingRepository.findByIdAndIsActive(postingId).orElseThrow(()->new OptionalNotFoundException("not found posting or posting inactive"));
+        if (rentalPosting.getRentalPackage().getId()==2 || rentalPosting.getRentalPackage().getId()==1) throw new ErrMessageException("package must be type 3 or 4");
+        if (!rentalPosting.getStatus().equals(String.valueOf(RentalPostingEnum.AwaitingConfirmation))) throw new ErrMessageException("Status must be awaiting confirmation");
+        if (rentalPosting.getRentalPackage().getId()==3){
+            if (newPrice<=0) throw new ErrMessageException("New price must be quarter than 0");
+            rentalPosting.setPricePerNights(newPrice);
+            rentalPosting.setStatus(String.valueOf(RentalPostingEnum.Processing));
+        }else if (rentalPosting.getRentalPackage().getId()==4){
+            if (isAccepted){
+                rentalPosting.setStatus(String.valueOf(RentalPostingEnum.Processing));
+                rentalPosting.setPricePerNights(rentalPosting.getPriceValuation());
+            }else if (!isAccepted){
+                rentalPosting.setStatus(String.valueOf(RentalPostingEnum.RejectPrice));
+                Customer customer = userService.getLoginUser().getCustomer();
+                if (customer==null) throw new ErrMessageException("Error when refund money to customer but reject successfully");
+                float fee = 0;
+                float money = rentalPosting.getRentalPackage().getPrice()-20000;
+                String paymentMethod = "WALLET";
+                String description = "Giao dịch hoàn tiền từ chối chuyển nhượng quyền sở hữu timeshare gói 4";
+                String transactionType = "RENTALPOSTING";
+                WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(customer.getId(),fee,money,paymentMethod,description,transactionType);
+
+            }
+        }
+        RentalPosting rentalPostingInDb = rentalPostingRepository.save(rentalPosting);
+        return rentalPostingResponseMapper.toDto(rentalPostingInDb);
     }
 
     @Override
