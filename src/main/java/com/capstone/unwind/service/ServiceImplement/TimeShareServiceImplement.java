@@ -46,6 +46,8 @@ public class TimeShareServiceImplement implements TimeShareService {
     private RoomInfoMapper roomInfoMapper;
     @Autowired
     private final RentalPostingRepository rentalPostingRepository;
+    @Autowired
+    private final ExchangePostingRepository exchangePostingRepository;
 
     @Override
     public TimeShareResponseDTO createTimeShare(TimeShareRequestDTO timeShareRequestDTO) throws EntityDoesNotExistException, ErrMessageException, OptionalNotFoundException {
@@ -171,6 +173,23 @@ public class TimeShareServiceImplement implements TimeShareService {
         int endYears = timeshare.get().getEndYear();
         int currentYear = Year.now().getValue();
         List<Integer> notValidYears = rentalPostingRepository.findAllNotValidYears(timeshareId);
+        List<Integer> validYears = IntStream.rangeClosed(startYears, endYears)
+                .boxed()
+                .filter(year ->year>=currentYear && !notValidYears.contains(year))
+                .collect(Collectors.toList());
+
+        return validYears;
+    }
+
+
+    @Override
+    public List<Integer> getExchangeTimeshareValidYears(Integer timeshareId) throws OptionalNotFoundException {
+        Optional<Timeshare> timeshare = timeShareRepository.findById(timeshareId);
+        if (!timeshare.isPresent()) throw new OptionalNotFoundException("not found timeshare");
+        int startYears = timeshare.get().getStartYear();
+        int endYears = timeshare.get().getEndYear();
+        int currentYear = Year.now().getValue();
+        List<Integer> notValidYears = exchangePostingRepository.findAllNotValidYears(timeshareId);
         List<Integer> validYears = IntStream.rangeClosed(startYears, endYears)
                 .boxed()
                 .filter(year ->year>=currentYear && !notValidYears.contains(year))

@@ -4,6 +4,8 @@ import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
+import com.capstone.unwind.model.ExchangePostingDTO.PostingExchangeDetailResponseDTO;
+import com.capstone.unwind.model.ExchangePostingDTO.PostingExchangeResponseDTO;
 import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
 import com.capstone.unwind.model.PostingDTO.PostingResponseDTO;
 import com.capstone.unwind.model.ResortDTO.ResortDetailResponseDTO;
@@ -44,6 +46,8 @@ public class PublicController {
     private RoomService roomService;
     @Autowired
     private RentalPostingService rentalPostingService;
+    @Autowired
+    private ExchangePostingService exchangePostingService;
     @GetMapping("/resort")
     public Page<ResortDto> getPageableResort(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
                                              @RequestParam(required = false,defaultValue = "10") Integer pageSize,
@@ -124,5 +128,20 @@ public class PublicController {
     @GetMapping("rental/posting/{postingId}")
     public PostingDetailResponseDTO getRentalPostingDetail(@PathVariable Integer postingId) throws OptionalNotFoundException {
         return rentalPostingService.getRentalPostingDetailById(postingId);
+    }
+    @GetMapping("/exchange/postings")
+    public Page<PostingExchangeResponseDTO> getPublicExchangePostings(
+            @RequestParam(required = false, defaultValue = "0") Integer pageNo,
+            @RequestParam(required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "") String resortName) throws OptionalNotFoundException {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<PostingExchangeResponseDTO> postingResponsePage = exchangePostingService.getAllPublicPostings(resortName, pageable);
+
+        return postingResponsePage;
+    }
+    @GetMapping("exchange/posting/{postingId}")
+    public PostingExchangeDetailResponseDTO getExchangePostingDetail(@PathVariable Integer postingId) throws OptionalNotFoundException {
+        return exchangePostingService.getExchangePostingDetailById(postingId);
     }
 }
