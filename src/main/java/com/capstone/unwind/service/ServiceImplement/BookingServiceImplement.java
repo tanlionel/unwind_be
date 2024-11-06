@@ -1,17 +1,13 @@
 package com.capstone.unwind.service.ServiceImplement;
 
-import com.capstone.unwind.entity.Customer;
-import com.capstone.unwind.entity.MergedBooking;
-import com.capstone.unwind.entity.RentalBooking;
-import com.capstone.unwind.entity.RentalPosting;
+import com.capstone.unwind.entity.*;
 import com.capstone.unwind.enums.RentalBookingEnum;
 import com.capstone.unwind.enums.RentalPostingEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
-import com.capstone.unwind.model.BookingDTO.RentalBookingDetailDto;
-import com.capstone.unwind.model.BookingDTO.RentalBookingDetailMapper;
-import com.capstone.unwind.model.BookingDTO.RentalBookingRequestDto;
+import com.capstone.unwind.model.BookingDTO.*;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
+import com.capstone.unwind.repository.ExchangeBookingRepository;
 import com.capstone.unwind.repository.MergedBookingRepository;
 import com.capstone.unwind.repository.RentalBookingRepository;
 import com.capstone.unwind.repository.RentalPostingRepository;
@@ -45,6 +41,10 @@ public class BookingServiceImplement implements BookingService {
     private final MergedBookingRepository mergedBookingRepository;
     @Autowired
     private final TimeShareStaffService timeShareStaffService;
+    @Autowired
+    private final ExchangeBookingRepository exchangeBookingRepository;
+    @Autowired
+    private final ExchangeBookingDetailMapper exchangeBookingDetailMapper;
 
     @Override
     public RentalBookingDetailDto createBookingRentalPosting(Integer postingId, RentalBookingRequestDto rentalBookingRequestDto) throws OptionalNotFoundException, ErrMessageException {
@@ -83,7 +83,9 @@ public class BookingServiceImplement implements BookingService {
     public RentalBookingDetailDto getRentalBookingDetailById(Integer bookingId) throws OptionalNotFoundException {
         RentalBooking rentalBooking = rentalBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
         if (!rentalBooking.getIsActive()) throw new OptionalNotFoundException("Inactive booking");
-        return rentalBookingDetailMapper.toDto(rentalBooking);
+        RentalBookingDetailDto rentalBookingDetailDto = rentalBookingDetailMapper.toDto(rentalBooking);
+        rentalBookingDetailDto.setSource("rental");
+        return rentalBookingDetailDto;
     }
 
     @Override
@@ -108,6 +110,47 @@ public class BookingServiceImplement implements BookingService {
             mergedBookingPage = mergedBookingRepository.findAllByCheckinDateOrCheckoutDateAndResortId(searchDate,searchDate,resortId,pageable);
         }
         return mergedBookingPage;
+    }
+
+    @Override
+    public ExchangeBookingDetailDto getExchangeBookingDetailById(Integer bookingId) throws OptionalNotFoundException {
+        ExchangeBooking exchangeBooking = exchangeBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
+        if (!exchangeBooking.getIsActive()) throw new OptionalNotFoundException("Inactive booking");
+        ExchangeBookingDetailDto exchangeBookingDetailDto = exchangeBookingDetailMapper.toDto(exchangeBooking);
+        exchangeBookingDetailDto.setSource("exchange");
+        return exchangeBookingDetailDto;
+    }
+
+    @Override
+    public RentalBookingDetailDto updateRentalBooking(Integer bookingId, Boolean isCheckIn, Boolean isCheckOut) throws OptionalNotFoundException, ErrMessageException {
+        RentalBooking rentalBooking = rentalBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
+        if (isCheckIn){
+            if (rentalBooking.getStatus().equals(String.valueOf(RentalBookingEnum.Booked))){
+                rentalBooking.setStatus(String.valueOf(RentalBookingEnum.CheckIn));
+            }else throw new ErrMessageException("Status must be booked");
+        }else if (isCheckOut){
+            if (rentalBooking.getStatus().equals(String.valueOf(RentalBookingEnum.CheckIn))){
+                rentalBooking.setStatus(String.valueOf(RentalBookingEnum.CheckOut));
+            }else throw new ErrMessageException("Status must be checkin");
+        }
+        RentalBookingDetailDto rentalBookingDetailDto = rentalBookingDetailMapper.toDto(rentalBookingRepository.save(rentalBooking));
+        return rentalBookingDetailDto;
+    }
+
+    @Override
+    public ExchangeBookingDetailDto updateExchangeBooking(Integer bookingId, Boolean isCheckIn, Boolean isCheckOut) throws OptionalNotFoundException, ErrMessageException {
+        ExchangeBooking exchangeBooking = exchangeBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
+        if (isCheckIn){
+            if (exchangeBooking.getStatus().equals(String.valueOf(RentalBookingEnum.Booked))){
+                exchangeBooking.setStatus(String.valueOf(RentalBookingEnum.CheckIn));
+            }else throw new ErrMessageException("Status must be booked");
+        }else if (isCheckOut){
+            if (exchangeBooking.getStatus().equals(String.valueOf(RentalBookingEnum.CheckIn))){
+                exchangeBooking.setStatus(String.valueOf(RentalBookingEnum.CheckOut));
+            }else throw new ErrMessageException("Status must be checkin");
+        }
+        ExchangeBookingDetailDto exchangeBookingDetailDto = exchangeBookingDetailMapper.toDto(exchangeBookingRepository.save(exchangeBooking));
+        return exchangeBookingDetailDto;
     }
 
 }

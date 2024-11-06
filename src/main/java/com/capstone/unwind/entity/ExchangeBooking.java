@@ -91,14 +91,8 @@ public class ExchangeBooking {
     @Column(name = "service_fee")
     private Float serviceFee;
 
-    @Column(name = "total_price")
-    private Float totalPrice;
-
     @Column(name = "nights")
     private Integer nights;
-
-    @Column(name = "price_per_nights")
-    private Float pricePerNights;
 
     @Column(name = "created_date")
     private Timestamp createdDate;

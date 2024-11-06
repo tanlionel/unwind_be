@@ -3,6 +3,7 @@ package com.capstone.unwind.service.ServiceInterface;
 import com.capstone.unwind.entity.MergedBooking;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.BookingDTO.ExchangeBookingDetailDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingDetailDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingRequestDto;
 import org.springframework.data.domain.Page;
@@ -17,4 +18,10 @@ public interface BookingService {
     Page<MergedBooking> getPaginationBookingCustomer(int page, int size);
 
     Page<MergedBooking> getMergeBookingByDateTsStaff(Integer pageNo, Integer pageSize, LocalDate searchDate, boolean isComing, boolean willGo);
+
+    ExchangeBookingDetailDto getExchangeBookingDetailById(Integer bookingId) throws OptionalNotFoundException;
+
+    RentalBookingDetailDto updateRentalBooking(Integer bookingId, Boolean isCheckIn, Boolean isCheckOut) throws OptionalNotFoundException, ErrMessageException;
+
+    ExchangeBookingDetailDto updateExchangeBooking(Integer bookingId, Boolean isCheckIn, Boolean isCheckOut) throws OptionalNotFoundException, ErrMessageException;
 }

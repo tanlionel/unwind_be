@@ -30,11 +30,14 @@ public class MergedBooking {
     @Column(name = "source")
     private String source;
 
+    @Column(name = "renter_id")
+    private Integer renterId;
+
     @Column(name = "status")
     private String status;
 
-    @Column(name = "renter_id")
-    private Integer renterId;
+    @Column(name = "nights")
+    private Integer nights;
 
     @Column(name = "checkin_date")
     @JsonFormat(pattern = "dd-MM-yyyy")
@@ -64,6 +67,10 @@ public class MergedBooking {
 
     @Column(name = "renter_legal_phone")
     private String renterLegalPhone;
+
+    @Column(name = "created_date")
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate createdDate;
 
     @Column(name = "unit_type_title")
     private String unitTypeTitle;
