@@ -1,6 +1,7 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.Customer;
+import com.capstone.unwind.entity.MergedBooking;
 import com.capstone.unwind.entity.RentalBooking;
 import com.capstone.unwind.entity.RentalPosting;
 import com.capstone.unwind.enums.RentalBookingEnum;
@@ -10,13 +11,24 @@ import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.BookingDTO.RentalBookingDetailDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingDetailMapper;
 import com.capstone.unwind.model.BookingDTO.RentalBookingRequestDto;
+import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
+import com.capstone.unwind.repository.MergedBookingRepository;
 import com.capstone.unwind.repository.RentalBookingRepository;
 import com.capstone.unwind.repository.RentalPostingRepository;
 import com.capstone.unwind.service.ServiceInterface.BookingService;
+import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+
+import static org.springframework.data.domain.Sort.sort;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +41,10 @@ public class BookingServiceImplement implements BookingService {
     private final UserService userService;
     @Autowired
     private final RentalBookingDetailMapper rentalBookingDetailMapper;
+    @Autowired
+    private final MergedBookingRepository mergedBookingRepository;
+    @Autowired
+    private final TimeShareStaffService timeShareStaffService;
 
     @Override
     public RentalBookingDetailDto createBookingRentalPosting(Integer postingId, RentalBookingRequestDto rentalBookingRequestDto) throws OptionalNotFoundException, ErrMessageException {
@@ -68,6 +84,30 @@ public class BookingServiceImplement implements BookingService {
         RentalBooking rentalBooking = rentalBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
         if (!rentalBooking.getIsActive()) throw new OptionalNotFoundException("Inactive booking");
         return rentalBookingDetailMapper.toDto(rentalBooking);
+    }
+
+    @Override
+    public Page<MergedBooking> getPaginationBookingCustomer(int page, int size) {
+        Pageable pageable = PageRequest.of(page,size,Sort.by("checkinDate").ascending());
+        Customer customer = userService.getLoginUser().getCustomer();
+        Page<MergedBooking> mergedBookingPage = mergedBookingRepository.findAllByRenterId(customer.getId(),pageable);
+        return mergedBookingPage;
+    }
+
+    @Override
+    public Page<MergedBooking> getMergeBookingByDateTsStaff(Integer pageNo, Integer pageSize, LocalDate searchDate, boolean isComing, boolean willGo) {
+        Pageable pageable = PageRequest.of(pageNo,pageSize,Sort.by("checkinDate").ascending());
+        Page<MergedBooking> mergedBookingPage;
+        TimeShareCompanyStaffDTO timeShareCompanyStaffDTO = timeShareStaffService.getLoginStaff();
+        Integer resortId = timeShareCompanyStaffDTO.getResortId();
+        if (isComing == true && willGo == false){
+            mergedBookingPage = mergedBookingRepository.findAllByCheckinDateAfterAndStatusAndResortId(searchDate,String.valueOf(RentalBookingEnum.Booked),resortId,pageable);
+        }else if (isComing==false && willGo==true){
+            mergedBookingPage = mergedBookingRepository.findAllByCheckinDateBeforeAndCheckoutDateAfterAndStatusAndResortId(searchDate,searchDate,String.valueOf(RentalBookingEnum.CheckIn),resortId,pageable);
+        }else {
+            mergedBookingPage = mergedBookingRepository.findAllByCheckinDateOrCheckoutDateAndResortId(searchDate,searchDate,resortId,pageable);
+        }
+        return mergedBookingPage;
     }
 
 }
