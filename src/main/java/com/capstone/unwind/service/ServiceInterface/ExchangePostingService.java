@@ -13,5 +13,5 @@ public interface ExchangePostingService {
     ExchangePostingApprovalResponseDto approvalPostingTimeshareStaff(Integer postingId, ExchangePostingApprovalDto exchangePostingApprovalDto) throws OptionalNotFoundException, ErrMessageException;
     ExchangePostingApprovalResponseDto rejectPostingTimeshareStaff(Integer postingId, String note) throws OptionalNotFoundException, ErrMessageException;
     Page<PostingExchangeResponseDTO> getAllPostings(Integer resortId, Pageable pageable) throws OptionalNotFoundException;
-    Page<PostingExchangeResponseDTO> getAllPublicPostings(String resortName, Pageable pageable) throws OptionalNotFoundException;
+    Page<PostingExchangeResponseDTO> getAllExchangePublicPostings(String resortName, Pageable pageable) throws OptionalNotFoundException;
 }

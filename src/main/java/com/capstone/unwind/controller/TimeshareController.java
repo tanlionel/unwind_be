@@ -47,9 +47,5 @@ public class TimeshareController {
         List<Integer> validYearsList = timeShareService.getTimeshareValidYears(timeshareId);
         return ResponseEntity.ok(validYearsList);
     }
-    @GetMapping("/timeshare/exchange/valid-year/{timeshareId}")
-    public ResponseEntity<List<Integer>> getValidExchangeTimeshareYear(@PathVariable Integer timeshareId) throws OptionalNotFoundException {
-        List<Integer> validYearsList = timeShareService.getExchangeTimeshareValidYears(timeshareId);
-        return ResponseEntity.ok(validYearsList);
-    }
+
 }

@@ -136,7 +136,7 @@ public class PublicController {
             @RequestParam(required = false, defaultValue = "") String resortName) throws OptionalNotFoundException {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<PostingExchangeResponseDTO> postingResponsePage = exchangePostingService.getAllPublicPostings(resortName, pageable);
+        Page<PostingExchangeResponseDTO> postingResponsePage = exchangePostingService.getAllExchangePublicPostings(resortName, pageable);
 
         return postingResponsePage;
     }
