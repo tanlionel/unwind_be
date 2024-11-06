@@ -1,0 +1,39 @@
+package com.capstone.unwind.model.ExchangePostingDTO;
+
+import com.capstone.unwind.entity.ExchangePosting;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Value;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+
+/**
+ * DTO for {@link ExchangePosting}
+ */
+@Value
+public class ExchangePostingResponseDto implements Serializable {
+    Integer id;
+    String description;
+    Integer nights;
+    Boolean isVerify;
+    Boolean isExchange;
+    String status;
+    Integer exchangePackageId;
+    String exchangePackagePackageName;
+    Integer ownerId;
+    Boolean isActive;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    LocalDate checkinDate;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    LocalDate checkoutDate;
+    String note;
+    Integer timeshareId;
+    Integer roomInfoId;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    LocalDate expired;
+    @JsonFormat(pattern = "dd-MM-yyyy HH::mm:ss")
+    Timestamp createdDate;
+    @JsonFormat(pattern = "dd-MM-yyyy HH::mm:ss")
+    Timestamp updatedDate;
+}

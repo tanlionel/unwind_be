@@ -47,4 +47,5 @@ public class TimeshareController {
         List<Integer> validYearsList = timeShareService.getTimeshareValidYears(timeshareId);
         return ResponseEntity.ok(validYearsList);
     }
+
 }
