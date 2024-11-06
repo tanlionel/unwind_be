@@ -3,10 +3,7 @@ package com.capstone.unwind.model.TimeShareDTO;
 import com.capstone.unwind.entity.Customer;
 import com.capstone.unwind.entity.RoomInfo;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -15,6 +12,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TimeShareRequestDTO {
 
     private String status;

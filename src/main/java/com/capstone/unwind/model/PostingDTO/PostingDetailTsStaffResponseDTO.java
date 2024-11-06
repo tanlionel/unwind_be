@@ -15,6 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+
 public class PostingDetailTsStaffResponseDTO {
     private Integer rentalPostingId;
     private String description;

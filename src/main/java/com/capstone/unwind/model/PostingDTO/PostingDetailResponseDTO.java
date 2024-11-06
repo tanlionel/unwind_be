@@ -20,6 +20,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+
 public class PostingDetailResponseDTO {
     private Integer rentalPostingId;
     private String description;

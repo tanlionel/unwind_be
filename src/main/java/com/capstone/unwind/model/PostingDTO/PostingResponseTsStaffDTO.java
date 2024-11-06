@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
+
 public class PostingResponseTsStaffDTO {
     private Integer rentalPostingId;
     private Float priceValuation;
