@@ -38,7 +38,7 @@ public class WalletController {
         WalletTransactionDto walletTransactionDto = walletService.findWalletTransactionById(uuid);
         return ResponseEntity.ok(walletTransactionDto);
     }
-    @PostMapping("/VNPAY/membership")
+    @PostMapping("/vnpay/membership")
     public ResponseEntity<MembershipResponseDto> extendMembershipVNPAY(@RequestParam UUID uuid, @RequestParam Integer membership_id) throws ErrMessageException, OptionalNotFoundException {
         MembershipResponseDto membershipResponseDto = customerService.extendMembershipVNPAY(uuid,membership_id);
         return ResponseEntity.ok(membershipResponseDto);
@@ -48,17 +48,27 @@ public class WalletController {
         MembershipResponseDto membershipResponseDto = customerService.extendMembershipWallet(membership_id);
         return ResponseEntity.ok(membershipResponseDto);
     }
-    @PostMapping("VNPAY/rental/posting")
+    @PostMapping("vnpay/rental/posting")
     public ResponseEntity<WalletTransactionDto> paymentRentalPostingVNPAY(@RequestParam UUID uuid,@RequestParam Integer rentalPackageId) throws ErrMessageException, OptionalNotFoundException {
         WalletTransactionDto walletTransactionDto = customerService.paymentRentalPostingVNPAY(uuid,rentalPackageId);
         return ResponseEntity.ok(walletTransactionDto);
     }
-    @PostMapping("WALLET/rental/posting")
+    @PostMapping("wallet/rental/posting")
     public ResponseEntity<WalletTransactionDto> paymentRentalPostingWallet(@RequestParam Integer rentalPackageId) throws ErrMessageException, OptionalNotFoundException {
         WalletTransactionDto walletTransactionDto = customerService.paymentRentalPostingWallet(rentalPackageId);
         return ResponseEntity.ok(walletTransactionDto);
     }
-    @PostMapping("/VNPAY/deposit-wallet")
+    @PostMapping("wallet/rental/booking")
+    public ResponseEntity<WalletTransactionDto> paymentRentalBookingWallet(@RequestParam Integer postingId) throws ErrMessageException, OptionalNotFoundException {
+        WalletTransactionDto walletTransactionDto = customerService.paymentRentalBookingWallet(postingId);
+        return ResponseEntity.ok(walletTransactionDto);
+    }
+    @PostMapping("vnpay/rental/booking")
+    public ResponseEntity<WalletTransactionDto> paymentRentalBookingVNPAY(@RequestParam UUID uuid,@RequestParam Integer postingId) throws ErrMessageException, OptionalNotFoundException {
+        WalletTransactionDto walletTransactionDto = customerService.paymentRentalBookingVNPAY(uuid,postingId);
+        return ResponseEntity.ok(walletTransactionDto);
+    }
+    @PostMapping("/vnpay/deposit-wallet")
     public ResponseEntity<WalletTransactionDto> depositMoneyToWalletVNPAY(@RequestParam UUID uuid) throws ErrMessageException, OptionalNotFoundException {
         WalletTransactionDto walletTransactionDto = customerService.depositMoneyVNPAY(uuid);
         return ResponseEntity.ok(walletTransactionDto);

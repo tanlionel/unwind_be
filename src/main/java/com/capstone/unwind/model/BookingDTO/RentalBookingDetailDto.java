@@ -40,6 +40,7 @@ public class RentalBookingDetailDto implements Serializable {
     Timestamp createdDate;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     Timestamp updatedDate;
+    String source;
 
     /**
      * DTO for {@link RentalPosting}

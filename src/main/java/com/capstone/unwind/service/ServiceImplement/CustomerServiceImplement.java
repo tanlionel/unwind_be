@@ -40,6 +40,8 @@ public class CustomerServiceImplement implements CustomerService {
     private final CustomerInitMapper customerInitMapper;
     @Autowired
     private final RentalPackageRepository rentalPackageRepository;
+    @Autowired
+    private RentalPostingRepository rentalPostingRepository;
     @Override
     public CustomerDto createCustomer(CustomerRequestDto customerRequestDto) throws OptionalNotFoundException {
         User user = userService.getLoginUser();
@@ -218,6 +220,44 @@ public class CustomerServiceImplement implements CustomerService {
         WalletTransaction walletTransactionAfterUpdate = walletService.updateTransaction(walletTransaction.getId(),description,transactionType);
 
         return walletTransactionMapper.toDto(walletTransactionAfterUpdate);
+    }
+
+    @Override
+    public WalletTransactionDto paymentRentalBookingWallet(Integer postingId) throws OptionalNotFoundException, ErrMessageException {
+        RentalPosting rentalPosting = rentalPostingRepository.findByIdAndIsActive(postingId).orElseThrow(()-> new OptionalNotFoundException("not found posting"));
+        if (rentalPosting.getIsBookable()) throw new ErrMessageException("Posting has booked yet by another customer");
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+
+        if ((rentalPosting.getPricePerNights()*rentalPosting.getNights())>user.getCustomer().getWallet().getAvailableMoney()) throw new ErrMessageException("not enough money");
+        user.getCustomer().getWallet().setAvailableMoney(user.getCustomer().getWallet().getAvailableMoney()-(rentalPosting.getNights()*rentalPosting.getPricePerNights()));
+        WalletTransaction walletTransaction = walletService.createTransactionWallet(0,(rentalPosting.getNights()*rentalPosting.getPricePerNights()), "WALLET");
+        walletRepository.save(user.getCustomer().getWallet());
+
+
+        String description = "Thanh toán đặt chỗ timeshare cho thuê ";
+        String transactionType = "RENTALBOOKING";
+        //update transaction
+        WalletTransaction walletTransactionAfterUpdate = walletService.updateTransaction(walletTransaction.getId(),description,transactionType);
+
+        return walletTransactionMapper.toDto(walletTransactionAfterUpdate);
+    }
+
+    @Override
+    public WalletTransactionDto paymentRentalBookingVNPAY(UUID uuid, Integer postingId) throws OptionalNotFoundException, ErrMessageException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+
+        RentalPosting rentalPosting = rentalPostingRepository.findByIdAndIsActive(postingId).orElseThrow(()-> new OptionalNotFoundException("not found posting"));
+        if (rentalPosting.getIsBookable()) throw new ErrMessageException("Posting has booked yet by another customer");
+        String description = "Thanh toán đặt chỗ timeshare cho thuê ";
+        String transactionType = "RENTALBOOKING";
+        //update transaction
+        WalletTransaction walletTransaction = walletService.updateTransaction(uuid,description,transactionType);
+
+        return walletTransactionMapper.toDto(walletTransaction);
     }
 
     public boolean checkIsMember(Customer customer){
