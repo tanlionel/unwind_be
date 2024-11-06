@@ -14,6 +14,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
+
 public class PostingResponseDTO {
     private Integer rentalPostingId;
     @JsonFormat(pattern = "dd-MM-yyyy")
