@@ -37,9 +37,6 @@ public class BlogPost {
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, String> content;
 
-    @Column(name = "author", length = 45)
-    private String author;
-
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

@@ -15,5 +15,4 @@ public class BlogPostRequestDto implements Serializable {
     String title;
     String image;
    Map<String, String> content;
-    String author;
 }

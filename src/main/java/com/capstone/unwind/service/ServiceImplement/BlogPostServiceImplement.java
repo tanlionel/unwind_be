@@ -34,7 +34,6 @@ public class BlogPostServiceImplement implements BlogPostService {
         BlogPost blogPost = BlogPost.builder()
                 .title(blogPostDTO.getTitle())
                 .content(blogPostDTO.getContent())
-                .author(blogPostDTO.getAuthor())
                 .image(blogPostDTO.getImage())
                 .isActive(true)
                 .build();

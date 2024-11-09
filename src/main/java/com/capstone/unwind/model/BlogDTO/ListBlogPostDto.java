@@ -15,7 +15,6 @@ public class ListBlogPostDto implements Serializable {
     Integer id;
     String title;
     String image;
-    String author;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     LocalDateTime createdAt;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
