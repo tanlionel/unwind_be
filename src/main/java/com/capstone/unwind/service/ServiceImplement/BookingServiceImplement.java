@@ -134,6 +134,8 @@ public class BookingServiceImplement implements BookingService {
             }else throw new ErrMessageException("Status must be checkin");
         }else if (!isCheckIn && !isCheckOut){
             throw new ErrMessageException("must be checkin or checkout");
+        }else if (isCheckOut && isCheckIn){
+            throw new ErrMessageException("not be check in and check out in the same time");
         }
         RentalBookingDetailDto rentalBookingDetailDto = rentalBookingDetailMapper.toDto(rentalBookingRepository.save(rentalBooking));
         return rentalBookingDetailDto;
@@ -150,6 +152,10 @@ public class BookingServiceImplement implements BookingService {
             if (exchangeBooking.getStatus().equals(String.valueOf(RentalBookingEnum.CheckIn))){
                 exchangeBooking.setStatus(String.valueOf(RentalBookingEnum.CheckOut));
             }else throw new ErrMessageException("Status must be checkin");
+        } else if (!isCheckIn && !isCheckOut){
+            throw new ErrMessageException("must be checkin or checkout");
+        }else if (isCheckOut && isCheckIn){
+            throw new ErrMessageException("not be check in and check out in the same time");
         }
         ExchangeBookingDetailDto exchangeBookingDetailDto = exchangeBookingDetailMapper.toDto(exchangeBookingRepository.save(exchangeBooking));
         return exchangeBookingDetailDto;
