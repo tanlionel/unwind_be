@@ -124,14 +124,16 @@ public class BookingServiceImplement implements BookingService {
     @Override
     public RentalBookingDetailDto updateRentalBooking(Integer bookingId, Boolean isCheckIn, Boolean isCheckOut) throws OptionalNotFoundException, ErrMessageException {
         RentalBooking rentalBooking = rentalBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
-        if (isCheckIn){
+        if (isCheckIn && !isCheckOut){
             if (rentalBooking.getStatus().equals(String.valueOf(RentalBookingEnum.Booked))){
                 rentalBooking.setStatus(String.valueOf(RentalBookingEnum.CheckIn));
             }else throw new ErrMessageException("Status must be booked");
-        }else if (isCheckOut){
+        }else if (isCheckOut && !isCheckIn){
             if (rentalBooking.getStatus().equals(String.valueOf(RentalBookingEnum.CheckIn))){
                 rentalBooking.setStatus(String.valueOf(RentalBookingEnum.CheckOut));
             }else throw new ErrMessageException("Status must be checkin");
+        }else if (!isCheckIn && !isCheckOut){
+            throw new ErrMessageException("must be checkin or checkout");
         }
         RentalBookingDetailDto rentalBookingDetailDto = rentalBookingDetailMapper.toDto(rentalBookingRepository.save(rentalBooking));
         return rentalBookingDetailDto;
