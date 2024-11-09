@@ -16,6 +16,7 @@ import java.util.Map;
 public class BlogPostResponseDto implements Serializable {
     Integer id;
     String title;
+    String image;
     Map<String, String> content;
     String author;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")

@@ -35,6 +35,7 @@ public class BlogPostServiceImplement implements BlogPostService {
                 .title(blogPostDTO.getTitle())
                 .content(blogPostDTO.getContent())
                 .author(blogPostDTO.getAuthor())
+                .image(blogPostDTO.getImage())
                 .isActive(true)
                 .build();
         BlogPost savedPost = blogPostRepository.save(blogPost);
@@ -57,6 +58,7 @@ public class BlogPostServiceImplement implements BlogPostService {
         BlogPost post = existingPost.get();
         post.setTitle(updatedPostDTO.getTitle());
         post.setContent(updatedPostDTO.getContent());
+        post.setImage(updatedPostDTO.getImage());
         BlogPost updatedPost = blogPostRepository.save(post);
         return blogPostMapper.toDto(updatedPost);
     }
