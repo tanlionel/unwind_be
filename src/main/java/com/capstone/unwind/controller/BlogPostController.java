@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/public/blog")
+@RequestMapping("/api/system-staff/blog")
 @RequiredArgsConstructor
 @CrossOrigin
 public class BlogPostController {

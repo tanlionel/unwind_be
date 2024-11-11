@@ -4,6 +4,8 @@ import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
+import com.capstone.unwind.model.BlogDTO.BlogPostResponseDto;
+import com.capstone.unwind.model.BlogDTO.ListBlogPostDto;
 import com.capstone.unwind.model.ExchangePostingDTO.PostingExchangeDetailResponseDTO;
 import com.capstone.unwind.model.ExchangePostingDTO.PostingExchangeResponseDTO;
 import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
@@ -48,6 +50,8 @@ public class PublicController {
     private RentalPostingService rentalPostingService;
     @Autowired
     private ExchangePostingService exchangePostingService;
+    @Autowired
+    private BlogPostService blogPostService;
     @GetMapping("/resort")
     public Page<ResortDto> getPageableResort(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
                                              @RequestParam(required = false,defaultValue = "10") Integer pageSize,
@@ -143,5 +147,21 @@ public class PublicController {
     @GetMapping("exchange/posting/{postingId}")
     public PostingExchangeDetailResponseDTO getExchangePostingDetail(@PathVariable Integer postingId) throws OptionalNotFoundException {
         return exchangePostingService.getExchangePostingDetailById(postingId);
+    }
+    @GetMapping("blog/postings")
+    public ResponseEntity<Page<ListBlogPostDto>> getAllBlogPosts(
+            @RequestParam(required = false, defaultValue = "") String title,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ListBlogPostDto> blogPosts = blogPostService.getAllBlogPosts(title, pageable);
+        return ResponseEntity.ok(blogPosts);
+    }
+    @GetMapping("blog/{postingId}")
+    public ResponseEntity<BlogPostResponseDto> getBlogPostingDetailById(@PathVariable Integer postingId) throws OptionalNotFoundException {
+
+        BlogPostResponseDto blogPostDetail = blogPostService.getBlogPostingDetailById(postingId);
+        return ResponseEntity.ok(blogPostDetail);
     }
 }
