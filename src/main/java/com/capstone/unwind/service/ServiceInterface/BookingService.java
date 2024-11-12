@@ -3,6 +3,7 @@ package com.capstone.unwind.service.ServiceInterface;
 import com.capstone.unwind.entity.MergedBooking;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.BookingDTO.BookingTsStaffRequestDto;
 import com.capstone.unwind.model.BookingDTO.ExchangeBookingDetailDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingDetailDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingRequestDto;
@@ -21,7 +22,7 @@ public interface BookingService {
 
     ExchangeBookingDetailDto getExchangeBookingDetailById(Integer bookingId) throws OptionalNotFoundException;
 
-    RentalBookingDetailDto updateRentalBooking(Integer bookingId, Boolean isCheckIn, Boolean isCheckOut) throws OptionalNotFoundException, ErrMessageException;
+    RentalBookingDetailDto updateRentalBooking(Integer bookingId, BookingTsStaffRequestDto bookingTsStaffRequestDto) throws OptionalNotFoundException, ErrMessageException;
 
-    ExchangeBookingDetailDto updateExchangeBooking(Integer bookingId, Boolean isCheckIn, Boolean isCheckOut) throws OptionalNotFoundException, ErrMessageException;
+    ExchangeBookingDetailDto updateExchangeBooking(Integer bookingId, BookingTsStaffRequestDto bookingTsStaffRequestDto) throws OptionalNotFoundException, ErrMessageException;
 }

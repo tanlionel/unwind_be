@@ -122,7 +122,9 @@ public class BookingServiceImplement implements BookingService {
     }
 
     @Override
-    public RentalBookingDetailDto updateRentalBooking(Integer bookingId, Boolean isCheckIn, Boolean isCheckOut) throws OptionalNotFoundException, ErrMessageException {
+    public RentalBookingDetailDto updateRentalBooking(Integer bookingId, BookingTsStaffRequestDto bookingTsStaffRequestDto) throws OptionalNotFoundException, ErrMessageException {
+        boolean isCheckIn = bookingTsStaffRequestDto.isCheckIn();
+        boolean isCheckOut = bookingTsStaffRequestDto.isCheckOut();
         RentalBooking rentalBooking = rentalBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
         if (isCheckIn && !isCheckOut){
             if (rentalBooking.getStatus().equals(String.valueOf(RentalBookingEnum.Booked))){
@@ -142,7 +144,9 @@ public class BookingServiceImplement implements BookingService {
     }
 
     @Override
-    public ExchangeBookingDetailDto updateExchangeBooking(Integer bookingId, Boolean isCheckIn, Boolean isCheckOut) throws OptionalNotFoundException, ErrMessageException {
+    public ExchangeBookingDetailDto updateExchangeBooking(Integer bookingId, BookingTsStaffRequestDto bookingTsStaffRequestDto) throws OptionalNotFoundException, ErrMessageException {
+        boolean isCheckIn = bookingTsStaffRequestDto.isCheckIn();
+        boolean isCheckOut = bookingTsStaffRequestDto.isCheckOut();
         ExchangeBooking exchangeBooking = exchangeBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
         if (isCheckIn){
             if (exchangeBooking.getStatus().equals(String.valueOf(RentalBookingEnum.Booked))){

@@ -3,6 +3,7 @@ package com.capstone.unwind.controller;
 import com.capstone.unwind.entity.MergedBooking;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.BookingDTO.BookingTsStaffRequestDto;
 import com.capstone.unwind.model.BookingDTO.ExchangeBookingDetailDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingDetailDto;
 import com.capstone.unwind.service.ServiceInterface.BookingService;
@@ -44,17 +45,15 @@ public class TsStaffBookingController {
     }
     @PostMapping("booking/rental/{bookingId}")
     public ResponseEntity<RentalBookingDetailDto> updateRentalBooking(@PathVariable Integer bookingId,
-                                                                      @RequestParam(required = false,defaultValue = "false") Boolean isCheckIn,
-                                                                      @RequestParam(required = false,defaultValue = "false") Boolean isCheckOut) throws ErrMessageException, OptionalNotFoundException {
-        RentalBookingDetailDto rentalBookingDetailDto = bookingService.updateRentalBooking(bookingId,isCheckIn,isCheckOut);
+                                                                      @RequestBody BookingTsStaffRequestDto bookingTsStaffRequestDto) throws ErrMessageException, OptionalNotFoundException {
+        RentalBookingDetailDto rentalBookingDetailDto = bookingService.updateRentalBooking(bookingId,bookingTsStaffRequestDto);
         return ResponseEntity.ok(rentalBookingDetailDto);
     }
 
     @PostMapping("booking/exchange/{bookingId}")
     public ResponseEntity<ExchangeBookingDetailDto> updateExchangeBooking(@PathVariable Integer bookingId,
-                                                                      @RequestParam(required = false,defaultValue = "false") Boolean isCheckIn,
-                                                                      @RequestParam(required = false,defaultValue = "false") Boolean isCheckOut) throws ErrMessageException, OptionalNotFoundException {
-        ExchangeBookingDetailDto exchangeBookingDetailDto = bookingService.updateExchangeBooking(bookingId,isCheckIn,isCheckOut);
+                                                                          @RequestBody BookingTsStaffRequestDto bookingTsStaffRequestDto) throws ErrMessageException, OptionalNotFoundException {
+        ExchangeBookingDetailDto exchangeBookingDetailDto = bookingService.updateExchangeBooking(bookingId,bookingTsStaffRequestDto);
         return ResponseEntity.ok(exchangeBookingDetailDto);
     }
 }
