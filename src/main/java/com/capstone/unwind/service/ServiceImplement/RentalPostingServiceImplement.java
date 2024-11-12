@@ -1,6 +1,7 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
+import com.capstone.unwind.enums.DocumentStoreEnum;
 import com.capstone.unwind.enums.RentalPostingEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
@@ -62,6 +63,8 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     private final RoomInfoRepository roomInfoRepository;
     @Autowired
     private final WalletService walletService;
+    @Autowired
+    private final DocumentStoreRepository documentStoreRepository;
 
 
     /*    private final String processing = "Processing";
@@ -95,7 +98,10 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     public PostingDetailResponseDTO getRentalPostingDetailById(Integer postingId) throws OptionalNotFoundException {
         RentalPosting rentalPosting = rentalPostingRepository.findByIdAndIsActive(postingId)
                 .orElseThrow(() -> new OptionalNotFoundException("Active Rental Posting not found with ID: " + postingId));
-        return postingDetailMapper.entityToDto(rentalPosting);
+        List<String> imageUrls = documentStoreRepository.findUrlsByEntityIdAndType(rentalPosting.getId(), DocumentStoreEnum.RentalPosting.toString());
+        PostingDetailResponseDTO responseDTO = postingDetailMapper.entityToDto(rentalPosting);
+        responseDTO.setImageUrls(imageUrls);
+        return responseDTO;
     }
     @Override
     public Page<PostingResponseTsStaffDTO> getAllPostingsTsStaff(String roomInfoCode,Integer packageId, Pageable pageable) throws OptionalNotFoundException {
@@ -154,6 +160,18 @@ public class RentalPostingServiceImplement implements RentalPostingService {
                 .build();
         if (rentalPostingRequestDto.getRentalPackageId()==1) rentalPosting.setStatus(String.valueOf(RentalPostingEnum.Processing));
         RentalPosting rentalPostingInDb = rentalPostingRepository.save(rentalPosting);
+        try {
+            for (String imageUrl : rentalPostingRequestDto.getImageUrls()) {
+                DocumentStore document = new DocumentStore();
+                document.setType(DocumentStoreEnum.RentalPosting.toString());
+                document.setEntityId(rentalPostingInDb.getId());
+                document.setImageUrl(imageUrl);
+                document.setIsActive(true);
+                documentStoreRepository.save(document);
+            }
+        } catch (Exception e) {
+            throw new ErrMessageException("Error when saving images");
+        }
         return rentalPostingResponseMapper.toDto(rentalPostingInDb);
     }
 
@@ -259,7 +277,10 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     public PostingDetailTsStaffResponseDTO getRentalPostingDetailTsStaffById(Integer postingId) throws OptionalNotFoundException {
         RentalPosting rentalPosting = rentalPostingRepository.findByIdAndIsActive(postingId)
                 .orElseThrow(() -> new OptionalNotFoundException("Active Rental Posting not found with ID: " + postingId));
-        return postingDetailTsStaffMapper.entityToDto(rentalPosting);
+        List<String> imageUrls = documentStoreRepository.findUrlsByEntityIdAndType(rentalPosting.getId(), DocumentStoreEnum.RentalPosting.toString());
+        PostingDetailTsStaffResponseDTO responseDTO = postingDetailTsStaffMapper.entityToDto(rentalPosting);
+        responseDTO.setImageUrls(imageUrls);
+        return responseDTO;
     }
 
 

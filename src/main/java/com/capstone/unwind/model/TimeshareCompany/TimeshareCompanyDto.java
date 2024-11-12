@@ -1,13 +1,18 @@
 package com.capstone.unwind.model.TimeshareCompany;
 
-import lombok.Value;
+import jakarta.persistence.Entity;
+import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
 
-/**
- * DTO for {@link com.capstone.unwind.entity.TimeshareCompany}
- */
-@Value
+@Data
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+
 public class TimeshareCompanyDto implements Serializable {
     Integer id;
     String timeshareCompanyName;
@@ -17,4 +22,5 @@ public class TimeshareCompanyDto implements Serializable {
     Integer ownerId;
     String contact;
     Boolean isActive;
+    List<String> imageUrls ;
 }

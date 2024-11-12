@@ -42,6 +42,7 @@ public class PostingExchangeDetailResponseDTO {
     private List<ResortAmenityDTO> resortAmenities;
     private List<RoomAmenityDTO> roomAmenities;
     private List<UnitTypeAmenityDTO> unitTypeAmenities;
+    private  List<String> imageUrls;
     @Data
     @Getter
     @Setter

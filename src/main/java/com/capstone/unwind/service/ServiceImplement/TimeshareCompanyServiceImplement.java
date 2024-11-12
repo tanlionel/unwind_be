@@ -1,13 +1,15 @@
 package com.capstone.unwind.service.ServiceImplement;
 
+import com.capstone.unwind.entity.DocumentStore;
 import com.capstone.unwind.entity.TimeshareCompany;
 import com.capstone.unwind.entity.User;
-import com.capstone.unwind.exception.EntityAlreadyExist;
-import com.capstone.unwind.exception.EntityDoesNotExistException;
-import com.capstone.unwind.exception.ErrMessageException;
-import com.capstone.unwind.exception.UserDoesNotExistException;
+import com.capstone.unwind.enums.DocumentStoreEnum;
+import com.capstone.unwind.exception.*;
+import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyMapper;
+import com.capstone.unwind.model.TimeshareCompany.UpdateTimeshareCompanyDto;
+import com.capstone.unwind.repository.DocumentStoreRepository;
 import com.capstone.unwind.repository.TimeshareCompanyRepository;
 import com.capstone.unwind.repository.UserRepository;
 import com.capstone.unwind.service.ServiceInterface.TimeshareCompanyService;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -32,6 +35,8 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
     private final TimeshareCompanyRepository timeshareCompanyRepository;
     @Autowired
     private final UserRepository userRepository;
+    @Autowired
+    private final DocumentStoreRepository documentStoreRepository;
     @Override
     public TimeshareCompanyDto createTimeshareCompany(TimeshareCompanyDto timeshareCompanyDto) throws EntityAlreadyExist, UserDoesNotExistException, ErrMessageException {
         User user = userRepository.findUserById(timeshareCompanyDto.getOwnerId());
@@ -49,10 +54,48 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
                 .owner(user)
                 .build();
         TimeshareCompany timeshareCompanyDB = timeshareCompanyRepository.save(timeshareCompanyRequest);
+        try {
+            for (String imageUrl : timeshareCompanyDto.getImageUrls()) {
+                DocumentStore document = new DocumentStore();
+                document.setType(DocumentStoreEnum.TimeshareCompany.toString());
+                document.setEntityId(timeshareCompanyDB.getId());
+                document.setImageUrl(imageUrl);
+                document.setIsActive(true);
+                documentStoreRepository.save(document);
+            }
+        } catch (Exception e) {
+            throw new ErrMessageException("Error when saving images");
+        }
         TimeshareCompanyDto timeshareCompanyDtoDB = timeshareCompanyMapper.toDto(timeshareCompanyDB);
         return timeshareCompanyDtoDB;
     }
+    @Override
+    public TimeshareCompanyDto updateTimeshareCompany(Integer id, UpdateTimeshareCompanyDto timeshareCompanyDto) throws   ErrMessageException, OptionalNotFoundException {
+        TimeshareCompany existingTimeshareCompany = timeshareCompanyRepository.findById(id)
+                .orElseThrow(() -> new OptionalNotFoundException("Timeshare Company not found"));
 
+        existingTimeshareCompany.setTimeshareCompanyName(timeshareCompanyDto.getTimeshareCompanyName());
+        existingTimeshareCompany.setLogo(timeshareCompanyDto.getLogo());
+        existingTimeshareCompany.setAddress(timeshareCompanyDto.getAddress());
+        existingTimeshareCompany.setDescription(timeshareCompanyDto.getDescription());
+        existingTimeshareCompany.setContact(timeshareCompanyDto.getContact());
+        TimeshareCompany updatedTimeshareCompany = timeshareCompanyRepository.save(existingTimeshareCompany);
+        documentStoreRepository.deactivateOldImages(updatedTimeshareCompany.getId(), DocumentStoreEnum.TimeshareCompany.toString());
+
+        try {
+            for (String imageUrl : timeshareCompanyDto.getImageUrls()) {
+                DocumentStore document = new DocumentStore();
+                document.setType(DocumentStoreEnum.TimeshareCompany.toString());
+                document.setEntityId(updatedTimeshareCompany.getId());
+                document.setImageUrl(imageUrl);
+                document.setIsActive(true);
+                documentStoreRepository.save(document);
+            }
+        } catch (Exception e) {
+            throw new ErrMessageException("Error when saving images");
+        }
+        return timeshareCompanyMapper.toDto(updatedTimeshareCompany);
+    }
     @Override()
     public Page<TimeshareCompanyDto> getPageableTimeshareCompany(Integer pageNo, Integer pageSize, String tsName) {
         Pageable pageable = PageRequest.of(pageNo,pageSize, Sort.by("id").ascending());
@@ -65,6 +108,9 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
     public TimeshareCompanyDto getTimeshareCompanyById(Integer tsId) throws EntityDoesNotExistException {
         TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyById(tsId);
         if (timeshareCompany==null) throw new EntityDoesNotExistException();
-        return timeshareCompanyMapper.toDto(timeshareCompany);
+        List<String> imageUrls = documentStoreRepository.findUrlsByEntityIdAndType(timeshareCompany.getId(), DocumentStoreEnum.TimeshareCompany.toString());
+        TimeshareCompanyDto responseDTO = timeshareCompanyMapper.toDto(timeshareCompany);
+        responseDTO.setImageUrls(imageUrls);
+        return responseDTO;
     }
 }

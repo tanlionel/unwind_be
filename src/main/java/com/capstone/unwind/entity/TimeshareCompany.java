@@ -3,8 +3,9 @@ package com.capstone.unwind.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Getter
+@Setter
 @Entity
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
