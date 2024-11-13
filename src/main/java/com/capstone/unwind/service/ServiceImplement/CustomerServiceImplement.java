@@ -44,6 +44,9 @@ public class CustomerServiceImplement implements CustomerService {
     private RentalPostingRepository rentalPostingRepository;
     @Autowired
     private ProfileMapper profileMapper;
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
     public CustomerDto createCustomer(CustomerRequestDto customerRequestDto) throws OptionalNotFoundException {
         User user = userService.getLoginUser();
@@ -307,8 +310,8 @@ public class CustomerServiceImplement implements CustomerService {
     }
 
     @Override
-    public boolean checkCustomerExists(Integer userId) {
-        return customerRepository.existsByUserId(userId);
+    public boolean checkUserExists(String email) {
+        return userRepository.existsByEmail(email);
     }
 
     private void validateProfileData(UpdateProfileDto profileUpdateDto) throws ErrMessageException {

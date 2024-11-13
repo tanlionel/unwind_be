@@ -30,5 +30,5 @@ public interface CustomerService {
     ProfileDto getProfile() throws OptionalNotFoundException;
     ProfileDto updateProfile(UpdateProfileDto profileUpdateDto) throws OptionalNotFoundException, ErrMessageException;
     ProfileDto getCustomerById(Integer id) throws OptionalNotFoundException;
-    boolean checkCustomerExists(Integer userId);
+    boolean checkUserExists(String email);
 }
