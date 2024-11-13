@@ -4,10 +4,7 @@ import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.BookingDTO.RentalBookingDetailDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingRequestDto;
-import com.capstone.unwind.model.ExchangePostingDTO.ExchangePostingRequestDto;
-import com.capstone.unwind.model.ExchangePostingDTO.ExchangePostingResponseDto;
-import com.capstone.unwind.model.ExchangePostingDTO.PostingExchangeDetailResponseDTO;
-import com.capstone.unwind.model.ExchangePostingDTO.PostingExchangeResponseDTO;
+import com.capstone.unwind.model.ExchangePostingDTO.*;
 import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
 import com.capstone.unwind.model.PostingDTO.PostingResponseDTO;
 import com.capstone.unwind.model.PostingDTO.RentalPostingRequestDto;
@@ -50,5 +47,29 @@ public class CustomerExchangeController {
         ExchangePostingResponseDto exchangePostingResponseDto = exchangePostingService.createExchangePosting(exchangePostingRequestDto);
         return ResponseEntity.ok(exchangePostingResponseDto);
     }
+    @PostMapping("exchange/request/{postingId}")
+    public ResponseEntity<ExchangeRequestDetailDto> createRequestExchange(@PathVariable Integer postingId,@RequestBody ExchangeRequestDto exchangeRequestDto) throws ErrMessageException, OptionalNotFoundException {
+        ExchangeRequestDetailDto exchangeRequestDetailDto = exchangePostingService.createRequestExchange(postingId,exchangeRequestDto);
+        return ResponseEntity.ok(exchangeRequestDetailDto);
+    }
 
+    @GetMapping("exchange/request/{requestId}")
+    public ResponseEntity<ExchangeRequestDetailDto> getExchangeRequestById(@PathVariable Integer requestId) throws OptionalNotFoundException {
+        ExchangeRequestDetailDto exchangeRequestDetailDto = exchangePostingService.getExchangeRequestById(requestId);
+        return ResponseEntity.ok(exchangeRequestDetailDto);
+    }
+    @GetMapping("exchange/request")
+    public Page<ExchangeRequestBasicDto> getExchangeRequestPagination(
+                                                                      @RequestParam(required = false,defaultValue = "0") int pageNo,
+                                                                      @RequestParam(required = false,defaultValue = "10") int pageSize) throws ErrMessageException {
+        Page<ExchangeRequestBasicDto> exchangeRequestBasicDtos = exchangePostingService.getPaginationExchangeRequest(pageNo,pageSize);
+        return exchangeRequestBasicDtos;
+    }
+    @GetMapping("exchange/request/posting/{postingId}")
+    public  Page<ExchangeRequestPostingBasicDto> getExchangeRequestListByPostingIdPagination(@RequestParam(required = false,defaultValue = "0") int pageNo,
+                                                                                             @RequestParam(required = false,defaultValue = "10") int pageSize,
+                                                                                             @RequestParam int postingId){
+        Page<ExchangeRequestPostingBasicDto> exchangeRequestPostingBasicDtos = exchangePostingService.getPaginationExchangeRequestByPostingId(pageNo,pageSize,postingId);
+        return exchangeRequestPostingBasicDtos;
+    }
 }

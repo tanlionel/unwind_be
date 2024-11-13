@@ -3,6 +3,7 @@ package com.capstone.unwind.service.ServiceImplement;
 import com.capstone.unwind.entity.*;
 import com.capstone.unwind.enums.DocumentStoreEnum;
 import com.capstone.unwind.enums.ExchangePostingEnum;
+import com.capstone.unwind.enums.ExchangeRequestEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.ExchangePostingDTO.*;
@@ -16,7 +17,9 @@ import com.capstone.unwind.service.ServiceInterface.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -60,6 +63,15 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
     private final ListExchangePostingMapper listExchangePostingMapper;
     @Autowired
     private final DocumentStoreRepository documentStoreRepository;
+    @Autowired
+    private final ExchangeRequestRepository exchangeRequestRepository;
+    @Autowired
+    private final ExchangeRequestMapper exchangeRequestMapper;
+    @Autowired
+    private final ExchangeRequestListMapper exchangeRequestListMapper;
+    @Autowired
+    private final ExchangeRequestPostingListMapper exchangeRequestPostingListMapper;
+
     @Override
     public ExchangePostingResponseDto createExchangePosting(ExchangePostingRequestDto exchangePostingRequestDto) throws ErrMessageException, OptionalNotFoundException {
         User user = userService.getLoginUser();
@@ -187,5 +199,51 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 resortName, String.valueOf(ExchangePostingEnum.Processing), pageable);
         Page<PostingExchangeResponseDTO> postingDtoPage = exchangePostings.map(listExchangePostingMapper::entityToDto);
         return postingDtoPage;
+    }
+
+    @Override
+    public ExchangeRequestDetailDto createRequestExchange(Integer postingId, ExchangeRequestDto exchangeRequestDto) throws OptionalNotFoundException, ErrMessageException {
+        Customer customer = userService.getLoginUser().getCustomer();
+        if (customer==null) throw new ErrMessageException("Customer has not login yet");
+        ExchangePosting exchangePosting = exchangePostingRepository.findByIdAndIsActive(postingId).orElseThrow(()->new OptionalNotFoundException("not found exchange posting"));
+        if (exchangePosting.getIsExchange() || !exchangePosting.getStatus().equals(String.valueOf(ExchangePostingEnum.Processing))) throw new ErrMessageException("Status must be processing or exchange posting not booked yet");
+        if (customer.getId() == exchangePosting.getOwner().getId()) throw new ErrMessageException("Can not book yourself");
+        Timeshare timeshare = timeShareRepository.findById(exchangeRequestDto.getTimeshareId()).orElseThrow(()->new OptionalNotFoundException("Not found timeshare"));
+        ExchangeRequest exchangeRequest = ExchangeRequest.builder()
+                .timeshare(timeshare)
+                .roomInfo(timeshare.getRoomInfo())
+                .owner(customer)
+                .startDate(exchangeRequestDto.getStartDate())
+                .endDate(exchangeRequestDto.getEndDate())
+                .status(String.valueOf(ExchangeRequestEnum.PendingCustomer))
+                .exchangePosting(exchangePosting)
+                .isActive(true)
+                .build();
+        ExchangeRequestDetailDto exchangeRequestDetailDto = exchangeRequestMapper.toDto(exchangeRequestRepository.save(exchangeRequest));
+        return exchangeRequestDetailDto;
+    }
+
+    @Override
+    public ExchangeRequestDetailDto getExchangeRequestById(Integer requestId) throws OptionalNotFoundException {
+        ExchangeRequest exchangeRequest = exchangeRequestRepository.findById(requestId).orElseThrow(()->new OptionalNotFoundException("Not found exchange request"));
+        return exchangeRequestMapper.toDto(exchangeRequest);
+    }
+
+    @Override
+    public Page<ExchangeRequestBasicDto> getPaginationExchangeRequest( int pageNo, int pageSize) throws ErrMessageException {
+        Customer customer = userService.getLoginUser().getCustomer();
+        if (customer==null) throw new ErrMessageException("Not login yet");
+        Pageable pageable = PageRequest.of(pageNo,pageSize, Sort.by("createdDate").descending());
+        Page<ExchangeRequest> exchangeRequests = exchangeRequestRepository.findAllByIsActiveAndOwnerId(true,customer.getId(),pageable);
+        Page<ExchangeRequestBasicDto> exchangeRequestBasicDtos = exchangeRequests.map(exchangeRequestListMapper::toDto);
+        return exchangeRequestBasicDtos;
+    }
+
+    @Override
+    public Page<ExchangeRequestPostingBasicDto> getPaginationExchangeRequestByPostingId(int pageNo, int pageSize,int postingId) {
+        Pageable pageable = PageRequest.of(pageNo,pageSize, Sort.by("createdDate").descending());
+        Page<ExchangeRequest> exchangePostings = exchangeRequestRepository.findAllByIsActiveAndExchangePostingId(true,postingId,pageable);
+        Page<ExchangeRequestPostingBasicDto> exchangeRequestPostingBasicDtos = exchangePostings.map(exchangeRequestPostingListMapper::toDto);
+        return exchangeRequestPostingBasicDtos;
     }
 }
