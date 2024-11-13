@@ -5,9 +5,11 @@ import com.capstone.unwind.entity.MergedBookingId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 
+@Repository
 public interface MergedBookingRepository extends JpaRepository<MergedBooking, MergedBookingId> {
     Page<MergedBooking> findAllByRenterId(Integer renterId, Pageable pageable);
     Page<MergedBooking> findAllByCheckinDateOrCheckoutDateAndResortId(LocalDate checkInDate,LocalDate  checkOutDate,Integer resortId,Pageable pageable);
