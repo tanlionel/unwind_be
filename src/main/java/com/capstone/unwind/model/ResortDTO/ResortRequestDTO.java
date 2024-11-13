@@ -18,6 +18,7 @@ public class ResortRequestDTO {
     Integer timeshareCompanyId;
     String description;
     List<ResortAmenity> resortAmenityList;
+    List<String> ImageUrls;
 
     @Data
     @Getter

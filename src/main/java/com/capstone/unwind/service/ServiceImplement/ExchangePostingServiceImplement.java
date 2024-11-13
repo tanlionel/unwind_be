@@ -1,6 +1,7 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
+import com.capstone.unwind.enums.DocumentStoreEnum;
 import com.capstone.unwind.enums.ExchangePostingEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -56,6 +58,8 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
     private final WalletService walletService;
     @Autowired
     private final ListExchangePostingMapper listExchangePostingMapper;
+    @Autowired
+    private final DocumentStoreRepository documentStoreRepository;
     @Override
     public ExchangePostingResponseDto createExchangePosting(ExchangePostingRequestDto exchangePostingRequestDto) throws ErrMessageException, OptionalNotFoundException {
         User user = userService.getLoginUser();
@@ -83,6 +87,18 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 .build();
         if (exchangePostingRequestDto.getExchangePackageId()==1) exchangelPosting.setStatus(String.valueOf(ExchangePostingEnum.Processing));
         ExchangePosting exchangePostingInDb = exchangePostingRepository.save(exchangelPosting);
+        try {
+            for (String imageUrl : exchangePostingRequestDto.getImageUrls()) {
+                DocumentStore document = new DocumentStore();
+                document.setType(DocumentStoreEnum.ExchangePosting.toString());
+                document.setEntityId(exchangePostingInDb.getId());
+                document.setImageUrl(imageUrl);
+                document.setIsActive(true);
+                documentStoreRepository.save(document);
+            }
+        } catch (Exception e) {
+            throw new ErrMessageException("Error when saving images");
+        }
         return exchangePostingResponseMapper.toDto(exchangePostingInDb);
     }
     @Override
@@ -103,7 +119,10 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
     public PostingExchangeDetailResponseDTO getExchangePostingDetailById(Integer postingId) throws OptionalNotFoundException {
         ExchangePosting exchangePosting = exchangePostingRepository.findByIdAndIsActive(postingId)
                 .orElseThrow(() -> new OptionalNotFoundException("Active Exchange Posting not found with ID: " + postingId));
-        return postingExchangeDetailMapper.entityToDto(exchangePosting);
+        List<String> imageUrls = documentStoreRepository.findUrlsByEntityIdAndType(exchangePosting.getId(), DocumentStoreEnum.ExchangePosting.toString());
+        PostingExchangeDetailResponseDTO responseDTO = postingExchangeDetailMapper.entityToDto(exchangePosting);
+        responseDTO.setImageUrls(imageUrls);
+        return responseDTO;
     }
     @Override
     public ExchangePostingApprovalResponseDto approvalPostingTimeshareStaff(Integer postingId, ExchangePostingApprovalDto exchangePostingApprovalDto) throws OptionalNotFoundException, ErrMessageException {

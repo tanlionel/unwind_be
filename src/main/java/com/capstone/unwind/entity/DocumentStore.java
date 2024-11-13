@@ -17,10 +17,16 @@ public class DocumentStore {
     @Column(name = "title", length = 100)
     private String title;
 
+    @Column(name = "image_url", length = 300)
+    private String imageUrl;
+
     @Column(name = "type", length = 45)
     private String type;
 
     @Column(name = "entity_id")
     private Integer entityId;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
 
 }

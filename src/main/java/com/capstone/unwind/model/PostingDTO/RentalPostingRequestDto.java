@@ -7,6 +7,7 @@ import lombok.Value;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * DTO for {@link RentalPosting}
@@ -23,4 +24,5 @@ public class RentalPostingRequestDto implements Serializable {
     @JsonFormat(pattern = "dd-MM-yyyy")
     LocalDate checkoutDate;
     Integer rentalPackageId;
+    List<String> imageUrls;
 }

@@ -1,6 +1,7 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
+import com.capstone.unwind.enums.DocumentStoreEnum;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
@@ -45,6 +46,8 @@ public class ResortServiceImplement implements ResortService {
     @Autowired
     private final CustomerRepository customerRepository;
     @Autowired
+    private final DocumentStoreRepository documentStoreRepository;
+    @Autowired
     private final UserService userService;
 
     @Override
@@ -79,11 +82,22 @@ public class ResortServiceImplement implements ResortService {
                         .build();
                 resortAmenityRepository.save(resortAmenity);
             }
+
         } catch (Exception e) {
             throw new ErrMessageException("Error when save amenities");
         }
-        ;
-
+        try {
+            for (String imageUrl : resortDto.getImageUrls()) {
+                DocumentStore document = new DocumentStore();
+                document.setType(DocumentStoreEnum.Resort.toString());
+                document.setEntityId(resortInDb.getId());
+                document.setImageUrl(imageUrl);
+                document.setIsActive(true);
+                documentStoreRepository.save(document);
+            }
+        } catch (Exception e) {
+            throw new ErrMessageException("Error when saving images");
+        }
         List<ResortAmenity> resortAmenities = resortAmenityRepository.findAllByResortId(resortInDb.getId());
         ResortDetailResponseDTO resortDetailResponseDTO = ResortDetailResponseDTO.builder()
                 .id(resortInDb.getId())
@@ -137,40 +151,53 @@ public class ResortServiceImplement implements ResortService {
         resort.setIsActive(true);
 
         Resort updatedResort = resortRepository.save(resort);
-        resortAmenityRepository.deactivateExistingAmenities(updatedResort.getId());
-        List<ResortAmenity> newAmenities = resortRequestDTO.getResortAmenityList().stream()
-                .map(tmp -> ResortAmenity.builder()
-                        .resort(updatedResort)
-                        .name(tmp.getName())
-                        .type(tmp.getType())
-                        .isActive(true)
-                        .build())
-                .toList();
-        resortAmenityRepository.saveAll(newAmenities);
+        documentStoreRepository.deactivateOldImages(updatedResort.getId(), DocumentStoreEnum.Resort.toString());
 
-        List<ResortAmenity> activeAmenities = resortAmenityRepository.findAllByResortIdAndIsActiveTrue(updatedResort.getId());
-        ResortDetailResponseDTO resortDetailResponseDTO = ResortDetailResponseDTO.builder()
-                .id(updatedResort.getId())
-                .resortName(updatedResort.getResortName())
-                .logo(updatedResort.getLogo())
-                .minPrice(updatedResort.getMinPrice())
-                .maxPrice(updatedResort.getMaxPrice())
-                .status(updatedResort.getStatus())
-                .address(updatedResort.getAddress())
-                .timeshareCompanyId(updatedResort.getTimeshareCompany().getId())
-                .description(updatedResort.getDescription())
-                .resortAmenityList(activeAmenities.stream()
-                        .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
-                                .name(p.getName())
-                                .type(p.getType())
-                                .build())
-                        .toList())
-                .isActive(updatedResort.getIsActive())
-                .build();
+        try {
+            for (String imageUrl : resortRequestDTO.getImageUrls()) {
+                DocumentStore document = new DocumentStore();
+                document.setType(DocumentStoreEnum.Resort.toString());
+                document.setEntityId(updatedResort.getId());
+                document.setImageUrl(imageUrl);
+                document.setIsActive(true);
+                documentStoreRepository.save(document);
+            }
+        } catch (Exception e) {
+            throw new ErrMessageException("Error when saving images");
+        }
+            resortAmenityRepository.deactivateExistingAmenities(updatedResort.getId());
+            List<ResortAmenity> newAmenities = resortRequestDTO.getResortAmenityList().stream()
+                    .map(tmp -> ResortAmenity.builder()
+                            .resort(updatedResort)
+                            .name(tmp.getName())
+                            .type(tmp.getType())
+                            .isActive(true)
+                            .build())
+                    .toList();
+            resortAmenityRepository.saveAll(newAmenities);
 
-        return resortDetailResponseDTO;
-    }
+            List<ResortAmenity> activeAmenities = resortAmenityRepository.findAllByResortIdAndIsActiveTrue(updatedResort.getId());
+            ResortDetailResponseDTO resortDetailResponseDTO = ResortDetailResponseDTO.builder()
+                    .id(updatedResort.getId())
+                    .resortName(updatedResort.getResortName())
+                    .logo(updatedResort.getLogo())
+                    .minPrice(updatedResort.getMinPrice())
+                    .maxPrice(updatedResort.getMaxPrice())
+                    .status(updatedResort.getStatus())
+                    .address(updatedResort.getAddress())
+                    .timeshareCompanyId(updatedResort.getTimeshareCompany().getId())
+                    .description(updatedResort.getDescription())
+                    .resortAmenityList(activeAmenities.stream()
+                            .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
+                                    .name(p.getName())
+                                    .type(p.getType())
+                                    .build())
+                            .toList())
+                    .isActive(updatedResort.getIsActive())
+                    .build();
 
+            return resortDetailResponseDTO;
+        }
     @Override
     public ResortDetailResponseDTO getResortById(Integer resortId) throws EntityDoesNotExistException, UserDoesNotHavePermission {
         User tsCompany = userService.getLoginUser();
@@ -184,6 +211,7 @@ public class ResortServiceImplement implements ResortService {
         List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortIdAndIsActiveTrue(resortInDb.getId()).stream().map(unitTypeMapper::toDto).toList();
         Pageable pageable = PageRequest.of(0, 8);
         List<Feedback> feedbackList = feedbackRepository.findTop8ByResortIdAndIsActive(resortId,pageable);
+        List<String> imageUrls = documentStoreRepository.findUrlsByEntityIdAndType(resortInDb.getId(), DocumentStoreEnum.Resort.toString());
         //mapping unit type amenities
         for (UnitTypeDto tmp : unitTypeDtoListResponse) {
             List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(tmp.getId());
@@ -204,6 +232,7 @@ public class ResortServiceImplement implements ResortService {
                 .address(resortInDb.getAddress())
                 .timeshareCompanyId(resortInDb.getTimeshareCompany().getId())
                 .status(resortInDb.getStatus())
+                .imageUrls(imageUrls)
                 .description(resortInDb.getDescription())
                 .resortAmenityList(resortAmenityList.stream()
                         .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
@@ -252,6 +281,7 @@ public class ResortServiceImplement implements ResortService {
         List<UnitTypeDto> unitTypeDtoListResponse = unitTypeRepository.findAllByResortIdAndIsActiveTrue(resortInDb.getId()).stream().map(unitTypeMapper::toDto).toList();
         Pageable pageable = PageRequest.of(0, 8);
         List<Feedback> feedbackList = feedbackRepository.findTop8ByResortIdAndIsActive(resortId,pageable);
+        List<String> imageUrls = documentStoreRepository.findUrlsByEntityIdAndType(resortInDb.getId(), DocumentStoreEnum.Resort.toString());
         //mapping unit type amenities
         for (UnitTypeDto tmp : unitTypeDtoListResponse) {
             List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(tmp.getId());
@@ -293,6 +323,7 @@ public class ResortServiceImplement implements ResortService {
                                 .build())
                         .toList())
                 .unitTypeDtoList(unitTypeDtoListResponse)
+                .imageUrls(imageUrls)
                 .build();
         return resortDetailResponseDTO;
     }

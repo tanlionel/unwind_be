@@ -62,4 +62,6 @@ public interface PostingDetailMapper {
         }
         return 0f;
     }
+
+
 }

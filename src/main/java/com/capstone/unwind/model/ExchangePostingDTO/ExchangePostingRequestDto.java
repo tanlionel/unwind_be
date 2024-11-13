@@ -6,6 +6,7 @@ import lombok.Value;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * DTO for {@link ExchangePosting}
@@ -20,4 +21,5 @@ public class ExchangePostingRequestDto implements Serializable {
     @JsonFormat(pattern = "dd-MM-yyyy")
     LocalDate checkoutDate;
     Integer timeshareId;
+    List<String> imageUrls;
 }
