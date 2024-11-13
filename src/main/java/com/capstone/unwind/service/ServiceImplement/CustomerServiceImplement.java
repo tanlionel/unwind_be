@@ -42,6 +42,8 @@ public class CustomerServiceImplement implements CustomerService {
     private final RentalPackageRepository rentalPackageRepository;
     @Autowired
     private RentalPostingRepository rentalPostingRepository;
+    @Autowired
+    private ProfileMapper profileMapper;
     @Override
     public CustomerDto createCustomer(CustomerRequestDto customerRequestDto) throws OptionalNotFoundException {
         User user = userService.getLoginUser();
@@ -263,5 +265,66 @@ public class CustomerServiceImplement implements CustomerService {
     public boolean checkIsMember(Customer customer){
         boolean isMember = customer.getMemberExpiryDate()!=null && customer.getMemberExpiryDate().isAfter(LocalDate.now());
         return isMember;
+    }
+
+
+    @Override
+    public ProfileDto getProfile() throws OptionalNotFoundException {
+        User user = userService.getLoginUser();
+        Customer customer = customerRepository.findByUserId(user.getId());
+        if (customer == null) {
+            throw new OptionalNotFoundException("Customer does not exist with userId: " + user.getId());
+        }
+        return profileMapper.toDto(customer);
+    }
+    @Override
+    public ProfileDto getCustomerById(Integer id) throws OptionalNotFoundException {
+        Customer customer = customerRepository.findByUserId(id);
+        if (customer == null) {
+            throw new OptionalNotFoundException("Customer does not exist with userId: " + id);
+        }
+        return profileMapper.toDto(customer);
+    }
+    @Override
+    public ProfileDto updateProfile(UpdateProfileDto profileUpdateDto) throws OptionalNotFoundException, ErrMessageException {
+        User user = userService.getLoginUser();
+        Customer customer = customerRepository.findByUserId(user.getId());
+        if (customer == null) {
+            throw new OptionalNotFoundException("Customer does not exist with userId: " + user.getId());
+        }
+        //check valid
+        validateProfileData(profileUpdateDto);
+
+        customer.setFullName(profileUpdateDto.getFullName());
+        customer.setAvatar(profileUpdateDto.getAvatar());
+        customer.setDob(profileUpdateDto.getDob());
+        customer.setAddress(profileUpdateDto.getAddress());
+        customer.setGender(profileUpdateDto.getGender());
+        customer.setPhone(profileUpdateDto.getPhone());
+
+        customerRepository.save(customer);
+        return profileMapper.toDto(customer);
+    }
+
+    @Override
+    public boolean checkCustomerExists(Integer userId) {
+        return customerRepository.existsByUserId(userId);
+    }
+
+    private void validateProfileData(UpdateProfileDto profileUpdateDto) throws ErrMessageException {
+        if (profileUpdateDto.getDob() != null) {
+            LocalDate today = LocalDate.now();
+            LocalDate dobThreshold = today.minusYears(18);
+            if (profileUpdateDto.getDob().isAfter(dobThreshold)) {
+                throw new ErrMessageException("Date of birth must indicate an age over 18.");
+            }
+        }
+
+        if (profileUpdateDto.getPhone() != null) {
+            String phone = profileUpdateDto.getPhone();
+            if (!phone.matches("^0\\d{9}$")) {
+                throw new ErrMessageException("Phone number must be 10 digits and start with 0.");
+            }
+        }
     }
 }

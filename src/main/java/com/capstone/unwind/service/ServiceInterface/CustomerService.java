@@ -2,9 +2,7 @@ package com.capstone.unwind.service.ServiceInterface;
 
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
-import com.capstone.unwind.model.CustomerDTO.CustomerDto;
-import com.capstone.unwind.model.CustomerDTO.CustomerInitDto;
-import com.capstone.unwind.model.CustomerDTO.CustomerRequestDto;
+import com.capstone.unwind.model.CustomerDTO.*;
 import com.capstone.unwind.model.WalletDTO.MembershipResponseDto;
 import com.capstone.unwind.model.WalletDTO.WalletDto;
 import com.capstone.unwind.model.WalletDTO.WalletTransactionDto;
@@ -28,4 +26,9 @@ public interface CustomerService {
     WalletTransactionDto paymentRentalBookingWallet(Integer postingId) throws OptionalNotFoundException, ErrMessageException;
 
     WalletTransactionDto paymentRentalBookingVNPAY(UUID uuid, Integer postingId) throws OptionalNotFoundException, ErrMessageException;
+
+    ProfileDto getProfile() throws OptionalNotFoundException;
+    ProfileDto updateProfile(UpdateProfileDto profileUpdateDto) throws OptionalNotFoundException, ErrMessageException;
+    ProfileDto getCustomerById(Integer id) throws OptionalNotFoundException;
+    boolean checkCustomerExists(Integer userId);
 }
