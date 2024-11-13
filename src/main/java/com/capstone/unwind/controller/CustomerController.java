@@ -55,7 +55,7 @@ public class CustomerController {
             ProfileDto updatedProfile = customerService.updateProfile(profileUpdateDto);
             return ResponseEntity.ok(updatedProfile);
     }
-    @GetMapping("/exists")
+    @GetMapping("user/exists")
     public ResponseEntity<Boolean> checkUserExists(@RequestParam String email) {
         boolean exists = customerService.checkUserExists(email);
         return ResponseEntity.ok(exists);
