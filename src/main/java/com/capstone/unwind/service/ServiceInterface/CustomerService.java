@@ -31,4 +31,8 @@ public interface CustomerService {
     ProfileDto updateProfile(UpdateProfileDto profileUpdateDto) throws OptionalNotFoundException, ErrMessageException;
     ProfileDto getCustomerById(Integer id) throws OptionalNotFoundException;
     boolean checkUserExists(String email);
+
+    WalletTransactionDto paymentExchangePostingWallet(Integer postingId) throws OptionalNotFoundException, ErrMessageException;
+
+    WalletTransactionDto paymentExchangePostingVNPAY(UUID uuid, Integer postingId) throws OptionalNotFoundException, ErrMessageException;
 }
