@@ -2,17 +2,12 @@ package com.capstone.unwind.controller;
 
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
-import com.capstone.unwind.model.CustomerDTO.CustomerDto;
-import com.capstone.unwind.model.CustomerDTO.CustomerInitDto;
-import com.capstone.unwind.model.CustomerDTO.CustomerRequestDto;
-import com.capstone.unwind.model.WalletDTO.MembershipResponseDto;
+import com.capstone.unwind.model.CustomerDTO.*;
 import com.capstone.unwind.service.ServiceInterface.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -43,5 +38,26 @@ public class CustomerController {
     public ResponseEntity<CustomerInitDto> getMyInitValue() throws OptionalNotFoundException {
         CustomerInitDto customerInitDto = customerService.getLoginCustomer();
         return ResponseEntity.ok(customerInitDto);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<ProfileDto> getProfile() throws OptionalNotFoundException {
+            ProfileDto profile = customerService.getProfile();
+            return ResponseEntity.ok(profile);
+        }
+    @GetMapping("/profile/{customerId}")
+    public ResponseEntity<ProfileDto> getProfileById(@PathVariable Integer customerId) throws OptionalNotFoundException {
+        ProfileDto profile = customerService.getCustomerById(customerId);
+        return ResponseEntity.ok(profile);
+    }
+    @PutMapping("/profile")
+    public ResponseEntity<ProfileDto> updateProfile(@RequestBody UpdateProfileDto profileUpdateDto) throws OptionalNotFoundException, ErrMessageException {
+            ProfileDto updatedProfile = customerService.updateProfile(profileUpdateDto);
+            return ResponseEntity.ok(updatedProfile);
+    }
+    @GetMapping("user/exists")
+    public ResponseEntity<Boolean> checkUserExists(@RequestParam String email) {
+        boolean exists = customerService.checkUserExists(email);
+        return ResponseEntity.ok(exists);
     }
 }
