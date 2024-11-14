@@ -9,12 +9,12 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface RentalPostingService {
-    Page<PostingResponseDTO> getAllPostings(Integer resortId, Pageable pageable) throws OptionalNotFoundException;
+    Page<PostingResponseDTO> getAllPostings(Integer resortId, Pageable pageable, String status) throws OptionalNotFoundException;
     Page<PostingResponseDTO> getAllPublicPostings(String resortName, Pageable pageable) throws OptionalNotFoundException;
     PostingDetailResponseDTO getRentalPostingDetailById(Integer postingId) throws OptionalNotFoundException;
     Page<PostingResponseTsStaffDTO> getAllPostingsTsStaff(String resortName,Integer packageId, Pageable pageable) throws OptionalNotFoundException;
     PostingDetailTsStaffResponseDTO getRentalPostingDetailTsStaffById(Integer postingId) throws OptionalNotFoundException;
-    Page<PostingResponseTsStaffDTO> getAllPostingsSystemStaff(String roomInfoCode, Pageable pageable) throws OptionalNotFoundException;
+    Page<PostingResponseTsStaffDTO> getAllPostingsSystemStaff(String roomInfoCode, Pageable pageable,String status) throws OptionalNotFoundException;
 
     RentalPostingResponseDto createRentalPosting(RentalPostingRequestDto rentalPostingRequestDto) throws ErrMessageException, OptionalNotFoundException;
 
