@@ -2,10 +2,7 @@ package com.capstone.unwind.controller;
 
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
-import com.capstone.unwind.model.ExchangePostingDTO.ExchangePostingApprovalDto;
-import com.capstone.unwind.model.ExchangePostingDTO.ExchangePostingApprovalResponseDto;
-import com.capstone.unwind.model.ExchangePostingDTO.ExchangePostingResponseTsStaffDTO;
-import com.capstone.unwind.model.ExchangePostingDTO.PostingExchangeDetailResponseDTO;
+import com.capstone.unwind.model.ExchangePostingDTO.*;
 import com.capstone.unwind.model.PostingDTO.PostingResponseTsStaffDTO;
 import com.capstone.unwind.model.PostingDTO.RentalPostingApprovalDto;
 import com.capstone.unwind.model.PostingDTO.RentalPostingApprovalResponseDto;
@@ -50,5 +47,26 @@ public class TSStaffExchangePostingController {
     public ResponseEntity<ExchangePostingApprovalResponseDto> rejectPosting(@PathVariable Integer postingId,@RequestBody String note) throws ErrMessageException, OptionalNotFoundException {
         ExchangePostingApprovalResponseDto exchangePostingApprovalResponseDto = exchangePostingService.rejectPostingTimeshareStaff(postingId,note);
         return ResponseEntity.ok(exchangePostingApprovalResponseDto);
+    }
+    @GetMapping("exchange/request")
+    public Page<ExchangeRequestBasicDto> getPublicRequest(
+            @RequestParam(required = false, defaultValue = "0") Integer pageNo,
+            @RequestParam(required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "") String roomInfoCode) throws OptionalNotFoundException {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<ExchangeRequestBasicDto> postingResponsePage = exchangePostingService.getAllExchangeRequestTsStaff(roomInfoCode, pageable);
+
+        return postingResponsePage;
+    }
+    @PostMapping("exchange/request/approval/{requestId}")
+    public ResponseEntity<ExchangeRequestBasicDto> approvalRequest(@PathVariable Integer requestId, @RequestBody ExchangePostingApprovalDto exchangePostingApprovalDto) throws ErrMessageException, OptionalNotFoundException {
+        ExchangeRequestBasicDto exchangeRequestApprovalResponseDto = exchangePostingService.approvalRequestTimeshareStaff(requestId,exchangePostingApprovalDto);
+        return ResponseEntity.ok(exchangeRequestApprovalResponseDto);
+    }
+    @PostMapping("exchange/request/reject/{requestId}")
+    public ResponseEntity<ExchangeRequestBasicDto> rejectRequest(@PathVariable Integer requestId,@RequestBody String note) throws ErrMessageException, OptionalNotFoundException {
+        ExchangeRequestBasicDto exchangeRequestApprovalResponseDto = exchangePostingService.rejectRequestTimeshareStaff(requestId,note);
+        return ResponseEntity.ok(exchangeRequestApprovalResponseDto);
     }
 }

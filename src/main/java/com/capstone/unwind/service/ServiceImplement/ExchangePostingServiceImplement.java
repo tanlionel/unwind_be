@@ -246,4 +246,57 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         Page<ExchangeRequestPostingBasicDto> exchangeRequestPostingBasicDtos = exchangePostings.map(exchangeRequestPostingListMapper::toDto);
         return exchangeRequestPostingBasicDtos;
     }
+    @Override
+    public Page<ExchangeRequestBasicDto> getAllExchangeRequestTsStaff(String roomInfoCode, Pageable pageable) throws OptionalNotFoundException {
+        TimeShareCompanyStaffDTO user = timeShareStaffService.getLoginStaff();
+        Optional<TimeshareCompanyStaff> timeshareCompanyStaffOpt = timeshareCompanyStaffRepository.findById(user.getId());
+        if (timeshareCompanyStaffOpt.isEmpty()) {
+            throw new OptionalNotFoundException("Timeshare company staff not found with id: " + user.getId());
+        }
+        TimeshareCompanyStaff timeshareCompanyStaff = timeshareCompanyStaffOpt.get();
+        Page<ExchangeRequest> exchangePostings  = exchangeRequestRepository.findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndStatusAndRoomInfo_Resort_Id(
+                true, roomInfoCode,String.valueOf(ExchangeRequestEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), pageable);
+
+        Page<ExchangeRequestBasicDto> postingDtoPage = exchangePostings.map(exchangeRequestListMapper::toDto);
+        return postingDtoPage;
+    }
+    @Override
+    public ExchangeRequestBasicDto approvalRequestTimeshareStaff(Integer requestId, ExchangePostingApprovalDto exchangePostingApprovalDto) throws OptionalNotFoundException, ErrMessageException {
+        Optional<ExchangeRequest> ExchangeRequest = exchangeRequestRepository.findByIdAndIsActive(requestId);
+        if (!ExchangeRequest.isPresent()) throw new OptionalNotFoundException("Not found exchange posting");
+        if (!ExchangeRequest.get().getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingApproval))) throw new ErrMessageException("Status must be pending approval");
+        Optional<UnitType> unitType = null;
+        if (exchangePostingApprovalDto.getUnitTypeId()!=0){
+            unitType = unitTypeRepository.findById(exchangePostingApprovalDto.getUnitTypeId());
+            if (!unitType.isPresent()) throw new OptionalNotFoundException("Not found unit type ");
+        }
+        ExchangeRequest exchangePostingUpdate = ExchangeRequest.get();
+        if (exchangePostingApprovalDto.getUnitTypeId()!=0) {
+            RoomInfo roomInfo = exchangePostingUpdate.getRoomInfo();
+            roomInfo.setUnitType(unitType.get());
+            RoomInfo roomInfoAfterSave = roomInfoRepository.save(roomInfo);
+        }
+        exchangePostingUpdate.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
+        exchangePostingUpdate.setNote(exchangePostingApprovalDto.getNote());
+        ExchangeRequest exchangeRequestInDb = exchangeRequestRepository.save(exchangePostingUpdate);
+        return exchangeRequestListMapper.toDto(exchangeRequestInDb);
+    }
+    @Override
+    public ExchangeRequestBasicDto rejectRequestTimeshareStaff(Integer requestId, String note) throws OptionalNotFoundException, ErrMessageException {
+        Optional<ExchangeRequest> exchangeRequest = exchangeRequestRepository.findById(requestId);
+        if (!exchangeRequest.isPresent()) throw new OptionalNotFoundException("Not found posting");
+        if (!exchangeRequest.get().getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingApproval))) throw new ErrMessageException("Status must be pending approval");
+        exchangeRequest.get().setNote(note);
+        exchangeRequest.get().setStatus(String.valueOf(ExchangeRequestEnum.Reject));
+        ExchangeRequest exchangePostingInDb = exchangeRequestRepository.save(exchangeRequest.get());
+        Optional<Customer> customer = customerRepository.findById(exchangePostingInDb.getOwner().getId());
+        if (!customer.isPresent()) throw new ErrMessageException("Error when refund money to customer but reject successfully");
+        float fee = 0;
+        float money = exchangePostingInDb.getExchangePosting().getExchangePackage().getPrice()-20000;
+        String paymentMethod = "WALLET";
+        String description = "Giao dịch hoàn tiền từ chối bài đăng";
+        String transactionType = "EXCHANGEREQUEST";
+        WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(customer.get().getId(),fee,money,paymentMethod,description,transactionType);
+        return exchangeRequestListMapper.toDto(exchangePostingInDb);
+    }
 }
