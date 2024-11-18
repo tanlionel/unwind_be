@@ -32,10 +32,11 @@ public class SystemStaffRentalPostingController {
     public Page<PostingResponseTsStaffDTO> getPublicPostings(
             @RequestParam(required = false, defaultValue = "0") Integer pageNo,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize,
-            @RequestParam(required = false, defaultValue = "") String resortName) throws OptionalNotFoundException {
+            @RequestParam(required = false, defaultValue = "") String resortName,
+            @RequestParam(required = false) String status)throws OptionalNotFoundException {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<PostingResponseTsStaffDTO> postingResponsePage = rentalPostingService.getAllPostingsSystemStaff(resortName, pageable);
+        Page<PostingResponseTsStaffDTO> postingResponsePage = rentalPostingService.getAllPostingsSystemStaff(resortName, pageable,status);
 
         return postingResponsePage;
     }

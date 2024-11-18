@@ -34,8 +34,8 @@ public class BlogPost {
     @Column(name = "image", length = 200)
     private String image;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    private Map<String, String> content;
+    @Column(name = "content", columnDefinition = "TEXT")
+    private String content;
 
     @CreationTimestamp
     @Column(updatable = false)
