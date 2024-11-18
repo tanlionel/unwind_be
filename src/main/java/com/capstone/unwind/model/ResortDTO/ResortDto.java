@@ -22,4 +22,5 @@ public class ResortDto implements Serializable {
     Integer timeshareCompanyId;
     Boolean isActive;
     Float averageRating;
+    Long totalRating;
 }

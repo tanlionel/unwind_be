@@ -11,6 +11,7 @@ public interface ListTimeShareMapper {
     @Mapping(source = "id", target = "timeShareId")
     @Mapping(source = "roomInfo.roomInfoCode", target = "roomCode")
     @Mapping(source = "roomInfo.resort.resortName", target = "resortName")
+    @Mapping(source = "roomInfo.resort.logo", target = "resortImage")
     @Mapping(source = "roomInfo.unitType.bathrooms", target = "bathRoom")
     @Mapping(source = "roomInfo.unitType.bedrooms", target = "bedRooms")
     @Mapping(source = "startDate", target = "startDate", dateFormat = "dd-MM-yyyy")

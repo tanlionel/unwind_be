@@ -21,13 +21,12 @@ public class TimeShareDetailDTO {
     private Integer roomId;
     private String resortAddress;
     private Integer resortId;
+    private String resortImage;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate startDate;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate endDate;
     private unitType unitType;
-    private List<String> imageUrls;
-
     @Data
     @Getter
     @Setter

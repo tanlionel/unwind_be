@@ -94,18 +94,6 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .build();
 
         Timeshare timeShareInDb = timeShareRepository.save(timeshare);
-        try {
-            for (String imageUrl : timeShareRequestDTO.getImageUrls()) {
-                DocumentStore document = new DocumentStore();
-                document.setType(DocumentStoreEnum.RentalPosting.toString());
-                document.setEntityId(timeShareInDb.getId());
-                document.setImageUrl(imageUrl);
-                document.setIsActive(true);
-                documentStoreRepository.save(document);
-            }
-        } catch (Exception e) {
-            throw new ErrMessageException("Error when saving images");
-        }
         Optional<RoomInfo> roomInfoInDb = roomInfoRepository.findById(timeShareInDb.getRoomInfo().getId());
         Optional<Resort> resortInDb = resortRepository.findById(roomInfoInDb.get().getResort().getId());
         TimeShareResponseDTO timeShareResponseDTO = TimeShareResponseDTO.builder()
@@ -130,7 +118,7 @@ public class TimeShareServiceImplement implements TimeShareService {
         if (customer == null) {
             throw new OptionalNotFoundException("Customer does not exist for user with ID: " + user.getId());
         }
-        Page<Timeshare> timeSharesPage = timeShareRepository.findAllByOwnerIdAndIsActive(customer.getId(), pageable,true);
+        Page<Timeshare> timeSharesPage = timeShareRepository.findByOwnerIdAndIsActive(customer.getId(), true,pageable);
         return timeSharesPage.map(listTimeShareMapper::toDto);
     }
 @Override
@@ -142,7 +130,6 @@ public class TimeShareServiceImplement implements TimeShareService {
 
         Optional<RoomInfo> roomInfo = roomInfoRepository.findById(timeShare.getRoomInfo().getId());
         if (!roomInfo.get().getIsActive()) throw new OptionalNotFoundException("room is not active");
-    List<String> imageUrls = documentStoreRepository.findUrlsByEntityIdAndType(timeShare.getId(), DocumentStoreEnum.Timeshare.toString());
     Optional<UnitType> optionalUnitType = unitTypeRepository.findByIdAndIsActiveTrue(roomInfo.get().getUnitType().getId());
     UnitType unitType = optionalUnitType.orElseThrow(() -> new OptionalNotFoundException("Unit type not found or inactive"));
         Optional<Resort> resort = resortRepository.findById(roomInfo.get().getResort().getId());
@@ -150,6 +137,7 @@ public class TimeShareServiceImplement implements TimeShareService {
         TimeShareDetailDTO timeShareDetailDTO = TimeShareDetailDTO.builder()
                 .timeShareId(timeShare.getId())
                 .resortName(resort.get().getResortName())
+                .resortImage(resort.get().getLogo())
                 .roomName(roomInfo.get().getRoomInfoName())
                 .roomCode(roomInfo.get().getRoomInfoCode())
                 .resortAddress(resort.get().getAddress())
@@ -157,7 +145,6 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .endDate(timeShare.getEndDate())
                 .resortId(resort.get().getId())
                 .roomId(roomInfo.get().getId())
-                .imageUrls(imageUrls)
                 .unitType(TimeShareDetailDTO.unitType.builder()
                         .id(unitType.getId())
                         .title(unitType.getTitle())

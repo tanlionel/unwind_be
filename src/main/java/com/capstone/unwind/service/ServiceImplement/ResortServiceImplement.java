@@ -204,6 +204,7 @@ public class ResortServiceImplement implements ResortService {
         TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
         if (timeshareCompany == null) throw new UserDoesNotHavePermission();
         Float averageRating = resortRepository.getAverageRatingByResortId(resortId);
+        Long rating = resortRepository.countFeedbacksByResortId(resortId);
         Optional<Resort> resort = resortRepository.findById(resortId);
         if (!resort.isPresent()) throw new EntityDoesNotExistException();
         Resort resortInDb = resort.get();
@@ -233,7 +234,8 @@ public class ResortServiceImplement implements ResortService {
                 .timeshareCompanyId(resortInDb.getTimeshareCompany().getId())
                 .status(resortInDb.getStatus())
                 .imageUrls(imageUrls)
-                .totalRating(averageRating)
+                .averageRating(averageRating)
+                .totalRating(rating)
                 .description(resortInDb.getDescription())
                 .resortAmenityList(resortAmenityList.stream()
                         .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
@@ -273,7 +275,9 @@ public class ResortServiceImplement implements ResortService {
 
 
             Float averageRating = resortRepository.getAverageRatingByResortId(resort.getId());
+            Long rating = resortRepository.countFeedbacksByResortId(resort.getId());
             resortDto.setAverageRating(averageRating != null ? averageRating : 0);
+            resortDto.setTotalRating(rating != null ? rating : 0);
             return resortDto;
         });
         return resortDtoPage;
@@ -292,6 +296,7 @@ public class ResortServiceImplement implements ResortService {
         List<String> imageUrls = documentStoreRepository.findUrlsByEntityIdAndType(resortInDb.getId(), DocumentStoreEnum.Resort.toString());
         //mapping unit type amenities
         Float averageRating = resortRepository.getAverageRatingByResortId(resortId);
+        Long rating = resortRepository.countFeedbacksByResortId(resortId);
         for (UnitTypeDto tmp : unitTypeDtoListResponse) {
             List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(tmp.getId());
             tmp.setUnitTypeAmenitiesList(unitTypeAmenities.stream().map(p -> UnitTypeDto.UnitTypeAmenities.builder()
@@ -312,7 +317,8 @@ public class ResortServiceImplement implements ResortService {
                 .timeshareCompanyId(resortInDb.getTimeshareCompany().getId())
                 .status(resortInDb.getStatus())
                 .description(resortInDb.getDescription())
-                .totalRating(averageRating)
+                .averageRating(averageRating)
+                .totalRating(rating)
                 .resortAmenityList(resortAmenityList.stream()
                         .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
                                 .name(p.getName())
@@ -347,7 +353,9 @@ public class ResortServiceImplement implements ResortService {
 
 
             Float averageRating = resortRepository.getAverageRatingByResortId(resort.getId());
+            Long rating = resortRepository.countFeedbacksByResortId(resort.getId());
             resortDto.setAverageRating(averageRating != null ? averageRating : 0);
+            resortDto.setTotalRating(rating != null ? rating : 0);
             return resortDto;
         });
         return resortDtoPage;

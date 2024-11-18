@@ -25,4 +25,6 @@ public interface TimeShareRepository extends JpaRepository<Timeshare, Integer> {
     @EntityGraph(attributePaths = {"roomInfo", "roomInfo.resort", "roomInfo.unitType"})
     List<Timeshare> findAllByOwnerId(Integer ownerId);
     Page<Timeshare> findAllByOwnerIdAndIsActive(Integer ownerId, Pageable pageable,Boolean IsActive);
+    @Query("SELECT t FROM Timeshare t WHERE t.owner.id = :ownerId AND t.isActive = :isActive ORDER BY t.createdAt DESC")
+    Page<Timeshare> findByOwnerIdAndIsActive(Integer ownerId, Boolean isActive, Pageable pageable);
 }

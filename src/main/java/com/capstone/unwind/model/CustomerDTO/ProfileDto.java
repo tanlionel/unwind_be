@@ -2,6 +2,7 @@ package com.capstone.unwind.model.CustomerDTO;
 
 import com.capstone.unwind.entity.Customer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import lombok.Value;
 
 import java.io.Serializable;
@@ -26,4 +27,8 @@ public class ProfileDto implements Serializable {
     String userUserName;
     String userEmail;
     Boolean isActive;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    LocalDate memberPurchaseDate;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    LocalDate memberExpiryDate;
 }
