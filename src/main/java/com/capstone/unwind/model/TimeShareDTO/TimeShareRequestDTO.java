@@ -28,5 +28,5 @@ public class TimeShareRequestDTO {
     private LocalDate endDate;
 
     private Integer roomInfoId;
-    List<String> imageUrls;
+
 }
