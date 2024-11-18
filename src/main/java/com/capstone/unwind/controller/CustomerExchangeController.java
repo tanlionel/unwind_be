@@ -69,7 +69,7 @@ public class CustomerExchangeController {
     @GetMapping("exchange/request/posting/{postingId}")
     public  Page<ExchangeRequestPostingBasicDto> getExchangeRequestListByPostingIdPagination(@RequestParam(required = false,defaultValue = "0") int pageNo,
                                                                                              @RequestParam(required = false,defaultValue = "10") int pageSize,
-                                                                                             @RequestParam int postingId){
+                                                                                             @PathVariable int postingId){
         Page<ExchangeRequestPostingBasicDto> exchangeRequestPostingBasicDtos = exchangePostingService.getPaginationExchangeRequestByPostingId(pageNo,pageSize,postingId);
         return exchangeRequestPostingBasicDtos;
     }
