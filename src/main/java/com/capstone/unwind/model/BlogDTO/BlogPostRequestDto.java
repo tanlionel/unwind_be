@@ -18,5 +18,5 @@ import java.util.Map;
 public class BlogPostRequestDto implements Serializable {
     String title;
     String image;
-    String content;
+   Map<String, String> content;
 }

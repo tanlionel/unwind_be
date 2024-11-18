@@ -5,7 +5,6 @@ import com.capstone.unwind.entity.Resort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RentalPostingRepository extends JpaRepository<RentalPosting,Integer>, JpaSpecificationExecutor<RentalPosting> {
+public interface RentalPostingRepository extends JpaRepository<RentalPosting,Integer> {
     List<RentalPosting> findAllByIsActive(boolean isActive);
     List<RentalPosting> findAllByOwnerId(Integer id);
     List<RentalPosting> findAllByOwnerIdAndIsActive(Integer id, boolean isActive);
@@ -52,6 +51,4 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
             "     OR (r.rentalPackage.id = 4 AND r.status not IN ('Closed')))"+
             "   OR(r.rentalPackage.id = 1 and r.status = 'Completed')")
     List<Integer> findAllNotValidYears(@Param("timeshareId") Integer timeshareId);
-
-    Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRentalPackage_IdAndStatus(boolean b, String resortName, int i, Pageable pageable, String status);
 }

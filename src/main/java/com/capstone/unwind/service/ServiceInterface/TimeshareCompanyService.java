@@ -9,6 +9,6 @@ public interface TimeshareCompanyService {
     TimeshareCompanyDto createTimeshareCompany(TimeshareCompanyDto timeshareCompanyDto) throws EntityAlreadyExist, UserDoesNotExistException, ErrMessageException;
     Page<TimeshareCompanyDto> getPageableTimeshareCompany(Integer pageNo,Integer pageSize,String tsName);
     TimeshareCompanyDto getTimeshareCompanyById(Integer tsId) throws EntityDoesNotExistException;
-    TimeshareCompanyDto updateTimeshareCompany( UpdateTimeshareCompanyDto timeshareCompanyDto) throws   ErrMessageException, OptionalNotFoundException;
-    TimeshareCompanyDto getProfileTimeshareCompanyById() throws EntityDoesNotExistException;
+    TimeshareCompanyDto updateTimeshareCompany(Integer id, UpdateTimeshareCompanyDto timeshareCompanyDto) throws   ErrMessageException, OptionalNotFoundException;
+
 }
