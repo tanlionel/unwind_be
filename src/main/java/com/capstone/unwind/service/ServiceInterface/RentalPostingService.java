@@ -25,4 +25,5 @@ public interface RentalPostingService {
     RentalPostingApprovalResponseDto approvalPostingSystemStaff(Integer postingId, Float newPriceValuation) throws OptionalNotFoundException, ErrMessageException;
 
     RentalPostingResponseDto actionConfirmPosting(Integer postingId, Float newPrice, Boolean isAccepted) throws OptionalNotFoundException, ErrMessageException;
+    Page<PostingResponseDTO> getAllPostingsByResortId(Integer resortId, Pageable pageable);
 }

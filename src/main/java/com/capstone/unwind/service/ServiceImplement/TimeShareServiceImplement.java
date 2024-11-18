@@ -1,6 +1,7 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
+import com.capstone.unwind.enums.DocumentStoreEnum;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
@@ -48,6 +49,8 @@ public class TimeShareServiceImplement implements TimeShareService {
     private final RentalPostingRepository rentalPostingRepository;
     @Autowired
     private final ExchangePostingRepository exchangePostingRepository;
+    @Autowired
+    private final DocumentStoreRepository documentStoreRepository;
 
     @Override
     public TimeShareResponseDTO createTimeShare(TimeShareRequestDTO timeShareRequestDTO) throws EntityDoesNotExistException, ErrMessageException, OptionalNotFoundException {
@@ -91,6 +94,18 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .build();
 
         Timeshare timeShareInDb = timeShareRepository.save(timeshare);
+        try {
+            for (String imageUrl : timeShareRequestDTO.getImageUrls()) {
+                DocumentStore document = new DocumentStore();
+                document.setType(DocumentStoreEnum.RentalPosting.toString());
+                document.setEntityId(timeShareInDb.getId());
+                document.setImageUrl(imageUrl);
+                document.setIsActive(true);
+                documentStoreRepository.save(document);
+            }
+        } catch (Exception e) {
+            throw new ErrMessageException("Error when saving images");
+        }
         Optional<RoomInfo> roomInfoInDb = roomInfoRepository.findById(timeShareInDb.getRoomInfo().getId());
         Optional<Resort> resortInDb = resortRepository.findById(roomInfoInDb.get().getResort().getId());
         TimeShareResponseDTO timeShareResponseDTO = TimeShareResponseDTO.builder()
@@ -127,7 +142,7 @@ public class TimeShareServiceImplement implements TimeShareService {
 
         Optional<RoomInfo> roomInfo = roomInfoRepository.findById(timeShare.getRoomInfo().getId());
         if (!roomInfo.get().getIsActive()) throw new OptionalNotFoundException("room is not active");
-
+    List<String> imageUrls = documentStoreRepository.findUrlsByEntityIdAndType(timeShare.getId(), DocumentStoreEnum.Timeshare.toString());
     Optional<UnitType> optionalUnitType = unitTypeRepository.findByIdAndIsActiveTrue(roomInfo.get().getUnitType().getId());
     UnitType unitType = optionalUnitType.orElseThrow(() -> new OptionalNotFoundException("Unit type not found or inactive"));
         Optional<Resort> resort = resortRepository.findById(roomInfo.get().getResort().getId());
@@ -142,6 +157,7 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .endDate(timeShare.getEndDate())
                 .resortId(resort.get().getId())
                 .roomId(roomInfo.get().getId())
+                .imageUrls(imageUrls)
                 .unitType(TimeShareDetailDTO.unitType.builder()
                         .id(unitType.getId())
                         .title(unitType.getTitle())

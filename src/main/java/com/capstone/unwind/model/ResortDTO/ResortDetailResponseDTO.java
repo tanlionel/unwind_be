@@ -26,6 +26,7 @@ public class ResortDetailResponseDTO {
     Boolean isActive;
     List<UnitTypeDto> unitTypeDtoList;
     List<Feedback> feedbackList;
+    Float totalRating;
     List<String> imageUrls;
     @Data
     @Getter

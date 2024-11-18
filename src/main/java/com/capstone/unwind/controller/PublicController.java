@@ -8,6 +8,8 @@ import com.capstone.unwind.model.BlogDTO.BlogPostResponseDto;
 import com.capstone.unwind.model.BlogDTO.ListBlogPostDto;
 import com.capstone.unwind.model.ExchangePostingDTO.PostingExchangeDetailResponseDTO;
 import com.capstone.unwind.model.ExchangePostingDTO.PostingExchangeResponseDTO;
+import com.capstone.unwind.model.FeedbackDTO.FeedbackReportResponseDto;
+import com.capstone.unwind.model.FeedbackDTO.FeedbackResponseDto;
 import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
 import com.capstone.unwind.model.PostingDTO.PostingResponseDTO;
 import com.capstone.unwind.model.ResortDTO.ResortDetailResponseDTO;
@@ -52,6 +54,8 @@ public class PublicController {
     private ExchangePostingService exchangePostingService;
     @Autowired
     private BlogPostService blogPostService;
+    @Autowired
+    FeedbackService feedbackService;
     @GetMapping("/resort")
     public Page<ResortDto> getPageableResort(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
                                              @RequestParam(required = false,defaultValue = "10") Integer pageSize,
@@ -163,5 +167,24 @@ public class PublicController {
 
         BlogPostResponseDto blogPostDetail = blogPostService.getBlogPostingDetailById(postingId);
         return ResponseEntity.ok(blogPostDetail);
+    }
+    @GetMapping("/posting/{resortId}")
+    public ResponseEntity<Page<PostingResponseDTO>> getAllActivePostings(
+            @PathVariable("resortId") Integer resortId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PostingResponseDTO> postings = rentalPostingService.getAllPostingsByResortId(resortId, pageable);
+
+        return ResponseEntity.ok(postings);
+    }
+    @GetMapping("/feedback/resort/{resortId}")
+    public Page<FeedbackResponseDto> getAllFeedbackByResortId(
+            @PathVariable Integer resortId,@RequestParam(required = false,defaultValue = "0") Integer pageNo,
+            @RequestParam(required = false,defaultValue = "10") Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<FeedbackResponseDto> feedbackPage = feedbackService.getAllFeedbackByResortId(resortId, pageable);
+        return feedbackPage ;
     }
 }

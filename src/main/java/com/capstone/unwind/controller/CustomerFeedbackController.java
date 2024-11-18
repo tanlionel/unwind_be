@@ -30,12 +30,5 @@ public class CustomerFeedbackController {
         FeedbackResponseDto feedbackResponse = feedbackService.createExchangeFeedback(feedbackRequestDto);
         return new ResponseEntity<>(feedbackResponse, HttpStatus.OK);
     }
-    @GetMapping("/feedback/resort/{resortId}")
-    public Page<FeedbackResponseDto> getAllFeedbackByResortId(
-            @PathVariable Integer resortId,@RequestParam(required = false,defaultValue = "0") Integer pageNo,
-            @RequestParam(required = false,defaultValue = "10") Integer pageSize) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<FeedbackResponseDto> feedbackPage = feedbackService.getAllFeedbackByResortId(resortId, pageable);
-        return feedbackPage ;
-    }
+
 }

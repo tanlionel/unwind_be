@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Getter
@@ -25,6 +26,7 @@ public class TimeShareDetailDTO {
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate endDate;
     private unitType unitType;
+    private List<String> imageUrls;
 
     @Data
     @Getter

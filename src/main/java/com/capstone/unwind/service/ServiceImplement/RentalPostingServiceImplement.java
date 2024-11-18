@@ -298,5 +298,20 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         return responseDTO;
     }
 
+    @Override
+    public Page<PostingResponseDTO> getAllPostingsByResortId(Integer resortId, Pageable pageable)  {
+        Specification<RentalPosting> spec = Specification.where(RentalPostingSpecification.isActive(true));
+
+        if (resortId != null) {
+            spec = spec.and(RentalPostingSpecification.hasResortId(resortId));
+        }
+        spec = spec.and(RentalPostingSpecification.hasStatus(String.valueOf(RentalPostingEnum.Processing)));
+        if (pageable.getSort().isUnsorted()) {
+            pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdDate"));
+        }
+
+        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAll(spec, pageable);
+        return rentalPostings.map(listRentalPostingMapper::entityToDto);
+    }
 
 }

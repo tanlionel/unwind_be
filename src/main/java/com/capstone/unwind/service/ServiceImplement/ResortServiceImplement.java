@@ -203,7 +203,7 @@ public class ResortServiceImplement implements ResortService {
         User tsCompany = userService.getLoginUser();
         TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(tsCompany.getId());
         if (timeshareCompany == null) throw new UserDoesNotHavePermission();
-
+        Float averageRating = resortRepository.getAverageRatingByResortId(resortId);
         Optional<Resort> resort = resortRepository.findById(resortId);
         if (!resort.isPresent()) throw new EntityDoesNotExistException();
         Resort resortInDb = resort.get();
@@ -233,6 +233,7 @@ public class ResortServiceImplement implements ResortService {
                 .timeshareCompanyId(resortInDb.getTimeshareCompany().getId())
                 .status(resortInDb.getStatus())
                 .imageUrls(imageUrls)
+                .totalRating(averageRating)
                 .description(resortInDb.getDescription())
                 .resortAmenityList(resortAmenityList.stream()
                         .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
@@ -267,7 +268,14 @@ public class ResortServiceImplement implements ResortService {
         if (timeshareCompany == null) throw new UserDoesNotHavePermission();
 
         Page<Resort> resortPage = resortRepository.findAllByResortNameContainingAndIsActiveAndTimeshareCompanyId(resortName, true, timeshareCompany.getId(), pageable);
-        Page<ResortDto> resortDtoPage = resortPage.map(resortMapper::toDto);
+        Page<ResortDto> resortDtoPage = resortPage.map(resort -> {
+            ResortDto resortDto = resortMapper.toDto(resort);
+
+
+            Float averageRating = resortRepository.getAverageRatingByResortId(resort.getId());
+            resortDto.setAverageRating(averageRating != null ? averageRating : 0);
+            return resortDto;
+        });
         return resortDtoPage;
     }
 
@@ -283,6 +291,7 @@ public class ResortServiceImplement implements ResortService {
         List<Feedback> feedbackList = feedbackRepository.findTop8ByResortIdAndIsActive(resortId,pageable);
         List<String> imageUrls = documentStoreRepository.findUrlsByEntityIdAndType(resortInDb.getId(), DocumentStoreEnum.Resort.toString());
         //mapping unit type amenities
+        Float averageRating = resortRepository.getAverageRatingByResortId(resortId);
         for (UnitTypeDto tmp : unitTypeDtoListResponse) {
             List<UnitTypeAmenity> unitTypeAmenities = unitTypeAmentitiesRepository.findAllByUnitTypeIdAndIsActiveTrue(tmp.getId());
             tmp.setUnitTypeAmenitiesList(unitTypeAmenities.stream().map(p -> UnitTypeDto.UnitTypeAmenities.builder()
@@ -303,6 +312,7 @@ public class ResortServiceImplement implements ResortService {
                 .timeshareCompanyId(resortInDb.getTimeshareCompany().getId())
                 .status(resortInDb.getStatus())
                 .description(resortInDb.getDescription())
+                .totalRating(averageRating)
                 .resortAmenityList(resortAmenityList.stream()
                         .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
                                 .name(p.getName())
@@ -332,7 +342,14 @@ public class ResortServiceImplement implements ResortService {
     public Page<ResortDto> getPublicPageableResort(Integer pageNo, Integer pageSize, String resortName) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("id"));
         Page<Resort> resortPage = resortRepository.findAllByResortNameContainingAndIsActive(resortName, true, pageable);
-        Page<ResortDto> resortDtoPage = resortPage.map(resortMapper::toDto);
+        Page<ResortDto> resortDtoPage = resortPage.map(resort -> {
+            ResortDto resortDto = resortMapper.toDto(resort);
+
+
+            Float averageRating = resortRepository.getAverageRatingByResortId(resort.getId());
+            resortDto.setAverageRating(averageRating != null ? averageRating : 0);
+            return resortDto;
+        });
         return resortDtoPage;
     }
 

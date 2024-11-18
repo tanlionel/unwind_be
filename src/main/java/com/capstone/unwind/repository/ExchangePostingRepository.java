@@ -2,9 +2,12 @@ package com.capstone.unwind.repository;
 
 import com.capstone.unwind.entity.ExchangePosting;
 import com.capstone.unwind.entity.RentalPosting;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -13,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ExchangePostingRepository extends JpaRepository<ExchangePosting, Integer> {
+public interface ExchangePostingRepository extends JpaRepository<ExchangePosting, Integer>, JpaSpecificationExecutor<ExchangePosting> {
     Page<ExchangePosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndExchangePackage_Id(boolean isActive,
                                                                                                     String resortName, Integer packageID, Pageable pageable);
     Page<ExchangePosting> findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndStatusAndRoomInfo_Resort_Id(boolean isActive,
@@ -40,5 +43,11 @@ public interface ExchangePostingRepository extends JpaRepository<ExchangePosting
 
     Page<ExchangePosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatus(boolean isActive,
                                                                                           String resortName, String status, Pageable pageable);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ExchangePosting ep SET ep.status = :status WHERE ep.id = :exchangePostingId")
+    void updateStatusByExchangePostingId(@Param("exchangePostingId") Integer exchangePostingId, @Param("status") String status);
+
 
 }

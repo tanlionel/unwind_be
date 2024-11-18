@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Getter
@@ -27,5 +28,5 @@ public class TimeShareRequestDTO {
     private LocalDate endDate;
 
     private Integer roomInfoId;
-
+    List<String> imageUrls;
 }
