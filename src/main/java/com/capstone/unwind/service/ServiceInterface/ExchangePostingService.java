@@ -12,7 +12,7 @@ public interface ExchangePostingService {
     PostingExchangeDetailResponseDTO getExchangePostingDetailById(Integer postingId) throws OptionalNotFoundException;
     ExchangePostingApprovalResponseDto approvalPostingTimeshareStaff(Integer postingId, ExchangePostingApprovalDto exchangePostingApprovalDto) throws OptionalNotFoundException, ErrMessageException;
     ExchangePostingApprovalResponseDto rejectPostingTimeshareStaff(Integer postingId, String note) throws OptionalNotFoundException, ErrMessageException;
-    Page<PostingExchangeResponseDTO> getAllPostings(Integer resortId, Pageable pageable) throws OptionalNotFoundException;
+    Page<PostingExchangeResponseDTO> getAllPostings(Integer resortId, Pageable pageable,String status) throws OptionalNotFoundException;
     Page<PostingExchangeResponseDTO> getAllExchangePublicPostings(String resortName, Pageable pageable) throws OptionalNotFoundException;
 
     ExchangeRequestDetailDto createRequestExchange(Integer postingId, ExchangeRequestDto exchangeRequestDto) throws OptionalNotFoundException, ErrMessageException;
@@ -25,4 +25,5 @@ public interface ExchangePostingService {
     Page<ExchangeRequestBasicDto> getAllExchangeRequestTsStaff(String roomInfoCode, Pageable pageable) throws OptionalNotFoundException;
     ExchangeRequestBasicDto approvalRequestTimeshareStaff(Integer requestId, ExchangePostingApprovalDto exchangePostingApprovalDto) throws OptionalNotFoundException, ErrMessageException;
     ExchangeRequestBasicDto rejectRequestTimeshareStaff(Integer requestId, String note) throws OptionalNotFoundException, ErrMessageException;
+    ExchangeRequestBasicDto approvalRequestCustomer(Integer requestId) throws OptionalNotFoundException, ErrMessageException;
 }

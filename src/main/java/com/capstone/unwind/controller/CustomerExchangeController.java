@@ -33,9 +33,10 @@ public class CustomerExchangeController {
     public ResponseEntity<Page<PostingExchangeResponseDTO>> getAllActivePostings(
             @RequestParam(required = false) Integer resortId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) throws OptionalNotFoundException {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String status) throws OptionalNotFoundException {
         Pageable pageable = PageRequest.of(page, size);
-        Page<PostingExchangeResponseDTO> postings = exchangePostingService.getAllPostings(resortId,pageable);
+        Page<PostingExchangeResponseDTO> postings = exchangePostingService.getAllPostings(resortId,pageable,status);
         return new ResponseEntity<>(postings, HttpStatus.OK);
     }
     @GetMapping("exchange/posting/{postingId}")
@@ -71,5 +72,10 @@ public class CustomerExchangeController {
                                                                                              @RequestParam int postingId){
         Page<ExchangeRequestPostingBasicDto> exchangeRequestPostingBasicDtos = exchangePostingService.getPaginationExchangeRequestByPostingId(pageNo,pageSize,postingId);
         return exchangeRequestPostingBasicDtos;
+    }
+    @PostMapping("exchange/request/approval/{requestId}")
+    public ResponseEntity<ExchangeRequestBasicDto> approvalRequest(@PathVariable Integer requestId) throws ErrMessageException, OptionalNotFoundException {
+        ExchangeRequestBasicDto exchangeRequestApprovalResponseDto = exchangePostingService.approvalRequestCustomer(requestId);
+        return ResponseEntity.ok(exchangeRequestApprovalResponseDto);
     }
 }

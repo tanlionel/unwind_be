@@ -18,4 +18,9 @@ public interface ResortRepository extends JpaRepository<Resort, Integer> {
     @Transactional
     @Query("UPDATE ResortAmenity a SET a.isActive = false WHERE a.resort.id = :resortId")
     void deactivateExistingAmenities(@Param("resortId") Integer resortId);
+
+    @Query("SELECT ROUND(AVG(f.ratingPoint), 1) FROM Feedback f WHERE f.resort.id = :resortId AND f.isActive = true")
+    Float getAverageRatingByResortId(@Param("resortId") Integer resortId);
+    @Query("SELECT COUNT(f) FROM Feedback f WHERE f.resort.id = :resortId AND f.isActive = true")
+    Long countFeedbacksByResortId(@Param("resortId") Integer resortId);
 }

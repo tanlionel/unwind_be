@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Getter
@@ -20,12 +21,12 @@ public class TimeShareDetailDTO {
     private Integer roomId;
     private String resortAddress;
     private Integer resortId;
+    private String resortImage;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate startDate;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate endDate;
     private unitType unitType;
-
     @Data
     @Getter
     @Setter

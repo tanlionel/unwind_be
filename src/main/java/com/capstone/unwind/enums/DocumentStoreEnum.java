@@ -5,4 +5,5 @@ public enum DocumentStoreEnum {
 		ExchangePosting,
 		TimeshareCompany,
 		Resort,
+	    /*Timeshare,*/
 }

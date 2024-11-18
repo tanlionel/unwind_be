@@ -1,14 +1,16 @@
 package com.capstone.unwind.model.ResortDTO;
 
 import com.capstone.unwind.entity.Resort;
-import lombok.Value;
+import lombok.*;
 
 import java.io.Serializable;
 
-/**
- * DTO for {@link Resort}
- */
-@Value
+@Data
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ResortDto implements Serializable {
     Integer id;
     String resortName;
@@ -19,4 +21,6 @@ public class ResortDto implements Serializable {
     String address;
     Integer timeshareCompanyId;
     Boolean isActive;
+    Float averageRating;
+    Long totalRating;
 }
