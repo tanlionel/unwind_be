@@ -17,7 +17,7 @@ public class BlogPostResponseDto implements Serializable {
     Integer id;
     String title;
     String image;
-    String content;
+    Map<String, String> content;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     LocalDateTime createdAt;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")

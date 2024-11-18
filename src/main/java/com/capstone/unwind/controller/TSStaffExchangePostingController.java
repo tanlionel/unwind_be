@@ -49,7 +49,7 @@ public class TSStaffExchangePostingController {
         return ResponseEntity.ok(exchangePostingApprovalResponseDto);
     }
     @GetMapping("exchange/request")
-    public Page<ExchangeRequestBasicDto> getAllExchangeRequest(
+    public Page<ExchangeRequestBasicDto> getPublicRequest(
             @RequestParam(required = false, defaultValue = "0") Integer pageNo,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(required = false, defaultValue = "") String roomInfoCode) throws OptionalNotFoundException {
@@ -68,10 +68,5 @@ public class TSStaffExchangePostingController {
     public ResponseEntity<ExchangeRequestBasicDto> rejectRequest(@PathVariable Integer requestId,@RequestBody String note) throws ErrMessageException, OptionalNotFoundException {
         ExchangeRequestBasicDto exchangeRequestApprovalResponseDto = exchangePostingService.rejectRequestTimeshareStaff(requestId,note);
         return ResponseEntity.ok(exchangeRequestApprovalResponseDto);
-    }
-    @GetMapping("exchange/request/{requestId}")
-    public ResponseEntity<ExchangeRequestDetailDto> getExchangeRequestById(@PathVariable Integer requestId) throws OptionalNotFoundException {
-        ExchangeRequestDetailDto exchangeRequestDetailDto = exchangePostingService.getExchangeRequestById(requestId);
-        return ResponseEntity.ok(exchangeRequestDetailDto);
     }
 }

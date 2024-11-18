@@ -15,5 +15,4 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Integer> {
 
 
     Page<BlogPost> findAllByIsActiveAndTitleContaining(boolean isActive, String title, Pageable pageable);
-
 }

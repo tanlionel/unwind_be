@@ -34,10 +34,9 @@ public class CustomerRentalController {
     public ResponseEntity<Page<PostingResponseDTO>> getAllActivePostings(
             @RequestParam(required = false) Integer resortId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String status)throws OptionalNotFoundException {
+            @RequestParam(defaultValue = "10") int size) throws OptionalNotFoundException {
         Pageable pageable = PageRequest.of(page, size);
-        Page<PostingResponseDTO> postings = rentalPostingService.getAllPostings(resortId,pageable,status);
+        Page<PostingResponseDTO> postings = rentalPostingService.getAllPostings(resortId,pageable);
         return new ResponseEntity<>(postings, HttpStatus.OK);
     }
     @GetMapping("rental/posting/{postingId}")

@@ -42,9 +42,9 @@ public class BlogPostServiceImplement implements BlogPostService {
         return blogPostMapper.toDto(savedPost);
     }
     @Override
-    public Page<ListBlogPostDto> getAllBlogPosts(String title, Pageable pageable) {
-        Page<BlogPost> blogPostings = blogPostRepository.findAllByIsActiveAndTitleContaining(
-                true, title, pageable);
+    public Page<ListBlogPostDto> getAllBlogPosts(String title, Pageable pageable)  {
+        Page<BlogPost> blogPostings = blogPostRepository.findAllByIsActiveAndTitleContaining(true,
+                title, pageable);
         Page<ListBlogPostDto> postingDtoPage = blogPostings.map(listblogPostMapper::toDto);
         return postingDtoPage;
     }
