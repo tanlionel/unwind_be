@@ -1,5 +1,6 @@
 package com.capstone.unwind.service.ServiceImplement;
 
+import com.capstone.unwind.entity.Customer;
 import com.capstone.unwind.entity.DocumentStore;
 import com.capstone.unwind.entity.TimeshareCompany;
 import com.capstone.unwind.entity.User;
@@ -37,6 +38,8 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
     private final UserRepository userRepository;
     @Autowired
     private final DocumentStoreRepository documentStoreRepository;
+    @Autowired
+    private final UserService userService;
     @Override
     public TimeshareCompanyDto createTimeshareCompany(TimeshareCompanyDto timeshareCompanyDto) throws EntityAlreadyExist, UserDoesNotExistException, ErrMessageException {
         User user = userRepository.findUserById(timeshareCompanyDto.getOwnerId());
@@ -70,9 +73,20 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
         return timeshareCompanyDtoDB;
     }
     @Override
-    public TimeshareCompanyDto updateTimeshareCompany(Integer id, UpdateTimeshareCompanyDto timeshareCompanyDto) throws   ErrMessageException, OptionalNotFoundException {
-        TimeshareCompany existingTimeshareCompany = timeshareCompanyRepository.findById(id)
-                .orElseThrow(() -> new OptionalNotFoundException("Timeshare Company not found"));
+    public TimeshareCompanyDto getProfileTimeshareCompanyById() throws EntityDoesNotExistException {
+        User user = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(user.getId());
+        if (timeshareCompany==null) throw new EntityDoesNotExistException();
+        List<String> imageUrls = documentStoreRepository.findUrlsByEntityIdAndType(timeshareCompany.getId(), DocumentStoreEnum.TimeshareCompany.toString());
+        TimeshareCompanyDto responseDTO = timeshareCompanyMapper.toDto(timeshareCompany);
+        responseDTO.setImageUrls(imageUrls);
+        return responseDTO;
+    }
+    @Override
+    public TimeshareCompanyDto updateTimeshareCompany( UpdateTimeshareCompanyDto timeshareCompanyDto) throws   ErrMessageException, OptionalNotFoundException {
+        User user = userService.getLoginUser();
+        TimeshareCompany existingTimeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(user.getId());
+        if (existingTimeshareCompany==null) throw new OptionalNotFoundException("Timeshare Company not found");
 
         existingTimeshareCompany.setTimeshareCompanyName(timeshareCompanyDto.getTimeshareCompanyName());
         existingTimeshareCompany.setLogo(timeshareCompanyDto.getLogo());

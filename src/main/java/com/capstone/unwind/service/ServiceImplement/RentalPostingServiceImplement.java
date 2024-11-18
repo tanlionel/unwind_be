@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
 
@@ -71,20 +72,22 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     private final String pendingPricing = "PendingPricing";
     private final String  pendingApproval = "PendingApproval";*/
     @Override
-    public Page<PostingResponseDTO> getAllPostings(Integer resortId, Pageable pageable) throws OptionalNotFoundException {
+    public Page<PostingResponseDTO> getAllPostings(Integer resortId, Pageable pageable, String status) throws OptionalNotFoundException {
         User user = userService.getLoginUser();
         Customer customer = customerRepository.findByUserId(user.getId());
         if (customer == null) {
             throw new OptionalNotFoundException("Customer does not exist for user with ID: " + user.getId());
         }
+        Specification<RentalPosting> spec = Specification.where(RentalPostingSpecification.hasOwnerId(customer.getId()))
+                .and(RentalPostingSpecification.isActive(true));
 
-        Page<RentalPosting> rentalPostings;
-        if (resortId == null) {
-            rentalPostings = rentalPostingRepository.findByOwnerIdAndIsActive(customer.getId(), pageable);
-        } else {
-            rentalPostings = rentalPostingRepository.findAllByOwnerIdAndIsActiveAndResortId(customer.getId(), resortId, pageable);
+        if (resortId != null) {
+            spec = spec.and(RentalPostingSpecification.hasResortId(resortId));
         }
-
+        if (status != null) {
+            spec = spec.and(RentalPostingSpecification.hasStatus(status));
+        }
+        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAll(spec, pageable);
         return rentalPostings.map(listRentalPostingMapper::entityToDto);
     }
     @Override
@@ -124,11 +127,16 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         return postingDtoPage;
     }
     @Override
-    public Page<PostingResponseTsStaffDTO> getAllPostingsSystemStaff(String resortName, Pageable pageable) throws OptionalNotFoundException {
-        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRentalPackage_Id(
-                true, resortName,4 ,pageable);
-        Page<PostingResponseTsStaffDTO> postingDtoPage = rentalPostings.map(listRentalPostingTsStaffMapper::entityToDto);
-        return postingDtoPage;
+    public Page<PostingResponseTsStaffDTO> getAllPostingsSystemStaff(String resortName, Pageable pageable, String status) throws OptionalNotFoundException {
+        Page<RentalPosting> rentalPostings;
+        if (status == null) {
+            rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRentalPackage_Id(
+                    true, resortName, 4, pageable);
+        } else {
+            rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRentalPackage_IdAndStatus(
+                    true, resortName, 4, pageable, status);
+        }
+        return rentalPostings.map(listRentalPostingTsStaffMapper::entityToDto);
     }
 
     @Override
@@ -282,6 +290,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         responseDTO.setImageUrls(imageUrls);
         return responseDTO;
     }
+
 
 
 }

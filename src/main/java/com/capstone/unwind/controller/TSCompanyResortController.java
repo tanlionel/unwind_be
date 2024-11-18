@@ -2,8 +2,11 @@ package com.capstone.unwind.controller;
 
 import com.capstone.unwind.exception.*;
 import com.capstone.unwind.model.ResortDTO.*;
+import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
+import com.capstone.unwind.model.TimeshareCompany.UpdateTimeshareCompanyDto;
 import com.capstone.unwind.service.ServiceInterface.ResortService;
 import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
+import com.capstone.unwind.service.ServiceInterface.TimeshareCompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +25,8 @@ public class TSCompanyResortController {
     private final ResortService resortService;
     @Autowired
     TimeShareStaffService timeshareCompanyStaffService;
+    @Autowired
+    TimeshareCompanyService timeshareCompanyService;
 
     @GetMapping()
     public Page<ResortDto> getPageableResort(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
@@ -81,4 +86,17 @@ public class TSCompanyResortController {
         return ResponseEntity.ok(response);
     }
 
+
+    @GetMapping("profile")
+    public TimeshareCompanyDto getProfile() throws EntityDoesNotExistException {
+        TimeshareCompanyDto timeshareCompanyDto = timeshareCompanyService.getProfileTimeshareCompanyById();
+        return timeshareCompanyDto;
+    }
+    @PutMapping("profile")
+    public ResponseEntity<TimeshareCompanyDto> updateTimeshareCompany(
+            @RequestBody UpdateTimeshareCompanyDto timeshareCompanyDto) throws ErrMessageException, OptionalNotFoundException {
+        TimeshareCompanyDto updatedCompany = timeshareCompanyService.updateTimeshareCompany( timeshareCompanyDto);
+        return ResponseEntity.ok(updatedCompany);
+
+    }
 }

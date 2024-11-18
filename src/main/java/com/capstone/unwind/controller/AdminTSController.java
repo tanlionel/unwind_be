@@ -40,12 +40,5 @@ public class AdminTSController {
         TimeshareCompanyDto timeshareCompanyDtoResponse = timeshareCompanyService.createTimeshareCompany(timeshareCompanyDto);
         return timeshareCompanyDtoResponse;
     }
-    @PutMapping("/{id}")
-    public ResponseEntity<TimeshareCompanyDto> updateTimeshareCompany(
-            @PathVariable Integer id,
-            @RequestBody UpdateTimeshareCompanyDto timeshareCompanyDto) throws ErrMessageException, OptionalNotFoundException {
-        TimeshareCompanyDto updatedCompany = timeshareCompanyService.updateTimeshareCompany(id, timeshareCompanyDto);
-        return ResponseEntity.ok(updatedCompany);
 
-    }
 }
