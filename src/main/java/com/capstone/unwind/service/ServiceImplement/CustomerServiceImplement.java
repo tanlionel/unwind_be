@@ -280,7 +280,10 @@ public class CustomerServiceImplement implements CustomerService {
         if (customer == null) {
             throw new OptionalNotFoundException("Customer does not exist with userId: " + user.getId());
         }
-        return profileMapper.toDto(customer);
+        ProfileDto profileDto = profileMapper.toDto(customer);
+        boolean isMember = checkIsMember(customer);
+        profileDto.setIsMember(isMember);
+        return profileDto;
     }
     @Override
     public ProfileDto getCustomerById(Integer id) throws OptionalNotFoundException {

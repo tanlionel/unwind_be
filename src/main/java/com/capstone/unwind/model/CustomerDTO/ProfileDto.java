@@ -3,7 +3,7 @@ package com.capstone.unwind.model.CustomerDTO;
 import com.capstone.unwind.entity.Customer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
-import lombok.Value;
+import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -11,7 +11,11 @@ import java.time.LocalDate;
 /**
  * DTO for {@link Customer}
  */
-@Value
+@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProfileDto implements Serializable {
     Integer id;
     String fullName;
@@ -31,4 +35,5 @@ public class ProfileDto implements Serializable {
     LocalDate memberPurchaseDate;
     @JsonFormat(pattern = "dd-MM-yyyy")
     LocalDate memberExpiryDate;
+    Boolean isMember;
 }
