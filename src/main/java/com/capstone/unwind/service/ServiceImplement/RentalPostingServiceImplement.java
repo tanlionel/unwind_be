@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
@@ -78,6 +79,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         if (customer == null) {
             throw new OptionalNotFoundException("Customer does not exist for user with ID: " + user.getId());
         }
+
         Specification<RentalPosting> spec = Specification.where(RentalPostingSpecification.hasOwnerId(customer.getId()))
                 .and(RentalPostingSpecification.isActive(true));
 
@@ -87,6 +89,10 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         if (status != null) {
             spec = spec.and(RentalPostingSpecification.hasStatus(status));
         }
+        if (pageable.getSort().isUnsorted()) {
+            pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdDate"));
+        }
+
         Page<RentalPosting> rentalPostings = rentalPostingRepository.findAll(spec, pageable);
         return rentalPostings.map(listRentalPostingMapper::entityToDto);
     }
