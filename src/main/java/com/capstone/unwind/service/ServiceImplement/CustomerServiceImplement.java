@@ -46,6 +46,8 @@ public class CustomerServiceImplement implements CustomerService {
     private ProfileMapper profileMapper;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private final ExchangePackageRepository exchangePackageRepository;
 
     @Override
     public CustomerDto createCustomer(CustomerRequestDto customerRequestDto) throws OptionalNotFoundException {
@@ -307,6 +309,43 @@ public class CustomerServiceImplement implements CustomerService {
 
         customerRepository.save(customer);
         return profileMapper.toDto(customer);
+    }
+    @Override
+    public WalletTransactionDto paymentExchangePostingWallet(Integer postingId) throws OptionalNotFoundException, ErrMessageException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+        Optional<ExchangePackage> exchangePackage =exchangePackageRepository.findById(postingId);
+        if (!exchangePackage.isPresent()) throw new OptionalNotFoundException("Not found exchange package");
+
+        if (exchangePackage.get().getPrice()>user.getCustomer().getWallet().getAvailableMoney()) throw new ErrMessageException("not enough money");
+        user.getCustomer().getWallet().setAvailableMoney(user.getCustomer().getWallet().getAvailableMoney()-exchangePackage.get().getPrice());
+        WalletTransaction walletTransaction = walletService.createTransactionWallet(0,exchangePackage.get().getPrice(), "WALLET");
+        walletRepository.save(user.getCustomer().getWallet());
+
+
+        String description = "Thanh toán đăng bài " + exchangePackage.get().getPackageName();
+        String transactionType = "EXCHANGEPOSTING";
+        //update transaction
+        WalletTransaction walletTransactionAfterUpdate = walletService.updateTransaction(walletTransaction.getId(),description,transactionType);
+
+        return walletTransactionMapper.toDto(walletTransactionAfterUpdate);
+    }
+
+    @Override
+    public WalletTransactionDto paymentExchangePostingVNPAY(UUID uuid, Integer postingId) throws OptionalNotFoundException, ErrMessageException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+
+        Optional<ExchangePackage> exchangePackage =exchangePackageRepository.findById(postingId);
+        if (!exchangePackage.isPresent()) throw new OptionalNotFoundException("Not found exchange package");
+        String description = "Thanh toán đăng bài " + exchangePackage.get().getPackageName();
+        String transactionType = "EXCHANGEPOSTING";
+        //update transaction
+        WalletTransaction walletTransaction = walletService.updateTransaction(uuid,description,transactionType);
+
+        return walletTransactionMapper.toDto(walletTransaction);
     }
 
     @Override
