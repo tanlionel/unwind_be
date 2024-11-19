@@ -28,4 +28,6 @@ public class ResortAmenity {
     @Column(name = "type", length = 45)
     private String type;
 
+    @Column(name = "is_free")
+    private Boolean isFree;
 }

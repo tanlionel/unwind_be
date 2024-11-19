@@ -35,6 +35,7 @@ public class ResortDetailResponseDTO {
     @Builder
     public static class ResortAmenity{
         String name;
+        boolean isFree;
         String type;
     }
     @Data

@@ -142,10 +142,11 @@ public class PublicController {
     public Page<PostingExchangeResponseDTO> getPublicExchangePostings(
             @RequestParam(required = false, defaultValue = "0") Integer pageNo,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize,
-            @RequestParam(required = false, defaultValue = "") String resortName) throws OptionalNotFoundException {
+            @RequestParam(required = false, defaultValue = "") String resortName,
+            @RequestParam(required = false, defaultValue = "") Integer resortId) throws OptionalNotFoundException {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<PostingExchangeResponseDTO> postingResponsePage = exchangePostingService.getAllExchangePublicPostings(resortName, pageable);
+        Page<PostingExchangeResponseDTO> postingResponsePage = exchangePostingService.getAllExchangePublicPostings(resortName, pageable,resortId);
 
         return postingResponsePage;
     }
