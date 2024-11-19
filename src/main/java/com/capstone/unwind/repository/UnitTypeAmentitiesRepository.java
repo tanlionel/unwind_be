@@ -22,5 +22,10 @@ public interface UnitTypeAmentitiesRepository extends JpaRepository<UnitTypeAmen
     @Transactional
     @Query("UPDATE UnitTypeAmenity a SET a.isActive = false WHERE a.unitType.id = :unitTypeId")
     void deactivateAmenitiesByUnitTypeId(@Param("unitTypeId") Integer unitTypeId);
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM UnitTypeAmenity a WHERE a.unitType.id = :unitTypeId")
+    void deleteAmenitiesByUnitTypeId(@Param("unitTypeId") Integer unitTypeId);
+
 
 }

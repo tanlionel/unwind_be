@@ -43,6 +43,8 @@ public interface ExchangePostingRepository extends JpaRepository<ExchangePosting
 
     Page<ExchangePosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatus(boolean isActive,
                                                                                           String resortName, String status, Pageable pageable);
+    Page<ExchangePosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatusAndRoomInfo_Resort_Id(boolean isActive,
+                                                                                            String resortName, String status, Pageable pageable,Integer resortId);
 
     @Modifying
     @Transactional

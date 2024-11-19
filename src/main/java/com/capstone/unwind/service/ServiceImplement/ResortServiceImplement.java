@@ -78,6 +78,7 @@ public class ResortServiceImplement implements ResortService {
                 ResortAmenity resortAmenity = ResortAmenity.builder()
                         .resort(resortInDb)
                         .type(tmp.getType())
+                        .isFree(true)
                         .name(tmp.getName())
                         .isActive(true)
                         .build();
@@ -166,12 +167,13 @@ public class ResortServiceImplement implements ResortService {
         } catch (Exception e) {
             throw new ErrMessageException("Error when saving images");
         }
-            resortAmenityRepository.deactivateExistingAmenities(updatedResort.getId());
+            resortAmenityRepository.deleteExistingAmenities(updatedResort.getId());
             List<ResortAmenity> newAmenities = resortRequestDTO.getResortAmenityList().stream()
                     .map(tmp -> ResortAmenity.builder()
                             .resort(updatedResort)
                             .name(tmp.getName())
                             .type(tmp.getType())
+                            .isFree(tmp.isFree())
                             .isActive(true)
                             .build())
                     .toList();
@@ -192,6 +194,7 @@ public class ResortServiceImplement implements ResortService {
                             .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
                                     .name(p.getName())
                                     .type(p.getType())
+                                    .isFree(p.getIsFree())
                                     .build())
                             .toList())
                     .isActive(updatedResort.getIsActive())
@@ -242,6 +245,7 @@ public class ResortServiceImplement implements ResortService {
                         .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
                                 .name(p.getName())
                                 .type(p.getType())
+                                .isFree(p.getIsFree())
                                 .build())
                         .toList())
                 .feedbackList(feedbackList.stream()
@@ -324,6 +328,7 @@ public class ResortServiceImplement implements ResortService {
                         .map(p -> ResortDetailResponseDTO.ResortAmenity.builder()
                                 .name(p.getName())
                                 .type(p.getType())
+                                .isFree(p.getIsFree())
                                 .build())
                         .toList())
                 .isActive(resortInDb.getIsActive())
@@ -491,11 +496,11 @@ public class ResortServiceImplement implements ResortService {
         unitType.setIsActive(true);
 
         UnitType updatedUnitType = unitTypeRepository.save(unitType);
-        unitTypeAmentitiesRepository.deactivateAmenitiesByUnitTypeId(updatedUnitType.getId());
+        unitTypeAmentitiesRepository.deleteAmenitiesByUnitTypeId(updatedUnitType.getId());
         try {
             for (UnitTypeRequestDTO.UnitTypeAmenitiesDTO tmp : unitTypeRequestDTO.getUnitTypeAmenitiesDTOS()) {
                 UnitTypeAmenity amenity = UnitTypeAmenity.builder()
-                        .unitType(updatedUnitType)
+                        .unitType(updatedUnitType )
                         .name(tmp.getName())
                         .type(tmp.getType())
                         .isActive(true)
@@ -644,6 +649,7 @@ public class ResortServiceImplement implements ResortService {
                 .photos(unitTypeInDb.getPhotos())
                 .view(unitTypeInDb.getView())
                 .sleeps(unitTypeInDb.getSleeps())
+                .resortId(unitTypeInDb.getResort().getId())
                 .unitTypeAmenitiesDTOS(unitAmenityList.stream()
                         .map(p -> UnitTypeResponseDTO.UnitTypeAmenitiesDTO.builder()
                                 .name(p.getName())
