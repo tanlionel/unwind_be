@@ -26,4 +26,5 @@ public interface RentalPostingService {
 
     RentalPostingResponseDto actionConfirmPosting(Integer postingId, Float newPrice, Boolean isAccepted) throws OptionalNotFoundException, ErrMessageException;
     Page<PostingResponseDTO> getAllPostingsByResortId(Integer resortId, Pageable pageable);
+    Page<PostingResponseTsStaffDTO> getAllPackagePostingSystemStaff(String resortName, Pageable pageable, String status, Integer packageId) throws OptionalNotFoundException;
 }

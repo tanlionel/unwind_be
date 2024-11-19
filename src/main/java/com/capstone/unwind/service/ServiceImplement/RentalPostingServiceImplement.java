@@ -145,7 +145,21 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         return rentalPostings.map(listRentalPostingTsStaffMapper::entityToDto);
     }
 
+    public Page<PostingResponseTsStaffDTO> getAllPackagePostingSystemStaff(String resortName, Pageable pageable, String status, Integer packageId) throws OptionalNotFoundException {
+        Specification<RentalPosting> spec = Specification.where(RentalPostingSpecification.isActive(true))
+                .and(RentalPostingSpecification.resortNameContains(resortName));
 
+        if (status != null) {
+            spec = spec.and(RentalPostingSpecification.hasStatus(status));
+        }
+
+        if (packageId != null) {
+            spec = spec.and(RentalPostingSpecification.hasPackageId(packageId));
+        }
+
+        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAll(spec, pageable);
+        return rentalPostings.map(listRentalPostingTsStaffMapper::entityToDto);
+    }
     @Override
     public RentalPostingResponseDto createRentalPosting(RentalPostingRequestDto rentalPostingRequestDto) throws ErrMessageException, OptionalNotFoundException {
         User user = userService.getLoginUser();
