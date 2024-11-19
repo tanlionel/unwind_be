@@ -36,4 +36,6 @@ public class ProfileDto implements Serializable {
     @JsonFormat(pattern = "dd-MM-yyyy")
     LocalDate memberExpiryDate;
     Boolean isMember;
+    private Integer walletId;
+    private Float walletAvailableMoney;
 }

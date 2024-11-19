@@ -3,11 +3,9 @@ package com.capstone.unwind.service.ServiceImplement;
 import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
+import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
-import com.capstone.unwind.model.RoomDTO.RoomInfoDto;
-import com.capstone.unwind.model.RoomDTO.RoomInfoMapper;
-import com.capstone.unwind.model.RoomDTO.RoomRequestDTO;
-import com.capstone.unwind.model.RoomDTO.RoomResponseDTO;
+import com.capstone.unwind.model.RoomDTO.*;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.RoomService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
@@ -83,7 +81,7 @@ public class RoomServiceImplement implements RoomService {
             }
         }
 
-        List<RoomAmenity> roomAmenities = roomAmentityRepository.findAllByRoomInfoId(roomInfo.getId());
+        List<RoomAmenity> roomAmenities = roomAmentityRepository.findAllByRoomInfoIdAndIsActive(roomInfo.getId(),true);
         RoomResponseDTO.unitType unitTypeDTO = RoomResponseDTO.unitType.builder()
                 .id(unitTypeInDb.getId())
                 .title(unitTypeInDb.getTitle())
@@ -125,6 +123,36 @@ public class RoomServiceImplement implements RoomService {
                 .build();
         return responseDTO;
     }
+    @Override
+    public RoomDetailResponseDTO getRoomDetailById(Integer roomId) throws OptionalNotFoundException {
+        // Fetch RoomInfo by ID
+        RoomInfo roomInfoInDb = roomInfoRepository.findById(roomId)
+                .orElseThrow(() -> new OptionalNotFoundException("Room with ID " + roomId + " does not exist"));
+
+        List<RoomAmenity> roomAmenities = roomAmentityRepository.findAllByRoomInfoIdAndIsActive(roomId, true);
+
+
+
+        RoomDetailResponseDTO responseDTO = RoomDetailResponseDTO.builder()
+                .roomId(roomInfoInDb.getId())
+                .roomInfoCode(roomInfoInDb.getRoomInfoCode())
+                .resortId(roomInfoInDb.getResort().getId())
+                .isActive(roomInfoInDb.getIsActive())
+                .status(roomInfoInDb.getStatus())
+                .roomName(roomInfoInDb.getRoomInfoName())
+                .roomAmenities(roomAmenities.stream()
+                        .map(r -> RoomDetailResponseDTO.roomAmenity.builder()
+                                .name(r.getName())
+                                .type(r.getType())
+                                .isActive(r.getIsActive())
+                                .build())
+                        .toList())
+                .createdAt(roomInfoInDb.getCreatedAt())
+                .build();
+
+        return responseDTO;
+    }
+
 
     @Override
     public List<RoomInfoDto> getAllExistingRoomByResortId(Integer resortId) {

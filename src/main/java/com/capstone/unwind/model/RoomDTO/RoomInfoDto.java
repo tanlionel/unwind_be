@@ -6,6 +6,7 @@ import lombok.Value;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * DTO for {@link RoomInfo}
@@ -23,4 +24,5 @@ public class RoomInfoDto implements Serializable {
     Integer resortId;
     String status;
     Integer unitTypeId;
+
 }

@@ -5,9 +5,13 @@ import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ProfileMapper {
+    @Mapping(source = "walletAvailableMoney", target = "wallet.availableMoney")
+    @Mapping(source = "walletId", target = "wallet.id")
     @Mapping(source = "membershipId", target = "membership.id")
     Customer toEntity(ProfileDto profileDto);
 
+    @Mapping(source = "wallet.availableMoney", target = "walletAvailableMoney")
+    @Mapping(source = "wallet.id", target = "walletId")
     @Mapping(source = "membership.id", target = "membershipId")
     @Mapping(source = "membership.name", target = "membershipName")
     @Mapping(source = "user.id", target = "userId")

@@ -8,6 +8,7 @@ import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
 import com.capstone.unwind.model.ResortDTO.UnitTypeRequestDTO;
 import com.capstone.unwind.model.ResortDTO.UnitTypeResponseDTO;
+import com.capstone.unwind.model.RoomDTO.RoomAmenityDto;
 import com.capstone.unwind.model.RoomDTO.RoomInfoMapper;
 import com.capstone.unwind.model.TimeShareDTO.*;
 import com.capstone.unwind.repository.*;
@@ -101,6 +102,10 @@ public class TimeShareServiceImplement implements TimeShareService {
         Timeshare timeShareInDb = timeShareRepository.save(timeshare);
         Optional<RoomInfo> roomInfoInDb = roomInfoRepository.findById(timeShareInDb.getRoomInfo().getId());
         Optional<Resort> resortInDb = resortRepository.findById(roomInfoInDb.get().getResort().getId());
+        List<RoomAmenityDto> amenities = roomAmentityRepository.findAllByRoomInfoIdAndIsActive(roomInfoInDb.get().getId(),true)
+                .stream()
+                .map(roomAmenity -> new RoomAmenityDto(roomAmenity.getId(), roomAmenity.getName(), roomAmenity.getType()))
+                .collect(Collectors.toList());
         TimeShareResponseDTO timeShareResponseDTO = TimeShareResponseDTO.builder()
                 .timeShareId(timeShareInDb.getId())
                 .status(timeShareInDb.getStatus())
@@ -108,6 +113,7 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .endDate(timeShareInDb.getEndDate())
                 .startYear(timeShareInDb.getStartYear())
                 .endYear(timeShareInDb.getEndYear())
+                .roomAmenities(amenities)
                 .roomInfo(roomInfoMapper.toDto(roomInfoInDb.get()))
                 .owner(timeShareInDb.getOwner().getFullName())
                 .createdAt(timeShareInDb.getCreatedAt())
@@ -126,7 +132,10 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .orElseThrow(() -> new ErrMessageException("Timeshare with ID " + timeShareId + " does not exist"));
         RoomInfo roomInfo = roomInfoRepository.findById(existingTimeshare.getRoomInfo().getId())
                 .orElseThrow(() -> new ErrMessageException("roomInfo with ID " + existingTimeshare.getRoomInfo().getId() + " does not exist"));
-
+        List<RoomAmenityDto> amenities = roomAmentityRepository.findAllByRoomInfoIdAndIsActive(roomInfo.getId(),true)
+                .stream()
+                .map(roomAmenity -> new RoomAmenityDto(roomAmenity.getId(), roomAmenity.getName(), roomAmenity.getType()))
+                .collect(Collectors.toList());
         roomAmentityRepository.deleteAmenitiesByRoomInfoId(existingTimeshare.getRoomInfo().getId());
         try {
             for (UpdateTimeshareRequestDto.RoomAmenityDto tmp : timeShareRequestDTO.getRoomInfoAmenities()) {
@@ -148,6 +157,7 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .endDate(existingTimeshare.getEndDate())
                 .startYear(existingTimeshare.getStartYear())
                 .endYear(existingTimeshare.getEndYear())
+                .roomAmenities(amenities)
                 .roomInfo(roomInfoMapper.toDto(roomInfo))
                 .owner(existingTimeshare.getOwner().getFullName())
                 .createdAt(existingTimeshare.getCreatedAt())
@@ -179,6 +189,10 @@ public class TimeShareServiceImplement implements TimeShareService {
     UnitType unitType = optionalUnitType.orElseThrow(() -> new OptionalNotFoundException("Unit type not found or inactive"));
         Optional<Resort> resort = resortRepository.findById(roomInfo.get().getResort().getId());
         if (!resort.get().getIsActive()) throw new OptionalNotFoundException("resort is not active");
+    List<RoomAmenityDto> amenities = roomAmentityRepository.findAllByRoomInfoIdAndIsActive(roomInfo.get().getId(),true)
+            .stream()
+            .map(roomAmenity -> new RoomAmenityDto(roomAmenity.getId(), roomAmenity.getName(), roomAmenity.getType()))
+            .collect(Collectors.toList());
         TimeShareDetailDTO timeShareDetailDTO = TimeShareDetailDTO.builder()
                 .timeShareId(timeShare.getId())
                 .resortName(resort.get().getResortName())
@@ -190,6 +204,7 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .endDate(timeShare.getEndDate())
                 .resortId(resort.get().getId())
                 .roomId(roomInfo.get().getId())
+                .roomAmenities(amenities)
                 .unitType(TimeShareDetailDTO.unitType.builder()
                         .id(unitType.getId())
                         .title(unitType.getTitle())

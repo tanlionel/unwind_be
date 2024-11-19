@@ -16,7 +16,9 @@ import com.capstone.unwind.service.ServiceInterface.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -78,12 +80,16 @@ public class FeedbackServiceImplement implements FeedbackService {
         return feedbackMapper.toFeedbackResponseDto(savedFeedback);
     }
     @Override
-    public Page<FeedbackResponseDto> getAllFeedbackByResortId(Integer resortId, Pageable pageable)  {
-        Page<Feedback> feedbacks = feedbackRepository.findAllByResort_IdAndIsActive(
-                resortId,true,pageable);
+    public Page<FeedbackResponseDto> getAllFeedbackByResortId(Integer resortId, Pageable pageable) {
+        if (pageable.getSort().isUnsorted()) {
+            pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.desc("createdDate")));
+        }
+        Page<Feedback> feedbacks = feedbackRepository.findAllByResort_IdAndIsActive(resortId, true, pageable);
+
         Page<FeedbackResponseDto> feedbackDtoPage = feedbacks.map(feedbackMapper::toFeedbackResponseDto);
         return feedbackDtoPage;
     }
+
     @Override
     public Page<FeedbackReportResponseDto> getTsStaffFeedbackByResortId(Pageable pageable)  {
         TimeShareCompanyStaffDTO timeshareCompanyStaff =  timeShareStaffService.getLoginStaff();

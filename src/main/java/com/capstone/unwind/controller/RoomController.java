@@ -4,6 +4,7 @@ import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
+import com.capstone.unwind.model.RoomDTO.RoomDetailResponseDTO;
 import com.capstone.unwind.model.RoomDTO.RoomInfoDto;
 import com.capstone.unwind.model.RoomDTO.RoomRequestDTO;
 import com.capstone.unwind.model.RoomDTO.RoomResponseDTO;
@@ -44,5 +45,10 @@ public class RoomController {
             @RequestBody UpdateTimeshareRequestDto updateTimeshareRequestDto) throws ErrMessageException, OptionalNotFoundException {
             TimeShareResponseDTO updatedTimeshare = timeshareService.updateTimeshare(timeShareId, updateTimeshareRequestDto);
             return ResponseEntity.ok(updatedTimeshare);
+    }
+    @GetMapping("/{roomId}")
+    public ResponseEntity<RoomDetailResponseDTO> getRoomDetailById(@PathVariable Integer roomId) throws  OptionalNotFoundException {
+        RoomDetailResponseDTO roomResponseDTO = roomService.getRoomDetailById(roomId);
+        return ResponseEntity.ok(roomResponseDTO);
     }
 }
