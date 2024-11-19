@@ -26,7 +26,6 @@ public class ResortRequestDTO {
     @Builder
     public static class ResortAmenity{
         String name;
-        boolean isFree;
         String type;
     }
 

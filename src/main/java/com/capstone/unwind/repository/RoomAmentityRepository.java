@@ -12,6 +12,7 @@ import java.util.List;
 @Repository
 public interface RoomAmentityRepository extends JpaRepository<RoomAmenity , Integer> {
     List<RoomAmenity> findAllByRoomInfoId(Integer roomId);
+    List<RoomAmenity> findAllByRoomInfoIdAndIsActive(Integer roomId,boolean isActive);
 
     @Modifying
     @Transactional
