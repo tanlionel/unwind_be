@@ -59,8 +59,9 @@ public class PublicController {
     @GetMapping("/resort")
     public Page<ResortDto> getPageableResort(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
                                              @RequestParam(required = false,defaultValue = "10") Integer pageSize,
-                                             @RequestParam(required = false,defaultValue = "") String resortName) throws UserDoesNotHavePermission {
-        Page<ResortDto> resortDtoPage = resortService.getPublicPageableResort(pageNo,pageSize,resortName);
+                                             @RequestParam(required = false,defaultValue = "") String resortName,
+                                             @RequestParam(required = false,defaultValue = "") Integer tsId)throws UserDoesNotHavePermission {
+        Page<ResortDto> resortDtoPage = resortService.getPublicPageableResort(pageNo,pageSize,resortName,tsId);
         return resortDtoPage;
     }
     @GetMapping("/resort/{resortId}")

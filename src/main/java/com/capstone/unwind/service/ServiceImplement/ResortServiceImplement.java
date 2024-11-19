@@ -2,6 +2,7 @@ package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
 import com.capstone.unwind.enums.DocumentStoreEnum;
+import com.capstone.unwind.enums.RentalPostingEnum;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
@@ -345,9 +346,15 @@ public class ResortServiceImplement implements ResortService {
     }
 
     @Override
-    public Page<ResortDto> getPublicPageableResort(Integer pageNo, Integer pageSize, String resortName) {
+    public Page<ResortDto> getPublicPageableResort(Integer pageNo, Integer pageSize, String resortName, Integer resortId) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("id"));
-        Page<Resort> resortPage = resortRepository.findAllByResortNameContainingAndIsActive(resortName, true, pageable);
+        Page<Resort> resortPage = null;
+        if(resortId!=null){
+             resortPage= resortRepository.findAllByResortNameContainingAndIsActiveAndTimeshareCompanyId(
+                    resortName, true,resortId, pageable );
+        }else{
+            resortPage = resortRepository.findAllByResortNameContainingAndIsActive(resortName, true, pageable);
+        }
         Page<ResortDto> resortDtoPage = resortPage.map(resort -> {
             ResortDto resortDto = resortMapper.toDto(resort);
 
