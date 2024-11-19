@@ -8,6 +8,7 @@ import com.capstone.unwind.model.PostingDTO.PostingResponseTsStaffDTO;
 import com.capstone.unwind.model.PostingDTO.RentalPostingApprovalResponseDto;
 import com.capstone.unwind.service.ServiceInterface.BookingService;
 import com.capstone.unwind.service.ServiceInterface.RentalPostingService;
+import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,7 +30,7 @@ public class SystemStaffRentalPostingController {
 
 
     @GetMapping("rental/postings")
-    public Page<PostingResponseTsStaffDTO> getPublicPostings(
+    public Page<PostingResponseTsStaffDTO> getAllPostings(
             @RequestParam(required = false, defaultValue = "0") Integer pageNo,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(required = false, defaultValue = "") String resortName,
@@ -48,6 +49,19 @@ public class SystemStaffRentalPostingController {
     public ResponseEntity<RentalPostingApprovalResponseDto> approvalRentalPostingSystemStaff(@PathVariable Integer postingId,@RequestParam Float newPriceValuation) throws ErrMessageException, OptionalNotFoundException {
         RentalPostingApprovalResponseDto rentalPostingApprovalResponseDto = rentalPostingService.approvalPostingSystemStaff(postingId,newPriceValuation);
         return ResponseEntity.ok(rentalPostingApprovalResponseDto);
+    }
+    @GetMapping("rental/package/postings")
+    public Page<PostingResponseTsStaffDTO> getAllPackagePostings(
+            @RequestParam(required = false, defaultValue = "0") Integer pageNo,
+            @RequestParam(required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "") String resortName,
+            @RequestParam(required = false) Integer packageId,
+            @RequestParam(required = false) String status)throws OptionalNotFoundException {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<PostingResponseTsStaffDTO> postingResponsePage = rentalPostingService.getAllPackagePostingSystemStaff(resortName, pageable,status,packageId);
+
+        return postingResponsePage;
     }
 
 }

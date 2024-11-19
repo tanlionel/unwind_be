@@ -19,4 +19,12 @@ public class RentalPostingSpecification {
     public static Specification<RentalPosting> hasStatus(String status) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("status"), status);
     }
+    public static Specification<RentalPosting> resortNameContains(String resortName) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.like(root.get("roomInfo").get("resort").get("resortName"), "%" + resortName + "%");
+    }
+    public static Specification<RentalPosting> hasPackageId(Integer packageId) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("rentalPackage").get("id"), packageId);
+    }
 }
