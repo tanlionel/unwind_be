@@ -17,8 +17,7 @@ public interface ResortService {
     Page<ResortDto> getPageableResort(Integer pageNo, Integer pageSize, String resortName) throws UserDoesNotHavePermission;
     ResortDetailResponseDTO getPublicResortById(Integer resortId) throws EntityDoesNotExistException, UserDoesNotHavePermission;
 
-    Page<ResortDto> getPublicPageableResort(Integer pageNo, Integer pageSize, String resortName) throws UserDoesNotHavePermission;
-
+    Page<ResortDto> getPublicPageableResort(Integer pageNo, Integer pageSize, String resortName, Integer resortId);
 
     UnitTypeResponseDTO createUnitType(UnitTypeRequestDTO unitTypeRequestDTO) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission;
     UnitTypeResponseDTO updateUnitType(Integer unitTypeId, UnitTypeRequestDTO unitTypeRequestDTO)

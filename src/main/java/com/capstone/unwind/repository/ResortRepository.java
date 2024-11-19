@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface ResortRepository extends JpaRepository<Resort, Integer> {
     Page<Resort> findAllByResortNameContainingAndIsActiveAndTimeshareCompanyId(String resortName, Boolean isActive,Integer tsId, Pageable pageable);
     Page<Resort> findAllByResortNameContainingAndIsActive(String resortName, Boolean isActive, Pageable pageable);
+
     @Modifying
     @Transactional
     @Query("UPDATE ResortAmenity a SET a.isActive = false WHERE a.resort.id = :resortId")
