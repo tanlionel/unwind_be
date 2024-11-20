@@ -6,6 +6,8 @@ import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
 import com.capstone.unwind.model.RoomDTO.*;
+import com.capstone.unwind.model.TimeShareDTO.TimeShareResponseDTO;
+import com.capstone.unwind.model.TimeShareDTO.UpdateTimeshareRequestDto;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.RoomService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
@@ -152,7 +154,41 @@ public class RoomServiceImplement implements RoomService {
 
         return responseDTO;
     }
+    @Override
+    public UpdateRoomResponseDTO updateRoomAmenityByResortId(Integer roomId, UpdateTimeshareRequestDto timeShareRequestDTO)
+            throws ErrMessageException, OptionalNotFoundException {
+        User user = userService.getLoginUser();
+        Customer customer = customerRepository.findByUserId(user.getId());
+        if (customer == null) throw new OptionalNotFoundException("Customer not found");
 
+        RoomInfo roomInfo = roomInfoRepository.findById(roomId)
+                .orElseThrow(() -> new ErrMessageException("roomInfo with ID " + roomId + " does not exist"));
+
+        roomAmentityRepository.deleteAmenitiesByRoomInfoId(roomId);
+        try {
+            for (UpdateTimeshareRequestDto.RoomAmenityDto tmp : timeShareRequestDTO.getRoomInfoAmenities()) {
+                RoomAmenity amenity = RoomAmenity.builder()
+                        .roomInfo(roomInfo)
+                        .name(tmp.getName())
+                        .type(tmp.getType())
+                        .isActive(true)
+                        .build();
+                roomAmentityRepository.save(amenity);
+            }
+        } catch (Exception e) {
+            throw new ErrMessageException("Error when saving amenities");
+        }
+        List<RoomAmenityDto> amenities = roomAmentityRepository.findAllByRoomInfoIdAndIsActive(roomInfo.getId(),true)
+                .stream()
+                .map(roomAmenity -> new RoomAmenityDto(roomAmenity.getId(), roomAmenity.getName(), roomAmenity.getType()))
+                .collect(Collectors.toList());
+        UpdateRoomResponseDTO roomDetailResponseDTO = UpdateRoomResponseDTO.builder()
+                .roomAmenities(amenities)
+                .roomInfo(roomInfoMapper.toDto(roomInfo))
+                .build();
+
+        return roomDetailResponseDTO;
+    }
 
     @Override
     public List<RoomInfoDto> getAllExistingRoomByResortId(Integer resortId) {

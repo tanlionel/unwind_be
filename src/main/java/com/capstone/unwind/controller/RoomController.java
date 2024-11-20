@@ -4,10 +4,7 @@ import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
-import com.capstone.unwind.model.RoomDTO.RoomDetailResponseDTO;
-import com.capstone.unwind.model.RoomDTO.RoomInfoDto;
-import com.capstone.unwind.model.RoomDTO.RoomRequestDTO;
-import com.capstone.unwind.model.RoomDTO.RoomResponseDTO;
+import com.capstone.unwind.model.RoomDTO.*;
 import com.capstone.unwind.model.TimeShareDTO.TimeShareResponseDTO;
 import com.capstone.unwind.model.TimeShareDTO.UpdateTimeshareRequestDto;
 import com.capstone.unwind.service.ServiceInterface.RoomService;
@@ -39,11 +36,11 @@ public class RoomController {
         List<RoomInfoDto> roomInfoDtoList  = roomService.getAllExistingRoomByResortId(resortId);
         return ResponseEntity.ok(roomInfoDtoList);
     }
-    @PutMapping("/room-amenity/{timeShareId}")
-    public ResponseEntity<TimeShareResponseDTO> updateTimeshare(
-            @PathVariable Integer timeShareId,
+    @PutMapping("/room-amenity/{roomId}")
+    public ResponseEntity<UpdateRoomResponseDTO> updateTimeshare(
+            @PathVariable Integer roomId,
             @RequestBody UpdateTimeshareRequestDto updateTimeshareRequestDto) throws ErrMessageException, OptionalNotFoundException {
-            TimeShareResponseDTO updatedTimeshare = timeshareService.updateTimeshare(timeShareId, updateTimeshareRequestDto);
+            UpdateRoomResponseDTO updatedTimeshare = roomService.updateRoomAmenityByResortId(roomId, updateTimeshareRequestDto);
             return ResponseEntity.ok(updatedTimeshare);
     }
     @GetMapping("/{roomId}")

@@ -48,7 +48,8 @@ public class RoomInfo {
     private UnitType unitType;
     @OneToMany(mappedBy = "roomInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RoomAmenity> amenities;
-
+    @OneToMany(mappedBy = "roomInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Timeshare> timeshares;
     @PrePersist
     protected void onCreate() {
         this.createdAt = Timestamp.from(Instant.now());

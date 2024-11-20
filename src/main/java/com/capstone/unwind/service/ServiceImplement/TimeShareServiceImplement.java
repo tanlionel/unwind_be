@@ -121,51 +121,7 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .build();
         return timeShareResponseDTO;
     }
-    @Override
-    public TimeShareResponseDTO updateTimeshare(Integer timeShareId, UpdateTimeshareRequestDto timeShareRequestDTO)
-            throws ErrMessageException, OptionalNotFoundException {
-        User user = userService.getLoginUser();
-        Customer customer = customerRepository.findByUserId(user.getId());
-        if (customer == null) throw new OptionalNotFoundException("Customer not found");
 
-        Timeshare existingTimeshare = timeShareRepository.findById(timeShareId)
-                .orElseThrow(() -> new ErrMessageException("Timeshare with ID " + timeShareId + " does not exist"));
-        RoomInfo roomInfo = roomInfoRepository.findById(existingTimeshare.getRoomInfo().getId())
-                .orElseThrow(() -> new ErrMessageException("roomInfo with ID " + existingTimeshare.getRoomInfo().getId() + " does not exist"));
-        List<RoomAmenityDto> amenities = roomAmentityRepository.findAllByRoomInfoIdAndIsActive(roomInfo.getId(),true)
-                .stream()
-                .map(roomAmenity -> new RoomAmenityDto(roomAmenity.getId(), roomAmenity.getName(), roomAmenity.getType()))
-                .collect(Collectors.toList());
-        roomAmentityRepository.deleteAmenitiesByRoomInfoId(existingTimeshare.getRoomInfo().getId());
-        try {
-            for (UpdateTimeshareRequestDto.RoomAmenityDto tmp : timeShareRequestDTO.getRoomInfoAmenities()) {
-                RoomAmenity amenity = RoomAmenity.builder()
-                        .roomInfo(roomInfo)
-                        .name(tmp.getName())
-                        .type(tmp.getType())
-                        .isActive(true)
-                        .build();
-                roomAmentityRepository.save(amenity);
-            }
-        } catch (Exception e) {
-            throw new ErrMessageException("Error when saving amenities");
-        }
-        TimeShareResponseDTO timeShareResponseDTO = TimeShareResponseDTO.builder()
-                .timeShareId(existingTimeshare.getId())
-                .status(existingTimeshare.getStatus())
-                .startDate(existingTimeshare.getStartDate())
-                .endDate(existingTimeshare.getEndDate())
-                .startYear(existingTimeshare.getStartYear())
-                .endYear(existingTimeshare.getEndYear())
-                .roomAmenities(amenities)
-                .roomInfo(roomInfoMapper.toDto(roomInfo))
-                .owner(existingTimeshare.getOwner().getFullName())
-                .createdAt(existingTimeshare.getCreatedAt())
-                .isActive(existingTimeshare.getIsActive())
-                .build();
-
-        return timeShareResponseDTO;
-    }
     @Override
     public Page<ListTimeShareDTO> getAllTimeShares(Pageable pageable) throws OptionalNotFoundException {
         User user = userService.getLoginUser();
