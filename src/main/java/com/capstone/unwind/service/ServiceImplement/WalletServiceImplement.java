@@ -56,6 +56,26 @@ public class WalletServiceImplement implements WalletService {
     }
 
     @Override
+    public Page<WalletTransactionDto> getLoginCustomerMoneyReceivedTransactions(Integer pageNo,Integer pageSize) throws OptionalNotFoundException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+        Pageable pageable = PageRequest.of(pageNo,pageSize, Sort.by("createdAt").descending());
+        Page<WalletTransaction> walletTransactionsPage = walletTransactionRepository.findAllMoneyReceived(user.getCustomer().getWallet().getId(),pageable);
+        Page<WalletTransactionDto> walletTransactionDtoPage = walletTransactionsPage.map(walletTransactionMapper::toDto);
+        return walletTransactionDtoPage;
+    }
+    @Override
+    public Page<WalletTransactionDto> getLoginCustomerMoneySpentTransactions(Integer pageNo,Integer pageSize) throws OptionalNotFoundException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+        Pageable pageable = PageRequest.of(pageNo,pageSize, Sort.by("createdAt").descending());
+        Page<WalletTransaction> walletTransactionsPage = walletTransactionRepository.findAllMoneySpent(user.getCustomer().getWallet().getId(),pageable);
+        Page<WalletTransactionDto> walletTransactionDtoPage = walletTransactionsPage.map(walletTransactionMapper::toDto);
+        return walletTransactionDtoPage;
+    }
+    @Override
     public WalletRefereshDto getLoginCustomerWalletBalance() throws OptionalNotFoundException {
         User user = userService.getLoginUser();
         if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");

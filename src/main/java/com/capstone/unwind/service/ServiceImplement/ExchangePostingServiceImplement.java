@@ -4,6 +4,7 @@ import com.capstone.unwind.entity.*;
 import com.capstone.unwind.enums.DocumentStoreEnum;
 import com.capstone.unwind.enums.ExchangePostingEnum;
 import com.capstone.unwind.enums.ExchangeRequestEnum;
+import com.capstone.unwind.enums.RentalPostingEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.ExchangePostingDTO.*;
@@ -140,7 +141,17 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         responseDTO.setImageUrls(imageUrls);
         return responseDTO;
     }
-
+    @Override
+    public PostingExchangeDetailResponseDTO deActiveExchangePostingPosting(Integer postingId) throws OptionalNotFoundException, ErrMessageException {
+        ExchangePosting exchangePosting = exchangePostingRepository.findById(postingId)
+                .orElseThrow(() -> new OptionalNotFoundException("Active Exchange Posting not found with ID"));
+        if (!exchangePosting.getStatus().equals(String.valueOf(ExchangePostingEnum.Processing))) {
+            throw new ErrMessageException("Exchange Posting must be in 'Processing' status to be deactivated");
+        }
+        exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Closed));
+        ExchangePosting updatedExchangePosting = exchangePostingRepository.save(exchangePosting);
+        return postingExchangeDetailMapper.entityToDto(exchangePosting);
+    }
     @Override
     public ExchangePostingApprovalResponseDto approvalPostingTimeshareStaff(Integer postingId, ExchangePostingApprovalDto exchangePostingApprovalDto) throws OptionalNotFoundException, ErrMessageException {
         Optional<ExchangePosting> exchangePosting = exchangePostingRepository.findByIdAndIsActive(postingId);

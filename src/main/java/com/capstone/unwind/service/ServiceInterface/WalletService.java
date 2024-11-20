@@ -20,4 +20,6 @@ public interface WalletService {
     WalletTransaction updateTransactionMembershipByVNPAY(UUID uuid,Integer membership_id) throws OptionalNotFoundException, ErrMessageException;
     WalletTransaction updateTransactionDepositMoneyByVNPAY(UUID uuid) throws OptionalNotFoundException, ErrMessageException;
     WalletTransaction refundMoneyToCustomer(Integer customerId, float fee, float money, String paymentMethod, String description,String transactionType) throws OptionalNotFoundException;
+    Page<WalletTransactionDto> getLoginCustomerMoneyReceivedTransactions(Integer pageNo,Integer pageSize) throws OptionalNotFoundException;
+    Page<WalletTransactionDto> getLoginCustomerMoneySpentTransactions(Integer pageNo,Integer pageSize) throws OptionalNotFoundException;
 }

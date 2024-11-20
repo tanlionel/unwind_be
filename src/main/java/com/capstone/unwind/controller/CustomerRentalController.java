@@ -44,6 +44,12 @@ public class CustomerRentalController {
     public PostingDetailResponseDTO getRentalPostingDetail(@PathVariable Integer postingId) throws OptionalNotFoundException {
         return rentalPostingService.getRentalPostingDetailById(postingId);
     }
+    @PutMapping("/deactivate/{postingId}")
+    public ResponseEntity<PostingDetailResponseDTO> deActiveRentalPosting(
+            @PathVariable Integer postingId) throws OptionalNotFoundException, ErrMessageException {
+        PostingDetailResponseDTO postingDetailResponseDTO = rentalPostingService.deActiveRentalPosting(postingId);
+        return ResponseEntity.ok(postingDetailResponseDTO);
+    }
     @PostMapping("rental/posting")
     public ResponseEntity<RentalPostingResponseDto> createPosting(@RequestBody RentalPostingRequestDto rentalPostingRequestDto) throws ErrMessageException, OptionalNotFoundException {
         RentalPostingResponseDto rentalPostingResponseDto = rentalPostingService.createRentalPosting(rentalPostingRequestDto);

@@ -5,6 +5,7 @@ import com.capstone.unwind.enums.DocumentStoreEnum;
 import com.capstone.unwind.enums.RentalPostingEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.FeedbackDTO.FeedbackReportResponseDto;
 import com.capstone.unwind.model.PostingDTO.*;
 import com.capstone.unwind.model.ResortDTO.ResortDto;
 import com.capstone.unwind.model.SystemDTO.PolicyMapper;
@@ -111,6 +112,17 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         PostingDetailResponseDTO responseDTO = postingDetailMapper.entityToDto(rentalPosting);
         responseDTO.setImageUrls(imageUrls);
         return responseDTO;
+    }
+    @Override
+    public PostingDetailResponseDTO deActiveRentalPosting(Integer postingId) throws OptionalNotFoundException, ErrMessageException {
+        RentalPosting rentalPosting = rentalPostingRepository.findById(postingId)
+                .orElseThrow(() -> new OptionalNotFoundException("Active Rental Posting not found with ID"));
+        if (!rentalPosting.getStatus().equals(String.valueOf(RentalPostingEnum.Processing))) {
+            throw new ErrMessageException("Rental Posting must be in 'Processing' status to be deactivated");
+        }
+        rentalPosting.setStatus(String.valueOf(RentalPostingEnum.Closed));
+        RentalPosting updatedRentalPosting = rentalPostingRepository.save(rentalPosting);
+        return postingDetailMapper.entityToDto(updatedRentalPosting);
     }
     @Override
     public Page<PostingResponseTsStaffDTO> getAllPostingsTsStaff(String roomInfoCode,Integer packageId, Pageable pageable) throws OptionalNotFoundException {
