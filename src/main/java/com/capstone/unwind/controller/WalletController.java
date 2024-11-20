@@ -33,6 +33,18 @@ public class WalletController {
         Page<WalletTransactionDto> walletDtoPage = walletService.getLoginCustomerWalletTransaction(page,size);
         return ResponseEntity.ok(walletDtoPage);
     }
+    @GetMapping("/customer/wallet-transaction/money-received")
+    private ResponseEntity<Page<WalletTransactionDto>> getMoneyReceivedTransactions(@RequestParam(defaultValue = "0") int page,
+                                                                                    @RequestParam(defaultValue = "10") int size) throws OptionalNotFoundException {
+        Page<WalletTransactionDto> walletDtoPage = walletService.getLoginCustomerMoneyReceivedTransactions(page,size);
+        return ResponseEntity.ok(walletDtoPage);
+    }
+    @GetMapping("/customer/wallet-transaction/money-spent")
+    private ResponseEntity<Page<WalletTransactionDto>> getMoneySpentTransactions(@RequestParam(defaultValue = "0") int page,
+                                                                                    @RequestParam(defaultValue = "10") int size) throws OptionalNotFoundException {
+        Page<WalletTransactionDto> walletDtoPage = walletService.getLoginCustomerMoneySpentTransactions(page,size);
+        return ResponseEntity.ok(walletDtoPage);
+    }
     @GetMapping("/wallet-transaction/{uuid}")
     private ResponseEntity<WalletTransactionDto> getWalletTransactionById(@PathVariable UUID uuid) throws OptionalNotFoundException {
         WalletTransactionDto walletTransactionDto = walletService.findWalletTransactionById(uuid);

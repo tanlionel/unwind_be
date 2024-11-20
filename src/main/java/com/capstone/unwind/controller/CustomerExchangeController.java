@@ -48,6 +48,12 @@ public class CustomerExchangeController {
         ExchangePostingResponseDto exchangePostingResponseDto = exchangePostingService.createExchangePosting(exchangePostingRequestDto);
         return ResponseEntity.ok(exchangePostingResponseDto);
     }
+    @PutMapping("/deactivate/exchange/{postingId}")
+    public ResponseEntity<PostingExchangeDetailResponseDTO> deActiveRentalPosting(
+            @PathVariable Integer postingId) throws OptionalNotFoundException, ErrMessageException {
+        PostingExchangeDetailResponseDTO postingDetailResponseDTO = exchangePostingService.deActiveExchangePostingPosting(postingId);
+        return ResponseEntity.ok(postingDetailResponseDTO);
+    }
     @PostMapping("exchange/request/{postingId}")
     public ResponseEntity<ExchangeRequestDetailDto> createRequestExchange(@PathVariable Integer postingId,@RequestBody ExchangeRequestDto exchangeRequestDto) throws ErrMessageException, OptionalNotFoundException {
         ExchangeRequestDetailDto exchangeRequestDetailDto = exchangePostingService.createRequestExchange(postingId,exchangeRequestDto);
@@ -78,4 +84,5 @@ public class CustomerExchangeController {
         ExchangeRequestBasicDto exchangeRequestApprovalResponseDto = exchangePostingService.approvalRequestCustomer(requestId);
         return ResponseEntity.ok(exchangeRequestApprovalResponseDto);
     }
+
 }

@@ -26,4 +26,5 @@ public interface ExchangePostingService {
     ExchangeRequestBasicDto approvalRequestTimeshareStaff(Integer requestId, ExchangePostingApprovalDto exchangePostingApprovalDto) throws OptionalNotFoundException, ErrMessageException;
     ExchangeRequestBasicDto rejectRequestTimeshareStaff(Integer requestId, String note) throws OptionalNotFoundException, ErrMessageException;
     ExchangeRequestBasicDto approvalRequestCustomer(Integer requestId) throws OptionalNotFoundException, ErrMessageException;
+    PostingExchangeDetailResponseDTO deActiveExchangePostingPosting(Integer postingId) throws OptionalNotFoundException, ErrMessageException;
 }
