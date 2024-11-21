@@ -1,12 +1,10 @@
 package com.capstone.unwind.controller;
 
 import com.capstone.unwind.enums.EmailEnum;
+import com.capstone.unwind.model.EmailRequestDTO.EmailRequestDto;
 import com.capstone.unwind.service.ServiceImplement.SendinblueService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/email")
@@ -16,8 +14,8 @@ public class EmailController {
 
 
     @PostMapping()
-    public String sendWelcomeEmail(@RequestParam String to, @RequestParam EmailEnum emailEnum, @RequestParam String name,@RequestParam String contentHeader,@RequestParam String subject) {
-        sendinblueService.sendEmailWithTemplate(to, emailEnum ,name,contentHeader,subject);
+    public String sendWelcomeEmail(@RequestParam String to, @RequestParam EmailEnum emailEnum, @RequestBody EmailRequestDto emailRequestDto) {
+        sendinblueService.sendEmailWithTemplate(to, emailEnum ,emailRequestDto);
         return "Email sent successfully using template!";
     }
 }

@@ -2,6 +2,7 @@ package com.capstone.unwind.service.ServiceImplement;
 
 
 import com.capstone.unwind.enums.EmailEnum;
+import com.capstone.unwind.model.EmailRequestDTO.EmailRequestDto;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +38,7 @@ public class SendinblueService {
         apiClient.setApiKey(apiKey);
         this.transactionalEmailsApi = new TransactionalEmailsApi(apiClient);
     }
-    public void sendEmailWithTemplate(String to, EmailEnum emailEnum, String name, String contentHeader ,String subject) {
+    public void sendEmailWithTemplate(String to, EmailEnum emailEnum, EmailRequestDto emailRequestDto ) {
 
         SendSmtpEmailSender sender = new SendSmtpEmailSender().email(senderEmail);
         SendSmtpEmailTo recipient = new SendSmtpEmailTo().email(to);
@@ -47,9 +48,9 @@ public class SendinblueService {
                 .to(Arrays.asList(recipient))
                 .templateId(emailEnum.getTemplateId())
                 .params(Map.of(
-                        "name", name,
-                        "subject",subject,
-                        "header", contentHeader
+                        "name", emailRequestDto.getName(),
+                        "subject",emailRequestDto.getSubject(),
+                        "content", emailRequestDto.getContent()
                 ));
         try {
             transactionalEmailsApi.sendTransacEmail(sendSmtpEmail);

@@ -1,9 +1,8 @@
 package com.capstone.unwind.enums;
 
 public enum EmailEnum {
-    WELCOME_EMAIL(3),
-    PASSWORD_RESET(2),
-    ORDER_CONFIRMATION(1);
+    BASIC_MAIL(3),
+    TRANSACTION_MAIL(4);
 
     private final long templateId;
 
