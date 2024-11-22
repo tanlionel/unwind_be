@@ -28,7 +28,7 @@ public class TimeShareResponseDTO {
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate endDate;
     private String owner;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     private Timestamp createdAt;
     private Boolean isActive;
     private RoomInfoDto roomInfo;

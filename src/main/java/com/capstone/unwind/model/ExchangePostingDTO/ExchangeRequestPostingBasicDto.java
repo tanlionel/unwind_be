@@ -25,9 +25,9 @@ public class ExchangeRequestPostingBasicDto implements Serializable {
     LocalDate endDate;
     String status;
     String note;
-    @JsonFormat(pattern = "dd-MM-yyyy HH::mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH::mm:ss", timezone = "Asia/Bangkok")
     Timestamp createdDate;
-    @JsonFormat(pattern = "dd-MM-yyyy HH::mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH::mm:ss", timezone = "Asia/Bangkok")
     Timestamp updatedDate;
     Boolean isActive;
 
@@ -38,9 +38,9 @@ public class ExchangeRequestPostingBasicDto implements Serializable {
     public static class RoomInfoDto implements Serializable {
         Integer id;
         String roomInfoCode;
-        @JsonFormat(pattern = "dd-MM-yyyy HH::mm:ss")
+        @JsonFormat(pattern = "dd-MM-yyyy HH::mm:ss", timezone = "Asia/Bangkok")
         Timestamp createdAt;
-        @JsonFormat(pattern = "dd-MM-yyyy HH::mm:ss")
+        @JsonFormat(pattern = "dd-MM-yyyy HH::mm:ss", timezone = "Asia/Bangkok")
         Timestamp updatedAt;
         Boolean isActive;
         Integer resortId;

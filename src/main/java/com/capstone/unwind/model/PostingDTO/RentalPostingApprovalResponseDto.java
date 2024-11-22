@@ -33,9 +33,9 @@ public class RentalPostingApprovalResponseDto implements Serializable {
     String rentalPackageRentalPackageName;
     Integer ownerId;
     String note;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     Timestamp createdDate;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     Timestamp updatedDate;
     Float priceValuation;
 }

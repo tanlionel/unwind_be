@@ -23,9 +23,9 @@ public class WalletDto implements Serializable {
     Integer id;
     Integer ownerId;
     Float availableMoney;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     Timestamp createdAt;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     Timestamp updatedAt;
     Boolean isActive;
     String type;
@@ -40,7 +40,7 @@ public class WalletDto implements Serializable {
         Float money;
         String description;
         String paymentMethod;
-        @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+        @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
         Timestamp createdAt;
     }
 }

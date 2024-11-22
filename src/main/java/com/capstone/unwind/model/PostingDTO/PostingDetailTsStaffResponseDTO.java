@@ -20,7 +20,7 @@ public class PostingDetailTsStaffResponseDTO {
     private Integer rentalPostingId;
     private String description;
     private Float priceValuation;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     private Timestamp createdDate;
     private Integer timeShareId;
     private Integer ownerId;

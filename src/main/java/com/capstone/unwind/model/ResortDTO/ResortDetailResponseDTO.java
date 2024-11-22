@@ -46,7 +46,7 @@ public class ResortDetailResponseDTO {
         Float ratingPoint;
         String comment;
         CustomerDto user;
-        @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+        @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
         Timestamp createdDate;
         Boolean isActive;
     }
