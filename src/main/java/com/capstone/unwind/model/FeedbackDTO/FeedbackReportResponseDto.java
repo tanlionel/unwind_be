@@ -20,7 +20,7 @@ public class FeedbackReportResponseDto implements Serializable {
     String note;
     ResortDto resort;
     CustomerDto customer;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     Timestamp createdDate;
     Boolean isActive;
     Boolean isReport;

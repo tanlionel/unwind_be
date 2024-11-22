@@ -18,9 +18,9 @@ public class BlogPostResponseDto implements Serializable {
     String title;
     String image;
     String content;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     LocalDateTime createdAt;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     LocalDateTime updatedAt;
     Boolean isActive;
 }

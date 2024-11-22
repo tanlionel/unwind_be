@@ -17,7 +17,7 @@ public class FeedbackResponseDto implements Serializable {
     String comment;
     ResortDto resort;
     CustomerDto customer;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     Timestamp createdDate;
     Boolean isActive;
 

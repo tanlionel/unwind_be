@@ -24,7 +24,7 @@ import java.util.List;
 public class PostingDetailResponseDTO {
     private Integer rentalPostingId;
     private String description;
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "dd-MM-yyyy", timezone = "Asia/Bangkok")
     private LocalDate expiredDate;
     private Integer ownerId;
     private String ownerName;

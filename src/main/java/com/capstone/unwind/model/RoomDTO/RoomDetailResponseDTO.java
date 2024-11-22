@@ -21,7 +21,7 @@ public class RoomDetailResponseDTO implements Serializable {
     private Integer resortId;
     private String roomName;
     private String status;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     private Timestamp createdAt;
     private List<roomAmenity> roomAmenities;
     @Data

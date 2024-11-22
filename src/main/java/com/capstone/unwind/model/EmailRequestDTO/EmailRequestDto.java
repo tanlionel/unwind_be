@@ -11,4 +11,7 @@ public class EmailRequestDto {
     String name;
     String content;
     String subject;
+    String transactionCode;
+    String transactionType;
+    float money;
 }

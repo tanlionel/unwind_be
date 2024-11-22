@@ -36,9 +36,9 @@ public class RentalBookingDetailDto implements Serializable {
     Float totalPrice;
     Integer totalNights;
     Float pricePerNights;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     Timestamp createdDate;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     Timestamp updatedDate;
     String source;
 

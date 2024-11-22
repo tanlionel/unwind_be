@@ -19,7 +19,7 @@ public class WalletTransactionDto implements Serializable {
     String transactionType;
     String description;
     String paymentMethod;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss" )
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss" , timezone = "Asia/Bangkok")
     Timestamp createdAt;
     Float fee;
 }

@@ -22,9 +22,9 @@ public class ExchangeBookingDetailDto implements Serializable {
     Integer id;
     RoomInfoDto roomInfo;
     String status;
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "dd-MM-yyyy", timezone = "Asia/Bangkok")
     LocalDate checkinDate;
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "dd-MM-yyyy", timezone = "Asia/Bangkok")
     LocalDate checkoutDate;
     String type;
     String primaryGuestName;
@@ -37,9 +37,9 @@ public class ExchangeBookingDetailDto implements Serializable {
     String renterLegalAvatar;
     Float serviceFee;
     Integer nights;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     Timestamp createdDate;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     Timestamp updatedDate;
     String source;
 

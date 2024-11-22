@@ -16,9 +16,9 @@ public class RoomInfoDto implements Serializable {
     Integer id;
     String roomInfoCode;
     String roomInfoName;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     Timestamp createdAt;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     Timestamp updatedAt;
     Boolean isActive;
     Integer resortId;
