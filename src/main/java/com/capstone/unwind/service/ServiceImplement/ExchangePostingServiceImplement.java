@@ -1,12 +1,10 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
-import com.capstone.unwind.enums.DocumentStoreEnum;
-import com.capstone.unwind.enums.ExchangePostingEnum;
-import com.capstone.unwind.enums.ExchangeRequestEnum;
-import com.capstone.unwind.enums.RentalPostingEnum;
+import com.capstone.unwind.enums.*;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.EmailRequestDTO.EmailRequestDto;
 import com.capstone.unwind.model.ExchangePostingDTO.*;
 import com.capstone.unwind.model.PostingDTO.*;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
@@ -27,6 +25,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import static com.capstone.unwind.config.EmailMessageConfig.*;
 
 @Service
 @RequiredArgsConstructor
@@ -73,6 +73,8 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
     private final ExchangeRequestListMapper exchangeRequestListMapper;
     @Autowired
     private final ExchangeRequestPostingListMapper exchangeRequestPostingListMapper;
+    @Autowired
+    private final SendinblueService sendinblueService;
 
     @Override
     public ExchangePostingResponseDto createExchangePosting(ExchangePostingRequestDto exchangePostingRequestDto) throws ErrMessageException, OptionalNotFoundException {
@@ -113,6 +115,23 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
             }
         } catch (Exception e) {
             throw new ErrMessageException("Error when saving images");
+        }
+        // Gửi email thông báo
+        try {
+            EmailRequestDto emailRequestDto = new EmailRequestDto();
+            emailRequestDto.setName(exchangePostingInDb.getOwner().getFullName());
+            emailRequestDto.setSubject(CREATE_EXCHANGE_POSTING_SUBJECT);
+            emailRequestDto.setContent(CREATE_EXCHANGE_POSTING_CONTENT);
+            emailRequestDto.setTransactionType("EXCHANGEPOSTING");
+            emailRequestDto.setMoney(exchangePostingInDb.getExchangePackage().getPrice());
+
+            sendinblueService.sendEmailWithTemplate(
+                    user.getEmail(),
+                    EmailEnum.TRANSACTION_MAIL,
+                    emailRequestDto
+            );
+        } catch (Exception e) {
+            throw new ErrMessageException("Failed to send email notification");
         }
         return exchangePostingResponseMapper.toDto(exchangePostingInDb);
     }
@@ -174,6 +193,22 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         exchangePostingUpdate.setNote(exchangePostingApprovalDto.getNote());
         exchangePostingUpdate.setIsVerify(true);
         ExchangePosting exchangePostingInDb = exchangePostingRepository.save(exchangePostingUpdate);
+        try {
+            EmailRequestDto emailRequestDto = new EmailRequestDto();
+            emailRequestDto.setName(exchangePostingInDb.getOwner().getFullName());
+            emailRequestDto.setSubject(APPROVAL_EXCHANGE_POSTING_SUBJECT);
+            emailRequestDto.setContent(APPROVAL_EXCHANGE_POSTING_CONTENT);
+            emailRequestDto.setTransactionType("EXCHANGEPOSTING");
+            emailRequestDto.setMoney(exchangePostingInDb.getExchangePackage().getPrice());
+
+            sendinblueService.sendEmailWithTemplate(
+                    exchangePostingInDb.getOwner().getUser().getEmail(),
+                    EmailEnum.TRANSACTION_MAIL,
+                    emailRequestDto
+            );
+        } catch (Exception e) {
+            throw new ErrMessageException("Failed to send email notification");
+        }
         return exchangePostingApprovalMapper.toDto(exchangePostingInDb);
     }
 
@@ -195,6 +230,22 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         String description = "Giao dịch hoàn tiền từ chối bài đăng";
         String transactionType = "EXCHANGEPOSTING";
         WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(customer.get().getId(), fee, money, paymentMethod, description, transactionType);
+        try {
+            EmailRequestDto emailRequestDto = new EmailRequestDto();
+            emailRequestDto.setName(exchangePostingInDb.getOwner().getFullName());
+            emailRequestDto.setSubject(REJECT_EXCHANGE_POSTING_SUBJECT);
+            emailRequestDto.setContent(REJECT_EXCHANGE_POSTING_CONTENT);
+            emailRequestDto.setTransactionType(walletTransaction.getTransactionType());
+            emailRequestDto.setMoney(walletTransaction.getMoney());
+
+            sendinblueService.sendEmailWithTemplate(
+                    exchangePostingInDb.getOwner().getUser().getEmail(),
+                    EmailEnum.TRANSACTION_MAIL,
+                    emailRequestDto
+            );
+        } catch (Exception e) {
+            throw new ErrMessageException("Failed to send email notification");
+        }
         return exchangePostingApprovalMapper.toDto(exchangePostingInDb);
     }
 
@@ -258,6 +309,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 .isActive(true)
                 .build();
         ExchangeRequestDetailDto exchangeRequestDetailDto = exchangeRequestMapper.toDto(exchangeRequestRepository.save(exchangeRequest));
+
         return exchangeRequestDetailDto;
     }
 
@@ -320,6 +372,18 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         exchangePostingUpdate.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
         exchangePostingUpdate.setNote(exchangePostingApprovalDto.getNote());
         ExchangeRequest exchangeRequestInDb = exchangeRequestRepository.save(exchangePostingUpdate);
+        try {
+            EmailRequestDto emailRequestDto = new EmailRequestDto();
+            emailRequestDto.setSubject(APPROVAL_EXCHANGE_REQUEST_SUBJECT);
+            emailRequestDto.setContent(APPROVAL_EXCHANGE_REQUEST_CONTENT);
+            sendinblueService.sendEmailWithTemplate(
+                    exchangeRequestInDb.getOwner().getUser().getEmail(),
+                    EmailEnum.BASIC_MAIL,
+                    emailRequestDto
+            );
+        } catch (Exception e) {
+            throw new ErrMessageException("Failed to send email notification");
+        }
         return exchangeRequestListMapper.toDto(exchangeRequestInDb);
     }
 
@@ -332,6 +396,18 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         exchangeRequest.get().setNote(note);
         exchangeRequest.get().setStatus(String.valueOf(ExchangeRequestEnum.Reject));
         ExchangeRequest exchangePostingInDb = exchangeRequestRepository.save(exchangeRequest.get());
+        try {
+            EmailRequestDto emailRequestDto = new EmailRequestDto();
+            emailRequestDto.setSubject(REJECT_EXCHANGE_REQUEST_SUBJECT);
+            emailRequestDto.setContent(REJECT_EXCHANGE_REQUEST_SUBJECT);
+            sendinblueService.sendEmailWithTemplate(
+                    exchangePostingInDb.getOwner().getUser().getEmail(),
+                    EmailEnum.BASIC_MAIL,
+                    emailRequestDto
+            );
+        } catch (Exception e) {
+            throw new ErrMessageException("Failed to send email notification");
+        }
         return exchangeRequestListMapper.toDto(exchangePostingInDb);
     }
 
@@ -353,6 +429,18 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         } else if (exchangePosting.getExchangePackage().getId() == 1) {
             exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
             exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Accepted));
+            try {
+                EmailRequestDto emailRequestDto = new EmailRequestDto();
+                emailRequestDto.setSubject(APPROVAL_EXCHANGE_REQUEST_SUBJECT);
+                emailRequestDto.setContent(APPROVAL_EXCHANGE_REQUEST_CONTENT);
+                sendinblueService.sendEmailWithTemplate(
+                        exchangeRequest.getOwner().getUser().getEmail(),
+                        EmailEnum.BASIC_MAIL,
+                        emailRequestDto
+                );
+            } catch (Exception e) {
+                throw new ErrMessageException("Failed to send email notification");
+            }
         } else {
             throw new ErrMessageException("Invalid exchange package type");
         }

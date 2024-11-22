@@ -4,7 +4,9 @@ import com.capstone.unwind.entity.DocumentStore;
 import com.capstone.unwind.entity.TimeshareCompany;
 import com.capstone.unwind.entity.User;
 import com.capstone.unwind.enums.DocumentStoreEnum;
+import com.capstone.unwind.enums.EmailEnum;
 import com.capstone.unwind.exception.*;
+import com.capstone.unwind.model.EmailRequestDTO.EmailRequestDto;
 import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyMapper;
@@ -26,6 +28,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import static com.capstone.unwind.config.EmailMessageConfig.*;
+import static com.capstone.unwind.config.EmailMessageConfig.TIMESHARE_COMPANY_CREATION_CONTENT;
+
 @RequiredArgsConstructor
 @Service
 public class TimeshareCompanyServiceImplement implements TimeshareCompanyService {
@@ -39,6 +44,8 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
     private final DocumentStoreRepository documentStoreRepository;
     @Autowired
     private final UserService userService;
+    @Autowired
+    private final SendinblueService sendinblueService;
     @Override
     public TimeshareCompanyDto createTimeshareCompany(TimeshareCompanyDto timeshareCompanyDto) throws EntityAlreadyExist, UserDoesNotExistException, ErrMessageException {
         User user = userRepository.findUserById(timeshareCompanyDto.getOwnerId());
@@ -69,6 +76,18 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
             throw new ErrMessageException("Error when saving images");
         }
         TimeshareCompanyDto timeshareCompanyDtoDB = timeshareCompanyMapper.toDto(timeshareCompanyDB);
+        try {
+            EmailRequestDto emailRequestDto = new EmailRequestDto();
+            emailRequestDto.setSubject(TIMESHARE_COMPANY_CREATION_SUBJECT);
+            emailRequestDto.setContent(TIMESHARE_COMPANY_CREATION_CONTENT);
+            sendinblueService.sendEmailWithTemplate(
+                    timeshareCompanyDB.getOwner().getEmail(),
+                    EmailEnum.BASIC_MAIL,
+                    emailRequestDto
+            );
+        } catch (Exception e) {
+            throw new ErrMessageException("Failed to send email notification");
+        }
         return timeshareCompanyDtoDB;
     }
     @Override

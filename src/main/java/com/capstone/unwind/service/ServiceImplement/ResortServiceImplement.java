@@ -2,10 +2,12 @@ package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
 import com.capstone.unwind.enums.DocumentStoreEnum;
+import com.capstone.unwind.enums.EmailEnum;
 import com.capstone.unwind.enums.RentalPostingEnum;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
+import com.capstone.unwind.model.EmailRequestDTO.EmailRequestDto;
 import com.capstone.unwind.model.ResortDTO.*;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.ResortService;
@@ -22,6 +24,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.capstone.unwind.config.EmailMessageConfig.*;
 
 @RequiredArgsConstructor
 @Service
@@ -50,6 +54,8 @@ public class ResortServiceImplement implements ResortService {
     private final DocumentStoreRepository documentStoreRepository;
     @Autowired
     private final UserService userService;
+    @Autowired
+    private final SendinblueService sendinblueService;
 
     @Override
     public ResortDetailResponseDTO createResort(ResortRequestDTO resortDto) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission {
@@ -119,6 +125,18 @@ public class ResortServiceImplement implements ResortService {
                         .toList())
                 .isActive(resortInDb.getIsActive())
                 .build();
+        try {
+            EmailRequestDto emailRequestDto = new EmailRequestDto();
+            emailRequestDto.setSubject(RESORT_CREATION_SUBJECT);
+            emailRequestDto.setContent(RESORT_CREATION_CONTENT);
+            sendinblueService.sendEmailWithTemplate(
+                    timeshareCompany.getOwner().getEmail(),
+                    EmailEnum.BASIC_MAIL,
+                    emailRequestDto
+            );
+        } catch (Exception e) {
+            throw new ErrMessageException("Failed to send email notification");
+        }
         return resortDetailResponseDTO;
     }
     @Transactional

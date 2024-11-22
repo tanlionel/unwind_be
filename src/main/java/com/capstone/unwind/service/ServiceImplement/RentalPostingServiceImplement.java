@@ -2,9 +2,11 @@ package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
 import com.capstone.unwind.enums.DocumentStoreEnum;
+import com.capstone.unwind.enums.EmailEnum;
 import com.capstone.unwind.enums.RentalPostingEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.EmailRequestDTO.EmailRequestDto;
 import com.capstone.unwind.model.FeedbackDTO.FeedbackReportResponseDto;
 import com.capstone.unwind.model.PostingDTO.*;
 import com.capstone.unwind.model.ResortDTO.ResortDto;
@@ -28,6 +30,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.capstone.unwind.config.EmailMessageConfig.*;
+import static com.capstone.unwind.config.EmailMessageConfig.CREATE_RENTAL_POSTING_CONTENT;
 
 @Service
 @RequiredArgsConstructor
@@ -68,6 +73,8 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     private final WalletService walletService;
     @Autowired
     private final DocumentStoreRepository documentStoreRepository;
+    @Autowired
+    private final SendinblueService sendinblueService;
 
 
     /*    private final String processing = "Processing";
@@ -213,6 +220,22 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         } catch (Exception e) {
             throw new ErrMessageException("Error when saving images");
         }
+        try {
+            EmailRequestDto emailRequestDto = new EmailRequestDto();
+            emailRequestDto.setName(rentalPostingInDb.getOwner().getFullName());
+            emailRequestDto.setSubject(CREATE_RENTAL_POSTING_SUBJECT);
+            emailRequestDto.setContent(CREATE_RENTAL_POSTING_CONTENT);
+            emailRequestDto.setTransactionType("RENTALPOSTING");
+            emailRequestDto.setMoney(rentalPostingInDb.getRentalPackage().getPrice());
+
+            sendinblueService.sendEmailWithTemplate(
+                    user.getEmail(),
+                    EmailEnum.TRANSACTION_MAIL,
+                    emailRequestDto
+            );
+        } catch (Exception e) {
+            throw new ErrMessageException("Failed to send email notification");
+        }
         return rentalPostingResponseMapper.toDto(rentalPostingInDb);
     }
 
@@ -250,6 +273,22 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         rentalPostingUpdate.setNote(rentalPostingApprovalDto.getNote());
         rentalPostingUpdate.setIsVerify(true);
         RentalPosting rentalPostingInDb = rentalPostingRepository.save(rentalPostingUpdate);
+        try {
+            EmailRequestDto emailRequestDto = new EmailRequestDto();
+            emailRequestDto.setName(rentalPostingInDb.getOwner().getFullName());
+            emailRequestDto.setSubject(APPROVAL_RENTAL_POSTING_SUBJECT);
+            emailRequestDto.setContent(APPROVAL_RENTAL_POSTING_CONTENT);
+            emailRequestDto.setTransactionType("RENTALPOSTING");
+            emailRequestDto.setMoney(rentalPostingInDb.getRentalPackage().getPrice());
+
+            sendinblueService.sendEmailWithTemplate(
+                    rentalPostingInDb.getOwner().getUser().getEmail(),
+                    EmailEnum.TRANSACTION_MAIL,
+                    emailRequestDto
+            );
+        } catch (Exception e) {
+            throw new ErrMessageException("Failed to send email notification");
+        }
         return rentalPostingApprovalMapper.toDto(rentalPostingInDb);
     }
 
@@ -269,6 +308,22 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         String description = "Giao dịch hoàn tiền từ chối bài đăng";
         String transactionType = "RENTALPOSTING";
         WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(customer.get().getId(),fee,money,paymentMethod,description,transactionType);
+        try {
+            EmailRequestDto emailRequestDto = new EmailRequestDto();
+            emailRequestDto.setName(rentalPostingInDb.getOwner().getFullName());
+            emailRequestDto.setSubject(REJECT_RENTAL_POSTING_SUBJECT);
+            emailRequestDto.setContent(REJECT_RENTAL_POSTING_CONTENT);
+            emailRequestDto.setTransactionType(walletTransaction.getTransactionType());
+            emailRequestDto.setMoney(walletTransaction.getMoney());
+
+            sendinblueService.sendEmailWithTemplate(
+                    rentalPostingInDb.getOwner().getUser().getEmail(),
+                    EmailEnum.TRANSACTION_MAIL,
+                    emailRequestDto
+            );
+        } catch (Exception e) {
+            throw new ErrMessageException("Failed to send email notification");
+        }
         return rentalPostingApprovalMapper.toDto(rentalPostingInDb);
     }
 
