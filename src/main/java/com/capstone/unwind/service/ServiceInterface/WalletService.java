@@ -22,4 +22,6 @@ public interface WalletService {
     WalletTransaction refundMoneyToCustomer(Integer customerId, float fee, float money, String paymentMethod, String description,String transactionType) throws OptionalNotFoundException;
     Page<WalletTransactionDto> getLoginCustomerMoneyReceivedTransactions(Integer pageNo,Integer pageSize) throws OptionalNotFoundException;
     Page<WalletTransactionDto> getLoginCustomerMoneySpentTransactions(Integer pageNo,Integer pageSize) throws OptionalNotFoundException;
+    Boolean createTsCompanyWallet(Integer tsCompanyId) throws OptionalNotFoundException;
+    WalletTransaction createTransactionTsCompany(float fee, float money, String paymentMethod,String description,String transactionType,Integer tsId) throws OptionalNotFoundException;
 }

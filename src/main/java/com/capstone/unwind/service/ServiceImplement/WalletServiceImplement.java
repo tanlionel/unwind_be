@@ -4,10 +4,7 @@ import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.WalletDTO.*;
-import com.capstone.unwind.repository.CustomerRepository;
-import com.capstone.unwind.repository.MembershipRepository;
-import com.capstone.unwind.repository.WalletRepository;
-import com.capstone.unwind.repository.WalletTransactionRepository;
+import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import com.capstone.unwind.service.ServiceInterface.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +40,9 @@ public class WalletServiceImplement implements WalletService {
     private final WalletRefreshMapper walletRefreshMapper;
     @Autowired
     private final WalletRepository walletRepository;
+    @Autowired
+    private final TimeshareCompanyRepository timeshareCompanyRepository;
+    private static final String WALLET_TYPE = "TIMESHARECOMPANY_WALLET";
 
     @Override
     public Page<WalletTransactionDto> getLoginCustomerWalletTransaction(Integer pageNo,Integer pageSize) throws OptionalNotFoundException {
@@ -75,6 +75,41 @@ public class WalletServiceImplement implements WalletService {
         Page<WalletTransactionDto> walletTransactionDtoPage = walletTransactionsPage.map(walletTransactionMapper::toDto);
         return walletTransactionDtoPage;
     }
+
+    @Override
+    public Boolean createTsCompanyWallet(Integer tsCompanyId) throws OptionalNotFoundException {
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyById(tsCompanyId);
+        if (timeshareCompany==null) throw new OptionalNotFoundException("Not found timeshare company id");
+        float moneyInit = 0.0f;
+        Wallet wallet = Wallet.builder()
+                .timeshareCompany(timeshareCompany)
+                .availableMoney(moneyInit)
+                .isActive(true)
+                .type("TIMESHARECOMPANY_WALLET")
+                .build();
+        walletRepository.save(wallet);
+        return true;
+    }
+
+    @Override
+    public WalletTransaction createTransactionTsCompany(float fee, float money, String paymentMethod, String description, String transactionType, Integer tsId) throws OptionalNotFoundException {
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyById(tsId);
+        Wallet wallet = timeshareCompany.getWallet();
+        if (wallet==null) throw new OptionalNotFoundException("Not found wallet ts id");
+        WalletTransaction walletTransaction = WalletTransaction.builder()
+                .fee(fee)
+                .money(money)
+                .description(description)
+                .paymentMethod(paymentMethod)
+                .transactionType(transactionType)
+                .wallet(wallet)
+                .build();
+        wallet.setAvailableMoney(wallet.getAvailableMoney()+money);
+        Wallet walletInDb = walletRepository.save(wallet);
+        WalletTransaction walletTransactionInDb = walletTransactionRepository.save(walletTransaction);
+        return walletTransactionInDb;
+    }
+
     @Override
     public WalletRefereshDto getLoginCustomerWalletBalance() throws OptionalNotFoundException {
         User user = userService.getLoginUser();

@@ -38,4 +38,7 @@ public class TimeshareCompany {
     @Column(name = "is_active")
     private Boolean isActive;
 
+    @OneToOne(mappedBy = "timeshareCompany", fetch = FetchType.LAZY)
+    private Wallet wallet;
+
 }

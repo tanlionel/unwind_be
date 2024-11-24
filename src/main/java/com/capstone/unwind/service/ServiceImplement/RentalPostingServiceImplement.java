@@ -1,5 +1,6 @@
 package com.capstone.unwind.service.ServiceImplement;
 
+import com.capstone.unwind.config.FeeConfig;
 import com.capstone.unwind.entity.*;
 import com.capstone.unwind.enums.DocumentStoreEnum;
 import com.capstone.unwind.enums.EmailEnum;
@@ -11,6 +12,7 @@ import com.capstone.unwind.model.FeedbackDTO.FeedbackReportResponseDto;
 import com.capstone.unwind.model.PostingDTO.*;
 import com.capstone.unwind.model.ResortDTO.ResortDto;
 import com.capstone.unwind.model.SystemDTO.PolicyMapper;
+import com.capstone.unwind.model.WalletDTO.WalletTransactionDto;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.*;
 import lombok.RequiredArgsConstructor;
@@ -75,6 +77,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     private final DocumentStoreRepository documentStoreRepository;
     @Autowired
     private final SendinblueService sendinblueService;
+
 
 
     /*    private final String processing = "Processing";
@@ -255,6 +258,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
             roomInfo.setUnitType(unitType.get());
             RoomInfo roomInfoAfterSave = roomInfoRepository.save(roomInfo);
         }
+
         if (rentalPostingUpdate.getRentalPackage().getId() == 3){
             if (rentalPostingApprovalDto.getStaffRefinementPrice()<=0) throw new ErrMessageException("Staff refinement price must be quarter than 0");
             else {
@@ -273,6 +277,16 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         rentalPostingUpdate.setNote(rentalPostingApprovalDto.getNote());
         rentalPostingUpdate.setIsVerify(true);
         RentalPosting rentalPostingInDb = rentalPostingRepository.save(rentalPostingUpdate);
+        TimeShareCompanyStaffDTO timeshareCompanyStaff = timeShareStaffService.getLoginStaff();
+        float fee = 0;
+        float money = FeeConfig.fee_approval;
+        String paymentMethod = "WALLET";
+        String description = "Giao dịch cộng tiền từ duyệt bài đăng cho thuê với mã " + rentalPostingInDb.getId();
+        String transactionType = "APPROVAL_RENTAL_POSTING";
+
+        WalletTransaction walletTransactionDto = walletService.createTransactionTsCompany(fee,money,paymentMethod,description,transactionType,timeshareCompanyStaff.getTimeshareCompanyId());
+
+
         try {
             EmailRequestDto emailRequestDto = new EmailRequestDto();
             emailRequestDto.setName(rentalPostingInDb.getOwner().getFullName());
