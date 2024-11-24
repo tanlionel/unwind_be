@@ -85,9 +85,11 @@ public class DashboardServiceImplement implements DashboardService {
     public TotalPackageDto getTotalPackage() {
         Long rentalPackage = rentalPostingRepository.getRentalPackage();
         Long exchangePackage = exchangePostingRepository.getExchangePackage();
+        Long membershipPackage = walletTransactionRepository.getTotalMEMBERSGIP();
         return TotalPackageDto.builder()
                 .totalRentalPackage(rentalPackage != null ? rentalPackage : 0L)
                 .totalExchangePackage(exchangePackage != null ? exchangePackage : 0L)
+                .totalMemberShip(membershipPackage != null ? membershipPackage : 0L)
                 .build();
     }
     @Override

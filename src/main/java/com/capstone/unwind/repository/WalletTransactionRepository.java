@@ -32,6 +32,8 @@ public interface WalletTransactionRepository extends JpaRepository<WalletTransac
             "ORDER BY FUNCTION('YEAR', wt.createdAt) ASC, FUNCTION('MONTH', wt.createdAt) ASC")
     List<Object[]> findMonthlyMoneyReceived(@Param("timeshareCompanyId") Integer timeshareCompanyId,
                                             @Param("startDate") LocalDateTime startDate);
+    @Query("SELECT COUNT(r) FROM WalletTransaction r WHERE r.transactionType = 'MEMBERSHIP'")
+    Long getTotalMEMBERSGIP();
 
 
 }

@@ -11,4 +11,5 @@ import lombok.*;
 public class TotalPackageDto {
     Long totalRentalPackage;
     Long totalExchangePackage;
+    Long totalMemberShip;
 }
