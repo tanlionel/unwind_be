@@ -3,8 +3,11 @@ package com.capstone.unwind.service.ServiceImplement;
 import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
 import com.capstone.unwind.model.WalletDTO.*;
 import com.capstone.unwind.repository.*;
+import com.capstone.unwind.service.ServiceInterface.TimeShareService;
+import com.capstone.unwind.service.ServiceInterface.TimeshareCompanyService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import com.capstone.unwind.service.ServiceInterface.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +45,7 @@ public class WalletServiceImplement implements WalletService {
     private final WalletRepository walletRepository;
     @Autowired
     private final TimeshareCompanyRepository timeshareCompanyRepository;
+
     private static final String WALLET_TYPE = "TIMESHARECOMPANY_WALLET";
 
     @Override
@@ -65,6 +69,18 @@ public class WalletServiceImplement implements WalletService {
         Page<WalletTransactionDto> walletTransactionDtoPage = walletTransactionsPage.map(walletTransactionMapper::toDto);
         return walletTransactionDtoPage;
     }
+    @Override
+    public Page<WalletTransactionDto> getTsCompanyMoneyReceivedTransactions(Integer pageNo,Integer pageSize) throws OptionalNotFoundException {
+        User user = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(user.getId());
+        if (timeshareCompany == null) throw new OptionalNotFoundException("Not init timeshare company yet");
+        if (timeshareCompany.getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+        Pageable pageable = PageRequest.of(pageNo,pageSize, Sort.by("createdAt").descending());
+        Page<WalletTransaction> walletTransactionsPage = walletTransactionRepository.findAllMoneyReceived(timeshareCompany.getWallet().getId(),pageable);
+        Page<WalletTransactionDto> walletTransactionDtoPage = walletTransactionsPage.map(walletTransactionMapper::toDto);
+        return walletTransactionDtoPage;
+    }
+
     @Override
     public Page<WalletTransactionDto> getLoginCustomerMoneySpentTransactions(Integer pageNo,Integer pageSize) throws OptionalNotFoundException {
         User user = userService.getLoginUser();
@@ -231,4 +247,5 @@ public class WalletServiceImplement implements WalletService {
         WalletTransaction walletTransactionInDb = walletTransactionRepository.save(walletTransaction);
         return walletTransactionInDb;
     }
+
 }

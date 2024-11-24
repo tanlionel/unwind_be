@@ -1,5 +1,9 @@
 package com.capstone.unwind.service.ServiceImplement;
 
+import com.capstone.unwind.entity.TimeshareCompany;
+import com.capstone.unwind.entity.User;
+import com.capstone.unwind.entity.Wallet;
+import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.TotalPackageDTO.TotalPackageDto;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.DashboardService;
@@ -19,8 +23,17 @@ public class DashboardServiceImplement implements DashboardService {
     private final UserRepository userRepository;
     @Autowired
     private final ResortRepository resortRepository;
+    @Autowired
+    private final TimeshareCompanyStaffRepository timeshareCompanyStaffRepository;
+    @Autowired
+    private final WalletRepository walletRepository;
+    @Autowired
+    private final UserService userService;
+    @Autowired
+    private final TimeshareCompanyRepository timeshareCompanyRepository;
 
-@Override
+
+    @Override
     public Long getTotalCustomers() {
         return userRepository.getTotalCustomers();
     }
@@ -28,6 +41,31 @@ public class DashboardServiceImplement implements DashboardService {
     @Override
     public Long getTotalResorts() {
         return resortRepository.getTotalResorts();
+    }
+    @Override
+    public Long getTotalResortsByTsId() throws OptionalNotFoundException {
+        User user = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(user.getId());
+        if (timeshareCompany == null) throw new OptionalNotFoundException("Not init timeshare company yet");
+        if (timeshareCompany.getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+        return resortRepository.getTotalResorts(timeshareCompany.getId());
+    }
+    @Override
+    public Long getTotalStaffByTsId() throws OptionalNotFoundException {
+        User user = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(user.getId());
+        if (timeshareCompany == null) throw new OptionalNotFoundException("Not init timeshare company yet");
+        if (timeshareCompany.getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+        return timeshareCompanyStaffRepository.getTotalStaffs(timeshareCompany.getId());
+    }
+    @Override
+    public Float getAvailableMoney() throws OptionalNotFoundException {
+        User user = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(user.getId());
+        if (timeshareCompany == null) throw new OptionalNotFoundException("Not init timeshare company yet");
+        if (timeshareCompany.getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+        Wallet wallet = walletRepository.findWalletByTimeshareCompany_Id(timeshareCompany.getId());
+        return wallet.getAvailableMoney();
     }
     @Override
     public TotalPackageDto getTotalPackage() {

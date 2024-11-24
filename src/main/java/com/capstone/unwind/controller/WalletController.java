@@ -100,5 +100,12 @@ public class WalletController {
         WalletRefereshDto walletRefereshDto = walletService.getLoginCustomerWalletBalance();
         return ResponseEntity.ok(walletRefereshDto);
     }
+    @GetMapping("/timeshare-company/wallet-transaction/money-received")
+    private ResponseEntity<Page<WalletTransactionDto>> getMoneyTSReceivedTransactions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws OptionalNotFoundException {
+        Page<WalletTransactionDto> walletDtoPage = walletService.getTsCompanyMoneyReceivedTransactions(page,size);
+        return ResponseEntity.ok(walletDtoPage);
+    }
 
 }

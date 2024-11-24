@@ -4,9 +4,11 @@ import com.capstone.unwind.exception.*;
 import com.capstone.unwind.model.ResortDTO.*;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
 import com.capstone.unwind.model.TimeshareCompany.UpdateTimeshareCompanyDto;
+import com.capstone.unwind.model.WalletDTO.WalletTransactionDto;
 import com.capstone.unwind.service.ServiceInterface.ResortService;
 import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
 import com.capstone.unwind.service.ServiceInterface.TimeshareCompanyService;
+import com.capstone.unwind.service.ServiceInterface.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,8 @@ public class TSCompanyResortController {
     TimeShareStaffService timeshareCompanyStaffService;
     @Autowired
     TimeshareCompanyService timeshareCompanyService;
+    @Autowired
+    WalletService walletService;
 
     @GetMapping()
     public Page<ResortDto> getPageableResort(@RequestParam(required = false,defaultValue = "0") Integer pageNo,
@@ -97,5 +101,8 @@ public class TSCompanyResortController {
         return ResponseEntity.ok(updatedCompany);
 
     }
+
+
+
 
 }
