@@ -93,7 +93,6 @@ public class BookingServiceImplement implements BookingService {
     @Override
     public RentalBookingDetailDto getRentalBookingDetailById(Integer bookingId) throws OptionalNotFoundException {
         RentalBooking rentalBooking = rentalBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
-        if (!rentalBooking.getIsActive()) throw new OptionalNotFoundException("Inactive booking");
         RentalBookingDetailDto rentalBookingDetailDto = rentalBookingDetailMapper.toDto(rentalBooking);
         rentalBookingDetailDto.setSource("rental");
         return rentalBookingDetailDto;
@@ -126,7 +125,6 @@ public class BookingServiceImplement implements BookingService {
     @Override
     public ExchangeBookingDetailDto getExchangeBookingDetailById(Integer bookingId) throws OptionalNotFoundException {
         ExchangeBooking exchangeBooking = exchangeBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
-        if (!exchangeBooking.getIsActive()) throw new OptionalNotFoundException("Inactive booking");
         ExchangeBookingDetailDto exchangeBookingDetailDto = exchangeBookingDetailMapper.toDto(exchangeBooking);
         exchangeBookingDetailDto.setSource("exchange");
         return exchangeBookingDetailDto;
