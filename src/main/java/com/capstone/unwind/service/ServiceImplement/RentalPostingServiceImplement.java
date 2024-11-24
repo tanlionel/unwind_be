@@ -109,7 +109,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     }
     @Override
     public Page<PostingResponseDTO> getAllPublicPostings(String resortName, Pageable pageable) throws OptionalNotFoundException {
-        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatus(true,
+        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByFilters(true,
                 resortName, String.valueOf(RentalPostingEnum.Processing), pageable);
         Page<PostingResponseDTO> postingDtoPage = rentalPostings.map(listRentalPostingMapper::entityToDto);
         return postingDtoPage;

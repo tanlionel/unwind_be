@@ -43,8 +43,32 @@ public interface ExchangePostingRepository extends JpaRepository<ExchangePosting
 
     Page<ExchangePosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatus(boolean isActive,
                                                                                           String resortName, String status, Pageable pageable);
+    @Query("SELECT e FROM ExchangePosting e " +
+            "WHERE e.isActive = :isActive " +
+            "AND e.roomInfo.resort.resortName LIKE %:resortName% " +
+            "AND e.status = :status " +
+            "ORDER BY e.createdDate DESC")
+    Page<ExchangePosting> findAllByFilters(
+            @Param("isActive") boolean isActive,
+            @Param("resortName") String resortName,
+            @Param("status") String status,
+            Pageable pageable);
+
     Page<ExchangePosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatusAndRoomInfo_Resort_Id(boolean isActive,
                                                                                             String resortName, String status, Pageable pageable,Integer resortId);
+    @Query("SELECT e FROM ExchangePosting e " +
+            "WHERE e.isActive = :isActive " +
+            "AND e.roomInfo.resort.resortName LIKE %:resortName% " +
+            "AND e.status = :status " +
+            "AND e.roomInfo.resort.id = :resortId " +
+            "ORDER BY e.createdDate DESC")
+    Page<ExchangePosting> findAllByFiltersWithResortId(
+            @Param("isActive") boolean isActive,
+            @Param("resortName") String resortName,
+            @Param("status") String status,
+            @Param("resortId") Integer resortId,
+            Pageable pageable);
+
 
     @Modifying
     @Transactional
@@ -52,10 +76,8 @@ public interface ExchangePostingRepository extends JpaRepository<ExchangePosting
     void updateStatusByExchangePostingId(@Param("exchangePostingId") Integer exchangePostingId, @Param("status") String status);
 
 
-    @Query("SELECT COUNT(r) FROM ExchangePosting r WHERE r.exchangePackage.id = 1")
-    Long getExchangePackage1();
-    @Query("SELECT COUNT(r) FROM ExchangePosting r WHERE r.exchangePackage.id = 2")
-    Long getExchangePackage2();
+    @Query("SELECT COUNT(r) FROM ExchangePosting r WHERE r.exchangePackage.isActive = true ")
+    Long getExchangePackage();
 
 
 }

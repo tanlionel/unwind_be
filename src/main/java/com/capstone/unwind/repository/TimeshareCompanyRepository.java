@@ -13,5 +13,6 @@ public interface TimeshareCompanyRepository extends JpaRepository<TimeshareCompa
     Page<TimeshareCompany> findAllByTimeshareCompanyNameContaining(String tsName, Pageable pageable);
     TimeshareCompany findTimeshareCompanyById(Integer tsId);
     TimeshareCompany findTimeshareCompanyByOwnerId(Integer ownerId);
-
+    @Query("SELECT COUNT(r) FROM TimeshareCompany r")
+    Long getTotalCompany();
 }

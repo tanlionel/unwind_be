@@ -315,11 +315,11 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
     public Page<PostingExchangeResponseDTO> getAllExchangePublicPostings(String resortName, Pageable pageable,Integer resortId) throws OptionalNotFoundException {
         Page<ExchangePosting> exchangePostings = null;
         if (resortId == null) {
-            exchangePostings = exchangePostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatus(true,
+            exchangePostings = exchangePostingRepository.findAllByFilters(true,
                     resortName, String.valueOf(ExchangePostingEnum.Processing), pageable);
         }else {
-            exchangePostings = exchangePostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatusAndRoomInfo_Resort_Id(true,
-                    resortName, String.valueOf(ExchangePostingEnum.Processing), pageable,resortId);
+            exchangePostings = exchangePostingRepository.findAllByFiltersWithResortId(true,
+                    resortName, String.valueOf(ExchangePostingEnum.Processing),resortId, pageable);
         }
         Page<PostingExchangeResponseDTO> postingDtoPage = exchangePostings.map(listExchangePostingMapper::entityToDto);
         return postingDtoPage;
