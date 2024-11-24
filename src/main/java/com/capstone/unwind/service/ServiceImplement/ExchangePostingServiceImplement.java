@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -408,6 +409,8 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         exchangePostingUpdate.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
         exchangePostingUpdate.setNote(exchangePostingApprovalDto.getNote());
         ExchangeRequest exchangeRequestInDb = exchangeRequestRepository.save(exchangePostingUpdate);
+        Period period = Period.between(exchangeRequestInDb.getEndDate(), exchangeRequestInDb.getEndDate());
+        int days = period.getDays() + 1;
 
         ExchangeBooking requesterBooking =  ExchangeBooking.builder()
                 .isActive(true)
@@ -419,6 +422,8 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 .renter(exchangeRequestInDb.getOwner())
                 .roomInfo(exchangeRequestInDb.getRoomInfo())
                 .timeshare(exchangeRequestInDb.getTimeshare())
+                .nights(days)
+                .isFeedback(false)
                 .build();
         exchangeBookingRepository.save(requesterBooking);
 
@@ -431,6 +436,8 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 .status(String.valueOf(ExchangeBookingEnum.Booked))
                 .checkoutDate(exchangeRequestInDb.getExchangePosting().getCheckoutDate())
                 .checkinDate(exchangeRequestInDb.getExchangePosting().getCheckinDate())
+                .nights(exchangeRequestInDb.getExchangePosting().getNights())
+                .isFeedback(false)
                 .isActive(true)
                 .build();
         exchangeBookingRepository.save(ownerBooking);

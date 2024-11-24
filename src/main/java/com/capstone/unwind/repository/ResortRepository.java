@@ -27,4 +27,6 @@ public interface ResortRepository extends JpaRepository<Resort, Integer> {
 
     @Query("SELECT COUNT(r) FROM Resort r")
     Long getTotalResorts();
+    @Query("SELECT COUNT(r) FROM Resort r WHERE r.timeshareCompany.id = :tsId")
+    Long getTotalResorts(@Param("tsId") Integer tsId);
 }
