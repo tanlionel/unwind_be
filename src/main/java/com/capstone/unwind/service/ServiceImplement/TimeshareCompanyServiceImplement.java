@@ -16,6 +16,7 @@ import com.capstone.unwind.repository.TimeshareCompanyRepository;
 import com.capstone.unwind.repository.UserRepository;
 import com.capstone.unwind.service.ServiceInterface.TimeshareCompanyService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
+import com.capstone.unwind.service.ServiceInterface.WalletService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +47,10 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
     private final UserService userService;
     @Autowired
     private final SendinblueService sendinblueService;
+    @Autowired
+    private final WalletService walletService;
     @Override
-    public TimeshareCompanyDto createTimeshareCompany(TimeshareCompanyDto timeshareCompanyDto) throws EntityAlreadyExist, UserDoesNotExistException, ErrMessageException {
+    public TimeshareCompanyDto createTimeshareCompany(TimeshareCompanyDto timeshareCompanyDto) throws EntityAlreadyExist, UserDoesNotExistException, ErrMessageException, OptionalNotFoundException {
         User user = userRepository.findUserById(timeshareCompanyDto.getOwnerId());
         if (user==null) throw new UserDoesNotExistException();
         if (user.getRole().getId() != 2) throw new ErrMessageException("Must be timeshare company role");
@@ -88,6 +91,9 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
         } catch (Exception e) {
             throw new ErrMessageException("Failed to send email notification");
         }
+
+        walletService.createTsCompanyWallet(timeshareCompanyDB.getId());
+
         return timeshareCompanyDtoDB;
     }
     @Override

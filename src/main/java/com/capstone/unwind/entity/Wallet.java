@@ -23,6 +23,11 @@ public class Wallet {
     @JoinColumn(name = "owner_id",unique = true)
     private Customer owner;
 
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "ts_id",unique = true)
+    private TimeshareCompany timeshareCompany;
+
     @Column(name = "available_money")
     private Float availableMoney;
 

@@ -36,7 +36,7 @@ public class AdminTSController {
         return timeshareCompanyDto;
     }
     @PostMapping()
-    public TimeshareCompanyDto createTSCompany(@RequestBody TimeshareCompanyDto timeshareCompanyDto) throws EntityAlreadyExist, UserDoesNotExistException, ErrMessageException {
+    public TimeshareCompanyDto createTSCompany(@RequestBody TimeshareCompanyDto timeshareCompanyDto) throws EntityAlreadyExist, UserDoesNotExistException, ErrMessageException, OptionalNotFoundException {
         TimeshareCompanyDto timeshareCompanyDtoResponse = timeshareCompanyService.createTimeshareCompany(timeshareCompanyDto);
         return timeshareCompanyDtoResponse;
     }
