@@ -25,4 +25,5 @@ public interface BookingService {
     RentalBookingDetailDto updateRentalBooking(Integer bookingId, BookingTsStaffRequestDto bookingTsStaffRequestDto) throws OptionalNotFoundException, ErrMessageException;
 
     ExchangeBookingDetailDto updateExchangeBooking(Integer bookingId, BookingTsStaffRequestDto bookingTsStaffRequestDto) throws OptionalNotFoundException, ErrMessageException;
+    RentalBookingDetailDto cancelBooking(Integer bookingId) throws OptionalNotFoundException, ErrMessageException;
 }

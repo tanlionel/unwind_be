@@ -155,12 +155,8 @@ public class ResortServiceImplement implements ResortService {
             throw new ErrMessageException("resort with ID " + resortId + "is not owned by your company");
         }
 
-        if (!resort.getResortName().equals(resortRequestDTO.getResortName())) {
-            resort.setResortName(resortRequestDTO.getResortName());
-        }
-        if (!resort.getLogo().equals(resortRequestDTO.getLogo())) {
-            resort.setLogo(resortRequestDTO.getLogo());
-        }
+        resort.setResortName(resortRequestDTO.getResortName());
+        resort.setLogo(resortRequestDTO.getLogo());
         resort.setMinPrice(resortRequestDTO.getMinPrice());
         resort.setMaxPrice(resortRequestDTO.getMaxPrice());
         resort.setStatus(resortRequestDTO.getStatus());

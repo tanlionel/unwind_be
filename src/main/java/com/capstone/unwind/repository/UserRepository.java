@@ -22,4 +22,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     User findUserById(Integer userId);
     List<User> findAllByRoleId(Integer roleId);
     boolean existsByEmail(String email);
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.role.id = 1")
+    Long getTotalCustomers();
 }

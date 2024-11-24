@@ -52,4 +52,10 @@ public interface ExchangePostingRepository extends JpaRepository<ExchangePosting
     void updateStatusByExchangePostingId(@Param("exchangePostingId") Integer exchangePostingId, @Param("status") String status);
 
 
+    @Query("SELECT COUNT(r) FROM ExchangePosting r WHERE r.exchangePackage.id = 1")
+    Long getExchangePackage1();
+    @Query("SELECT COUNT(r) FROM ExchangePosting r WHERE r.exchangePackage.id = 2")
+    Long getExchangePackage2();
+
+
 }

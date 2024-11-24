@@ -14,6 +14,8 @@ import com.capstone.unwind.repository.RentalPostingRepository;
 import com.capstone.unwind.service.ServiceInterface.BookingService;
 import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
+import com.capstone.unwind.service.ServiceInterface.WalletService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -45,6 +47,8 @@ public class BookingServiceImplement implements BookingService {
     private final ExchangeBookingRepository exchangeBookingRepository;
     @Autowired
     private final ExchangeBookingDetailMapper exchangeBookingDetailMapper;
+    @Autowired
+    private final WalletService walletService;
 
     @Override
     public RentalBookingDetailDto createBookingRentalPosting(Integer postingId, RentalBookingRequestDto rentalBookingRequestDto) throws OptionalNotFoundException, ErrMessageException {
@@ -163,6 +167,40 @@ public class BookingServiceImplement implements BookingService {
         }
         ExchangeBookingDetailDto exchangeBookingDetailDto = exchangeBookingDetailMapper.toDto(exchangeBookingRepository.save(exchangeBooking));
         return exchangeBookingDetailDto;
+    }
+    @Override
+    public RentalBookingDetailDto cancelBooking(Integer bookingId) throws OptionalNotFoundException, ErrMessageException {
+        RentalBooking booking = rentalBookingRepository.findById(bookingId)
+                .orElseThrow(() -> new OptionalNotFoundException("Booking does not exist"));
+
+        LocalDate cancelledDate = LocalDate.now();
+        CancellationPolicy policy = booking.getRentalPosting().getCancellationType();
+        LocalDate checkinDate = booking.getCheckinDate();
+        if (cancelledDate.isAfter(checkinDate.minusDays(policy.getDurationBefore()))) {
+            throw new ErrMessageException("Cannot cancel because refund deadline has passed");
+        }
+
+        Float totalPrice = booking.getTotalPrice();
+        Float refundRate = policy.getRefundRate() / 100.0f;
+
+        Float refundToCustomer = (totalPrice * refundRate) - booking.getServiceFee();
+        Float refundToOwner = (totalPrice - refundToCustomer) - booking.getServiceFee();
+
+        refundToCustomer = Math.max(refundToCustomer, 0);
+        refundToOwner = Math.max(refundToOwner, 0);
+        walletService.refundMoneyToCustomer(booking.getRenter().getId(), booking.getServiceFee(), refundToCustomer,
+                "WALLET", "Hoàn tiền khi hủy đặt phòng ", "RENTALREFUND");
+        walletService.refundMoneyToCustomer(booking.getRentalPosting().getOwner().getId(), booking.getServiceFee(), refundToOwner,
+                "WALLET", "Hoàn tiền khi hủy đặt phòng", "RENTALREFUND");
+
+        RentalPosting posting = booking.getRentalPosting();
+        posting.setStatus("Processing");
+        rentalPostingRepository.save(posting);
+
+        booking.setStatus("Cancelled");
+        booking.setIsActive(false);
+        RentalBooking rentalBookingInDb = rentalBookingRepository.save(booking);
+        return rentalBookingDetailMapper.toDto(rentalBookingInDb);
     }
 
 }

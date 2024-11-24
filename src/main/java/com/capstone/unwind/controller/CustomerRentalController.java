@@ -81,4 +81,9 @@ public class CustomerRentalController {
         Page<MergedBooking> mergedBookingPage = bookingService.getPaginationBookingCustomer(page,size);
         return mergedBookingPage;
     }
+    @PostMapping("rental/booking/cancel/{bookingId}")
+    public ResponseEntity<RentalBookingDetailDto> cancelBooking(@PathVariable Integer bookingId) throws ErrMessageException, OptionalNotFoundException {
+            RentalBookingDetailDto rentalBookingDetailDto = bookingService.cancelBooking(bookingId);
+            return ResponseEntity.ok(rentalBookingDetailDto);
+    }
 }
