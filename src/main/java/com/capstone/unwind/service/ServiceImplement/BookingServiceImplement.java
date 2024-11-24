@@ -1,9 +1,11 @@
 package com.capstone.unwind.service.ServiceImplement;
 
+import com.capstone.unwind.config.FeeConfig;
 import com.capstone.unwind.entity.*;
 import com.capstone.unwind.enums.EmailEnum;
 import com.capstone.unwind.enums.RentalBookingEnum;
 import com.capstone.unwind.enums.RentalPostingEnum;
+import com.capstone.unwind.enums.WalletTransactionEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.BookingDTO.*;
@@ -25,6 +27,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static com.capstone.unwind.config.EmailMessageConfig.*;
 import static org.springframework.data.domain.Sort.sort;
@@ -56,6 +59,7 @@ public class BookingServiceImplement implements BookingService {
     private final SendinblueService sendinblueService;
     @Autowired
     private final CustomerRepository customerRepository;
+
 
     @Override
     public RentalBookingDetailDto createBookingRentalPosting(Integer postingId, RentalBookingRequestDto rentalBookingRequestDto) throws OptionalNotFoundException, ErrMessageException {
@@ -135,6 +139,7 @@ public class BookingServiceImplement implements BookingService {
         boolean isCheckIn = bookingTsStaffRequestDto.isCheckIn();
         boolean isCheckOut = bookingTsStaffRequestDto.isCheckOut();
         RentalBooking rentalBooking = rentalBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
+
         if (isCheckIn && !isCheckOut){
             if (rentalBooking.getStatus().equals(String.valueOf(RentalBookingEnum.Booked))){
                 rentalBooking.setStatus(String.valueOf(RentalBookingEnum.CheckIn));
@@ -142,12 +147,33 @@ public class BookingServiceImplement implements BookingService {
         }else if (isCheckOut && !isCheckIn){
             if (rentalBooking.getStatus().equals(String.valueOf(RentalBookingEnum.CheckIn))){
                 rentalBooking.setStatus(String.valueOf(RentalBookingEnum.CheckOut));
+                //refund money to customer
+                RentalPosting rentalPosting = rentalBooking.getRentalPosting();
+                if (rentalPosting.getRentalPackage().getId() == 4){
+                    float fee = rentalPosting.getPricePerNights()*rentalPosting.getNights()*rentalPosting.getRentalPackage().getCommissionRate()/100+FeeConfig.fee_booking;
+                    float money = rentalPosting.getPricePerNights()*rentalPosting.getNights()-fee;
+                    String paymentMethod = "WALLET";
+                    String description = "Giao dịch cộng tiền từ khách hàng đã check out";
+                    String transactionType = String.valueOf(WalletTransactionEnum.RENTALPACKAGE04);
+                    WalletTransaction walletTransaction = walletService.createTransactionSystemPosting(fee,money,paymentMethod,description,transactionType);
+                }else {
+                    Customer owner = rentalPosting.getOwner();
+                    if (owner==null) throw new ErrMessageException("Error when refund money to customer but reject successfully");
+                    float feeCustomer = rentalPosting.getPricePerNights()*rentalPosting.getNights()*rentalPosting.getRentalPackage().getCommissionRate()/100+FeeConfig.fee_booking;
+                    float moneyCustomer = rentalPosting.getPricePerNights()*rentalPosting.getNights()-feeCustomer;
+                    String paymentMethodCustomer = "WALLET";
+                    String descriptionCustomer = "Giao dịch cộng tiền từ khách hàng đã check out";
+                    String transactionTypeCustomer = "RENTALPOSTING";
+                    WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(owner.getId(),feeCustomer,moneyCustomer,paymentMethodCustomer,descriptionCustomer,transactionTypeCustomer);
+                }
+
             }else throw new ErrMessageException("Status must be checkin");
         }else if (!isCheckIn && !isCheckOut){
             throw new ErrMessageException("must be checkin or checkout");
         }else if (isCheckOut && isCheckIn){
             throw new ErrMessageException("not be check in and check out in the same time");
         }
+
         RentalBookingDetailDto rentalBookingDetailDto = rentalBookingDetailMapper.toDto(rentalBookingRepository.save(rentalBooking));
         return rentalBookingDetailDto;
     }

@@ -1,6 +1,7 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
+import com.capstone.unwind.enums.WalletTransactionEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
@@ -82,6 +83,17 @@ public class WalletServiceImplement implements WalletService {
     }
 
     @Override
+    public Page<WalletTransactionDto> getPaginationTransactionAdmin(int page, int size, WalletTransactionEnum walletTransactionEnum) {
+        Pageable pageable = PageRequest.of(page,size,Sort.by("createdAt").descending());
+        Page<WalletTransaction> walletTransactions = null;
+        if (walletTransactionEnum!=null){
+            walletTransactions = walletTransactionRepository.findAllByTransactionType(String.valueOf(walletTransactionEnum),pageable);
+        }else walletTransactions = walletTransactionRepository.findAll(pageable);
+        Page<WalletTransactionDto> walletTransactionDtoPage = walletTransactions.map(walletTransactionMapper::toDto);
+        return walletTransactionDtoPage;
+    }
+
+    @Override
     public Page<WalletTransactionDto> getLoginCustomerMoneySpentTransactions(Integer pageNo,Integer pageSize) throws OptionalNotFoundException {
         User user = userService.getLoginUser();
         if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
@@ -142,6 +154,19 @@ public class WalletServiceImplement implements WalletService {
                 .fee(fee)
                 .money(-money)
                 .paymentMethod(paymentMethod)
+                .build();
+        WalletTransaction walletTransactionInDb = walletTransactionRepository.save(walletTransaction);
+        return walletTransactionInDb;
+    }
+
+    @Override
+    public WalletTransaction createTransactionSystemPosting(float fee, float money, String paymentMethod, String description, String transactionType) throws OptionalNotFoundException {
+        WalletTransaction walletTransaction = WalletTransaction.builder()
+                .fee(fee)
+                .money(money)
+                .description(description)
+                .paymentMethod(paymentMethod)
+                .transactionType(transactionType)
                 .build();
         WalletTransaction walletTransactionInDb = walletTransactionRepository.save(walletTransaction);
         return walletTransactionInDb;

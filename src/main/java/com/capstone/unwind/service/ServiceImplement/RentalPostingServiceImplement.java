@@ -320,8 +320,8 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         RentalPosting rentalPostingInDb = rentalPostingRepository.save(rentalPosting.get());
         Optional<Customer> customer = customerRepository.findById(rentalPostingInDb.getOwner().getId());
         if (!customer.isPresent()) throw new ErrMessageException("Error when refund money to customer but reject successfully");
-        float feeCustomer = 0;
-        float moneyCustomer = rentalPostingInDb.getRentalPackage().getPrice()-20000;
+        float feeCustomer = FeeConfig.fee_reject;
+        float moneyCustomer = rentalPostingInDb.getRentalPackage().getPrice()-feeCustomer;
         String paymentMethodCusomer = "WALLET";
         String descriptionCustomer = "Giao dịch hoàn tiền từ chối bài đăng";
         String transactionTypeCustomer = "RENTALPOSTING";

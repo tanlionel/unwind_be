@@ -249,11 +249,11 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         Optional<Customer> customer = customerRepository.findById(exchangePostingInDb.getOwner().getId());
         if (!customer.isPresent())
             throw new ErrMessageException("Error when refund money to customer but reject successfully");
-        float feeCustomer = 0;
-        float moneyCustomer = exchangePostingInDb.getExchangePackage().getPrice() - 20000;
+        float feeCustomer = FeeConfig.fee_reject;
+        float moneyCustomer = exchangePostingInDb.getExchangePackage().getPrice() - feeCustomer;
         String paymentMethodCustomer = "WALLET";
         String descriptionCustomer = "Giao dịch hoàn tiền từ chối bài đăng";
-        String transactionTypeCustomer = "EXCHANGEPOSTING";
+        String transactionTypeCustomer = "EXCHANGEREFUND";
         WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(customer.get().getId(), feeCustomer, moneyCustomer, paymentMethodCustomer, descriptionCustomer, transactionTypeCustomer);
 
         try{
