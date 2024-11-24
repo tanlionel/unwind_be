@@ -277,14 +277,18 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         rentalPostingUpdate.setNote(rentalPostingApprovalDto.getNote());
         rentalPostingUpdate.setIsVerify(true);
         RentalPosting rentalPostingInDb = rentalPostingRepository.save(rentalPostingUpdate);
-        TimeShareCompanyStaffDTO timeshareCompanyStaff = timeShareStaffService.getLoginStaff();
-        float fee = 0;
-        float money = FeeConfig.fee_approval;
-        String paymentMethod = "WALLET";
-        String description = "Giao dịch cộng tiền từ duyệt bài đăng cho thuê với mã " + rentalPostingInDb.getId();
-        String transactionType = "APPROVAL_RENTAL_POSTING";
+        try{
+            TimeShareCompanyStaffDTO timeshareCompanyStaff = timeShareStaffService.getLoginStaff();
+            float fee = 0;
+            float money = FeeConfig.fee_approval;
+            String paymentMethod = "WALLET";
+            String description = "Giao dịch cộng tiền từ duyệt bài đăng cho thuê với mã " + rentalPostingInDb.getId();
+            String transactionType = "APPROVAL_RENTALPOSTING";
+            WalletTransaction walletTransactionDto = walletService.createTransactionTsCompany(fee,money,paymentMethod,description,transactionType,timeshareCompanyStaff.getTimeshareCompanyId());
 
-        WalletTransaction walletTransactionDto = walletService.createTransactionTsCompany(fee,money,paymentMethod,description,transactionType,timeshareCompanyStaff.getTimeshareCompanyId());
+        }catch (Exception e){
+            throw new ErrMessageException("Fail to create transaction wallet ts company");
+        }
 
 
         try {
@@ -316,12 +320,12 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         RentalPosting rentalPostingInDb = rentalPostingRepository.save(rentalPosting.get());
         Optional<Customer> customer = customerRepository.findById(rentalPostingInDb.getOwner().getId());
         if (!customer.isPresent()) throw new ErrMessageException("Error when refund money to customer but reject successfully");
-        float fee = 0;
-        float money = rentalPostingInDb.getRentalPackage().getPrice()-20000;
-        String paymentMethod = "WALLET";
-        String description = "Giao dịch hoàn tiền từ chối bài đăng";
-        String transactionType = "RENTALPOSTING";
-        WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(customer.get().getId(),fee,money,paymentMethod,description,transactionType);
+        float feeCustomer = 0;
+        float moneyCustomer = rentalPostingInDb.getRentalPackage().getPrice()-20000;
+        String paymentMethodCusomer = "WALLET";
+        String descriptionCustomer = "Giao dịch hoàn tiền từ chối bài đăng";
+        String transactionTypeCustomer = "RENTALPOSTING";
+        WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(customer.get().getId(),feeCustomer,moneyCustomer,paymentMethodCusomer,descriptionCustomer,transactionTypeCustomer);
         try {
             EmailRequestDto emailRequestDto = new EmailRequestDto();
             emailRequestDto.setName(rentalPostingInDb.getOwner().getFullName());
@@ -338,6 +342,18 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         } catch (Exception e) {
             throw new ErrMessageException("Failed to send email notification");
         }
+        try{
+            TimeShareCompanyStaffDTO timeshareCompanyStaff = timeShareStaffService.getLoginStaff();
+            float fee = 0;
+            float money = FeeConfig.fee_approval;
+            String paymentMethod = "WALLET";
+            String description = "Giao dịch cộng tiền từ từ chối bài đăng cho thuê với mã " + rentalPostingInDb.getId();
+            String transactionType = "REJECT_RENTALPOSTING";
+            WalletTransaction walletTransactionDto = walletService.createTransactionTsCompany(fee,money,paymentMethod,description,transactionType,timeshareCompanyStaff.getTimeshareCompanyId());
+        }catch (Exception e){
+            throw new ErrMessageException("Fail to create transaction wallet ts company");
+        }
+
         return rentalPostingApprovalMapper.toDto(rentalPostingInDb);
     }
 
