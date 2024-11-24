@@ -1,5 +1,6 @@
 package com.capstone.unwind.service.ServiceImplement;
 
+import com.capstone.unwind.config.FeeConfig;
 import com.capstone.unwind.entity.*;
 import com.capstone.unwind.enums.*;
 import com.capstone.unwind.exception.ErrMessageException;
@@ -204,6 +205,17 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         exchangePostingUpdate.setIsVerify(true);
         ExchangePosting exchangePostingInDb = exchangePostingRepository.save(exchangePostingUpdate);
 
+        try{
+            TimeShareCompanyStaffDTO timeshareCompanyStaff = timeShareStaffService.getLoginStaff();
+            float fee = 0;
+            float money = FeeConfig.fee_approval;
+            String paymentMethod = "WALLET";
+            String description = "Giao dịch cộng tiền từ duyệt bài đăng cho trao đổi với mã " + exchangePostingInDb.getId();
+            String transactionType = "APPROVAL_EXCHANGEPOSTING";
+            WalletTransaction walletTransactionDto = walletService.createTransactionTsCompany(fee,money,paymentMethod,description,transactionType,timeshareCompanyStaff.getTimeshareCompanyId());
+        }catch (Exception e){
+            throw new ErrMessageException("Fail to create transaction wallet ts company");
+        }
         try {
             EmailRequestDto emailRequestDto = new EmailRequestDto();
             emailRequestDto.setName(exchangePostingInDb.getOwner().getFullName());
@@ -237,12 +249,24 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         Optional<Customer> customer = customerRepository.findById(exchangePostingInDb.getOwner().getId());
         if (!customer.isPresent())
             throw new ErrMessageException("Error when refund money to customer but reject successfully");
-        float fee = 0;
-        float money = exchangePostingInDb.getExchangePackage().getPrice() - 20000;
-        String paymentMethod = "WALLET";
-        String description = "Giao dịch hoàn tiền từ chối bài đăng";
-        String transactionType = "EXCHANGEPOSTING";
-        WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(customer.get().getId(), fee, money, paymentMethod, description, transactionType);
+        float feeCustomer = 0;
+        float moneyCustomer = exchangePostingInDb.getExchangePackage().getPrice() - 20000;
+        String paymentMethodCustomer = "WALLET";
+        String descriptionCustomer = "Giao dịch hoàn tiền từ chối bài đăng";
+        String transactionTypeCustomer = "EXCHANGEPOSTING";
+        WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(customer.get().getId(), feeCustomer, moneyCustomer, paymentMethodCustomer, descriptionCustomer, transactionTypeCustomer);
+
+        try{
+            TimeShareCompanyStaffDTO timeshareCompanyStaff = timeShareStaffService.getLoginStaff();
+            float fee = 0;
+            float money = FeeConfig.fee_approval;
+            String paymentMethod = "WALLET";
+            String description = "Giao dịch cộng tiền từ từ chối bài đăng cho trao đổi với mã " + exchangePostingInDb.getId();
+            String transactionType = "REJECT_EXCHANGEPOSTING";
+            WalletTransaction walletTransactionDto = walletService.createTransactionTsCompany(fee,money,paymentMethod,description,transactionType,timeshareCompanyStaff.getTimeshareCompanyId());
+        }catch (Exception e){
+            throw new ErrMessageException("Fail to create transaction wallet ts company");
+        }
         try {
             EmailRequestDto emailRequestDto = new EmailRequestDto();
             emailRequestDto.setName(exchangePostingInDb.getOwner().getFullName());
@@ -417,7 +441,17 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 .isActive(true)
                 .build();
         exchangeBookingRepository.save(ownerBooking);
-
+        try{
+            TimeShareCompanyStaffDTO timeshareCompanyStaff = timeShareStaffService.getLoginStaff();
+            float fee = 0;
+            float money = FeeConfig.fee_approval;
+            String paymentMethod = "WALLET";
+            String description = "Giao dịch cộng tiền từ duyệt yêu cầu trao đổi với mã " + exchangeRequestInDb.getId();
+            String transactionType = "APPROVAL_REQUESTEXCHANGE";
+            WalletTransaction walletTransactionDto = walletService.createTransactionTsCompany(fee,money,paymentMethod,description,transactionType,timeshareCompanyStaff.getTimeshareCompanyId());
+        }catch (Exception e){
+            throw new ErrMessageException("Fail to create transaction wallet ts company");
+        }
         try {
             EmailRequestDto emailRequestDto = new EmailRequestDto();
             emailRequestDto.setName(exchangeRequestInDb.getOwner().getFullName());
@@ -450,6 +484,17 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         exchangeRequest.get().setNote(note);
         exchangeRequest.get().setStatus(String.valueOf(ExchangeRequestEnum.Reject));
         ExchangeRequest exchangePostingInDb = exchangeRequestRepository.save(exchangeRequest.get());
+        try{
+            TimeShareCompanyStaffDTO timeshareCompanyStaff = timeShareStaffService.getLoginStaff();
+            float fee = 0;
+            float money = FeeConfig.fee_approval;
+            String paymentMethod = "WALLET";
+            String description = "Giao dịch cộng tiền từ từ chối yêu cầu trao đổi với mã " + exchangePostingInDb.getId();
+            String transactionType = "REJECT_REQUESTEXCHANGE";
+            WalletTransaction walletTransactionDto = walletService.createTransactionTsCompany(fee,money,paymentMethod,description,transactionType,timeshareCompanyStaff.getTimeshareCompanyId());
+        }catch (Exception e){
+            throw new ErrMessageException("Fail to create transaction wallet ts company");
+        }
         try {
             EmailRequestDto emailRequestDto = new EmailRequestDto();
             emailRequestDto.setSubject(REJECT_EXCHANGE_REQUEST_SUBJECT);
