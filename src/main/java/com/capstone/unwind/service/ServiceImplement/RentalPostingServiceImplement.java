@@ -311,7 +311,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     }
 
     @Override
-    public RentalPostingApprovalResponseDto rejectPostingTimeshareStaff(Integer postingId, String note) throws OptionalNotFoundException, ErrMessageException {
+    public RentalPostingApprovalResponseDto     rejectPostingTimeshareStaff(Integer postingId, String note) throws OptionalNotFoundException, ErrMessageException {
         Optional<RentalPosting> rentalPosting = rentalPostingRepository.findById(postingId);
         if (!rentalPosting.isPresent()) throw new OptionalNotFoundException("Not found posting");
         if (!rentalPosting.get().getStatus().equals(String.valueOf(RentalPostingEnum.PendingApproval))) throw new ErrMessageException("Status must be pending approval");
