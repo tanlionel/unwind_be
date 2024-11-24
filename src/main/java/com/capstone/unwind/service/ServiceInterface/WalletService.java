@@ -19,6 +19,8 @@ public interface WalletService {
     WalletRefereshDto getLoginCustomerWalletBalance() throws OptionalNotFoundException;
 
     WalletTransaction createTransactionVNPAY(float fee, float money, String paymentMethod) throws OptionalNotFoundException;
+    WalletTransaction createTransactionSystemPosting(float fee, float money, String paymentMethod,String description,String transactionType) throws OptionalNotFoundException;
+
 
     WalletTransaction createTransactionWallet(float fee, float money, String paymentMethod);
 

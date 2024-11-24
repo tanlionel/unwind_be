@@ -160,6 +160,19 @@ public class WalletServiceImplement implements WalletService {
     }
 
     @Override
+    public WalletTransaction createTransactionSystemPosting(float fee, float money, String paymentMethod, String description, String transactionType) throws OptionalNotFoundException {
+        WalletTransaction walletTransaction = WalletTransaction.builder()
+                .fee(fee)
+                .money(money)
+                .description(description)
+                .paymentMethod(paymentMethod)
+                .transactionType(transactionType)
+                .build();
+        WalletTransaction walletTransactionInDb = walletTransactionRepository.save(walletTransaction);
+        return walletTransactionInDb;
+    }
+
+    @Override
     public WalletTransaction createTransactionWallet(float fee, float money, String paymentMethod) {
         WalletTransaction walletTransaction = WalletTransaction.builder()
                 .fee(fee)
