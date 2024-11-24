@@ -12,6 +12,7 @@ public class EmailMessageConfig {
     public static final String REJECT_EXCHANGE_REQUEST_SUBJECT = "Yêu cầu trao đổi của bạn bị từ chối";
     public static final String REJECT_RENTAL_POSTING_SUBJECT = "Bài đăng cho thuê của bạn bị từ chối";
     public static final String REJECT_RENTAL_BOOKING_SUBJECT = "Bài đăng cho thuê của bạn bị hủy booking";
+    public static final String FORM_CONTACT_RENTAL_PACKAGE_01_SUBJECT = "Bài đăng cho thuê gói cơ bản của bạn vừa được yêu cầu thuê";
     public static final String REJECT_RENTAL_BOOKING_CONTENT =
             "Rất tiếc,Bài đăng cho thuê của bạn đã bị hủy booking. "
                     + "Nếu bạn có bất kỳ câu hỏi nào hoặc cần hỗ trợ, vui lòng liên hệ với chúng tôi. "
@@ -57,4 +58,6 @@ public class EmailMessageConfig {
                     + "Vui lòng kiểm tra lại các thông tin và yêu cầu bài đăng, sau đó thử gửi lại. "
                     + "Nếu bạn có bất kỳ câu hỏi nào hoặc cần hỗ trợ, vui lòng liên hệ với chúng tôi. "
                     + "Chúng tôi sẽ rất vui được giúp đỡ bạn. Cảm ơn bạn đã sử dụng nền tảng của chúng tôi!";
+    public static final String FORM_CONTACT_RENTAL_PACKAGE_01_CONTENT =
+           "Bạn vừa có yêu cầu thuê phòng từ unwind với nội dung: ";
 }
