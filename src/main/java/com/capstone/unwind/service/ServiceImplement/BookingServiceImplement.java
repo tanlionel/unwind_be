@@ -1,11 +1,13 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
+import com.capstone.unwind.enums.EmailEnum;
 import com.capstone.unwind.enums.RentalBookingEnum;
 import com.capstone.unwind.enums.RentalPostingEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.BookingDTO.*;
+import com.capstone.unwind.model.EmailRequestDTO.EmailRequestDto;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
 import com.capstone.unwind.repository.ExchangeBookingRepository;
 import com.capstone.unwind.repository.MergedBookingRepository;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
+import static com.capstone.unwind.config.EmailMessageConfig.*;
 import static org.springframework.data.domain.Sort.sort;
 
 @Service
@@ -49,6 +52,10 @@ public class BookingServiceImplement implements BookingService {
     private final ExchangeBookingDetailMapper exchangeBookingDetailMapper;
     @Autowired
     private final WalletService walletService;
+    @Autowired
+    private final RentalBookingMapper rentalBookingMapper;
+    @Autowired
+    private final SendinblueService sendinblueService;
 
     @Override
     public RentalBookingDetailDto createBookingRentalPosting(Integer postingId, RentalBookingRequestDto rentalBookingRequestDto) throws OptionalNotFoundException, ErrMessageException {
@@ -169,7 +176,7 @@ public class BookingServiceImplement implements BookingService {
         return exchangeBookingDetailDto;
     }
     @Override
-    public RentalBookingDetailDto cancelBooking(Integer bookingId) throws OptionalNotFoundException, ErrMessageException {
+    public RentalBookingDto cancelBooking(Integer bookingId) throws OptionalNotFoundException, ErrMessageException {
         RentalBooking booking = rentalBookingRepository.findById(bookingId)
                 .orElseThrow(() -> new OptionalNotFoundException("Booking does not exist"));
 
@@ -179,16 +186,17 @@ public class BookingServiceImplement implements BookingService {
         if (cancelledDate.isAfter(checkinDate.minusDays(policy.getDurationBefore()))) {
             throw new ErrMessageException("Cannot cancel because refund deadline has passed");
         }
-
         Float totalPrice = booking.getTotalPrice();
         Float refundRate = policy.getRefundRate() / 100.0f;
-
-        Float refundToCustomer = (totalPrice * refundRate) - booking.getServiceFee();
-        Float refundToOwner = (totalPrice - refundToCustomer) - booking.getServiceFee();
-
+        Float refundToCustomer = totalPrice * refundRate;
+        Float refundToOwner = totalPrice - refundToCustomer;
+        Float fee = totalPrice - refundToCustomer - refundToOwner;
+        if (fee > 0) {
+            fee = -fee;
+        }
         refundToCustomer = Math.max(refundToCustomer, 0);
         refundToOwner = Math.max(refundToOwner, 0);
-        walletService.refundMoneyToCustomer(booking.getRenter().getId(), booking.getServiceFee(), refundToCustomer,
+        walletService.refundMoneyToCustomer(booking.getRenter().getId(), fee, refundToCustomer,
                 "WALLET", "Hoàn tiền khi hủy đặt phòng ", "RENTALREFUND");
         walletService.refundMoneyToCustomer(booking.getRentalPosting().getOwner().getId(), booking.getServiceFee(), refundToOwner,
                 "WALLET", "Hoàn tiền khi hủy đặt phòng", "RENTALREFUND");
@@ -200,7 +208,19 @@ public class BookingServiceImplement implements BookingService {
         booking.setStatus("Cancelled");
         booking.setIsActive(false);
         RentalBooking rentalBookingInDb = rentalBookingRepository.save(booking);
-        return rentalBookingDetailMapper.toDto(rentalBookingInDb);
+        try {
+            EmailRequestDto emailRequestDto = new EmailRequestDto();
+            emailRequestDto.setSubject(REJECT_RENTAL_BOOKING_SUBJECT);
+            emailRequestDto.setContent(REJECT_RENTAL_BOOKING_CONTENT);
+            sendinblueService.sendEmailWithTemplate(
+                    booking.getRentalPosting().getOwner().getUser().getEmail(),
+                    EmailEnum.BASIC_MAIL,
+                    emailRequestDto
+            );
+        } catch (Exception e) {
+            throw new ErrMessageException("Failed to send email notification");
+        }
+        return rentalBookingMapper.toDto(rentalBookingInDb);
     }
 
 }

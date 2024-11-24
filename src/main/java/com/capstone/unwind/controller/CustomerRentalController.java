@@ -5,6 +5,7 @@ import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.BookingDTO.ExchangeBookingDetailDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingDetailDto;
+import com.capstone.unwind.model.BookingDTO.RentalBookingDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingRequestDto;
 import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
 import com.capstone.unwind.model.PostingDTO.PostingResponseDTO;
@@ -82,8 +83,8 @@ public class CustomerRentalController {
         return mergedBookingPage;
     }
     @PostMapping("rental/booking/cancel/{bookingId}")
-    public ResponseEntity<RentalBookingDetailDto> cancelBooking(@PathVariable Integer bookingId) throws ErrMessageException, OptionalNotFoundException {
-            RentalBookingDetailDto rentalBookingDetailDto = bookingService.cancelBooking(bookingId);
+    public ResponseEntity<RentalBookingDto> cancelBooking(@PathVariable Integer bookingId) throws ErrMessageException, OptionalNotFoundException {
+        RentalBookingDto rentalBookingDetailDto = bookingService.cancelBooking(bookingId);
             return ResponseEntity.ok(rentalBookingDetailDto);
     }
 }
