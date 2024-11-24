@@ -34,6 +34,9 @@ public interface WalletTransactionRepository extends JpaRepository<WalletTransac
                                             @Param("startDate") LocalDateTime startDate);
     @Query("SELECT COUNT(r) FROM WalletTransaction r WHERE r.transactionType = 'MEMBERSHIP'")
     Long getTotalMEMBERSGIP();
+    Page<WalletTransaction> findAll(Pageable pageable);
+    Page<WalletTransaction> findAllByTransactionType(String walletTransaction, Pageable pageable);
+
 
 
 }

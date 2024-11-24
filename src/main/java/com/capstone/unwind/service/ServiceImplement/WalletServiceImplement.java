@@ -1,6 +1,7 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
+import com.capstone.unwind.enums.WalletTransactionEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
@@ -78,6 +79,17 @@ public class WalletServiceImplement implements WalletService {
         Pageable pageable = PageRequest.of(pageNo,pageSize, Sort.by("createdAt").descending());
         Page<WalletTransaction> walletTransactionsPage = walletTransactionRepository.findAllMoneyReceived(timeshareCompany.getWallet().getId(),pageable);
         Page<WalletTransactionDto> walletTransactionDtoPage = walletTransactionsPage.map(walletTransactionMapper::toDto);
+        return walletTransactionDtoPage;
+    }
+
+    @Override
+    public Page<WalletTransactionDto> getPaginationTransactionAdmin(int page, int size, WalletTransactionEnum walletTransactionEnum) {
+        Pageable pageable = PageRequest.of(page,size,Sort.by("createdAt").descending());
+        Page<WalletTransaction> walletTransactions = null;
+        if (walletTransactionEnum!=null){
+            walletTransactions = walletTransactionRepository.findAllByTransactionType(String.valueOf(walletTransactionEnum),pageable);
+        }else walletTransactions = walletTransactionRepository.findAll(pageable);
+        Page<WalletTransactionDto> walletTransactionDtoPage = walletTransactions.map(walletTransactionMapper::toDto);
         return walletTransactionDtoPage;
     }
 

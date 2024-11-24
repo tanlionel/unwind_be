@@ -1,6 +1,7 @@
 package com.capstone.unwind.controller;
 
 import com.capstone.unwind.entity.WalletTransaction;
+import com.capstone.unwind.enums.WalletTransactionEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.WalletDTO.MembershipResponseDto;
@@ -105,6 +106,14 @@ public class WalletController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) throws OptionalNotFoundException {
         Page<WalletTransactionDto> walletDtoPage = walletService.getTsCompanyMoneyReceivedTransactions(page,size);
+        return ResponseEntity.ok(walletDtoPage);
+    }
+    @GetMapping("/admin/wallet-transaction")
+    private ResponseEntity<Page<WalletTransactionDto>> getPaginationTransactionAdmin(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) WalletTransactionEnum walletTransactionEnum) {
+        Page<WalletTransactionDto> walletDtoPage = walletService.getPaginationTransactionAdmin(page,size,walletTransactionEnum);
         return ResponseEntity.ok(walletDtoPage);
     }
 

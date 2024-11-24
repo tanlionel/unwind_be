@@ -253,7 +253,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         float moneyCustomer = exchangePostingInDb.getExchangePackage().getPrice() - 20000;
         String paymentMethodCustomer = "WALLET";
         String descriptionCustomer = "Giao dịch hoàn tiền từ chối bài đăng";
-        String transactionTypeCustomer = "EXCHANGEPOSTING";
+        String transactionTypeCustomer = "EXCHANGEREFUND";
         WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(customer.get().getId(), feeCustomer, moneyCustomer, paymentMethodCustomer, descriptionCustomer, transactionTypeCustomer);
 
         try{

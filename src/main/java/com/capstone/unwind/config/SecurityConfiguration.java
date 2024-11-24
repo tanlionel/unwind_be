@@ -44,7 +44,7 @@ public class SecurityConfiguration {
                                 .requestMatchers("/api/customer/room/**")
                                 .hasAnyAuthority("CUSTOMER", "TIMESHARECOMPANYSTAFF")
                                 .requestMatchers("/api/wallet/**")
-                                .hasAnyAuthority("CUSTOMER", "TIMESHARECOMPANY")
+                                .hasAnyAuthority("CUSTOMER", "TIMESHARECOMPANY","ADMIN")
                                 .requestMatchers("api/customer/**")
                                 .hasAuthority("CUSTOMER")
                                 .requestMatchers("api/timeshare-company/**")

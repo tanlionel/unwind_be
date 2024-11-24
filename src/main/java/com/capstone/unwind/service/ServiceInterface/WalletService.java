@@ -2,6 +2,7 @@ package com.capstone.unwind.service.ServiceInterface;
 
 import com.capstone.unwind.entity.Wallet;
 import com.capstone.unwind.entity.WalletTransaction;
+import com.capstone.unwind.enums.WalletTransactionEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.WalletDTO.WalletDto;
@@ -40,6 +41,8 @@ public interface WalletService {
     WalletTransaction createTransactionTsCompany(float fee, float money, String paymentMethod, String description, String transactionType, Integer tsId) throws OptionalNotFoundException;
 
     Page<WalletTransactionDto> getTsCompanyMoneyReceivedTransactions(Integer pageNo, Integer pageSize) throws OptionalNotFoundException;
+
+    Page<WalletTransactionDto> getPaginationTransactionAdmin(int page, int size, WalletTransactionEnum walletTransactionEnum);
 }
 
 
