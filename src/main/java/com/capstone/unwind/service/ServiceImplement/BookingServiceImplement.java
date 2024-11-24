@@ -1,11 +1,13 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
+import com.capstone.unwind.enums.EmailEnum;
 import com.capstone.unwind.enums.RentalBookingEnum;
 import com.capstone.unwind.enums.RentalPostingEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.BookingDTO.*;
+import com.capstone.unwind.model.EmailRequestDTO.EmailRequestDto;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
 import com.capstone.unwind.repository.ExchangeBookingRepository;
 import com.capstone.unwind.repository.MergedBookingRepository;
@@ -14,6 +16,8 @@ import com.capstone.unwind.repository.RentalPostingRepository;
 import com.capstone.unwind.service.ServiceInterface.BookingService;
 import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
+import com.capstone.unwind.service.ServiceInterface.WalletService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
+import static com.capstone.unwind.config.EmailMessageConfig.*;
 import static org.springframework.data.domain.Sort.sort;
 
 @Service
@@ -45,6 +50,12 @@ public class BookingServiceImplement implements BookingService {
     private final ExchangeBookingRepository exchangeBookingRepository;
     @Autowired
     private final ExchangeBookingDetailMapper exchangeBookingDetailMapper;
+    @Autowired
+    private final WalletService walletService;
+    @Autowired
+    private final RentalBookingMapper rentalBookingMapper;
+    @Autowired
+    private final SendinblueService sendinblueService;
 
     @Override
     public RentalBookingDetailDto createBookingRentalPosting(Integer postingId, RentalBookingRequestDto rentalBookingRequestDto) throws OptionalNotFoundException, ErrMessageException {
@@ -163,6 +174,57 @@ public class BookingServiceImplement implements BookingService {
         }
         ExchangeBookingDetailDto exchangeBookingDetailDto = exchangeBookingDetailMapper.toDto(exchangeBookingRepository.save(exchangeBooking));
         return exchangeBookingDetailDto;
+    }
+    @Override
+    public RentalBookingDto cancelBooking(Integer bookingId) throws OptionalNotFoundException, ErrMessageException {
+        RentalBooking booking = rentalBookingRepository.findById(bookingId)
+                .orElseThrow(() -> new OptionalNotFoundException("Booking does not exist"));
+
+        LocalDate cancelledDate = LocalDate.now();
+        CancellationPolicy policy = booking.getRentalPosting().getCancellationType();
+        LocalDate checkinDate = booking.getCheckinDate();
+        if (cancelledDate.isAfter(checkinDate.minusDays(policy.getDurationBefore()))) {
+            throw new ErrMessageException("Cannot cancel because refund deadline has passed");
+        }
+        Float totalPrice = booking.getTotalPrice();
+        Float refundRate = policy.getRefundRate() / 100.0f;
+        Float refundToCustomer = totalPrice * refundRate;
+        Float refundToOwner = totalPrice - refundToCustomer;
+        Float feeToOwner = refundToCustomer;
+        if (feeToOwner > 0) {
+            feeToOwner = -feeToOwner;
+        }
+        Float feeToCustomer = refundToOwner;
+        if (feeToOwner > 0) {
+            feeToCustomer= -feeToCustomer;
+        }
+        refundToCustomer = Math.max(refundToCustomer, 0);
+        refundToOwner = Math.max(refundToOwner, 0);
+        walletService.refundMoneyToCustomer(booking.getRenter().getId(), feeToCustomer, refundToCustomer,
+                "WALLET", "Hoàn tiền khi hủy đặt phòng ", "RENTALREFUND");
+        walletService.refundMoneyToCustomer(booking.getRentalPosting().getOwner().getId(), feeToOwner, refundToOwner,
+                "WALLET", "Hoàn tiền khi hủy đặt phòng", "RENTALREFUND");
+
+        RentalPosting posting = booking.getRentalPosting();
+        posting.setStatus("Processing");
+        rentalPostingRepository.save(posting);
+
+        booking.setStatus("Cancelled");
+        booking.setIsActive(false);
+        RentalBooking rentalBookingInDb = rentalBookingRepository.save(booking);
+        try {
+            EmailRequestDto emailRequestDto = new EmailRequestDto();
+            emailRequestDto.setSubject(REJECT_RENTAL_BOOKING_SUBJECT);
+            emailRequestDto.setContent(REJECT_RENTAL_BOOKING_CONTENT);
+            sendinblueService.sendEmailWithTemplate(
+                    booking.getRentalPosting().getOwner().getUser().getEmail(),
+                    EmailEnum.BASIC_MAIL,
+                    emailRequestDto
+            );
+        } catch (Exception e) {
+            throw new ErrMessageException("Failed to send email notification");
+        }
+        return rentalBookingMapper.toDto(rentalBookingInDb);
     }
 
 }

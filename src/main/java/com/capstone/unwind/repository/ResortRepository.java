@@ -24,4 +24,7 @@ public interface ResortRepository extends JpaRepository<Resort, Integer> {
     Float getAverageRatingByResortId(@Param("resortId") Integer resortId);
     @Query("SELECT COUNT(f) FROM Feedback f WHERE f.resort.id = :resortId AND f.isActive = true")
     Long countFeedbacksByResortId(@Param("resortId") Integer resortId);
+
+    @Query("SELECT COUNT(r) FROM Resort r")
+    Long getTotalResorts();
 }

@@ -22,7 +22,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,6 +77,8 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
     private final ExchangeRequestPostingListMapper exchangeRequestPostingListMapper;
     @Autowired
     private final SendinblueService sendinblueService;
+    @Autowired
+    private final ExchangeBookingRepository exchangeBookingRepository;
 
     @Override
     public ExchangePostingResponseDto createExchangePosting(ExchangePostingRequestDto exchangePostingRequestDto) throws ErrMessageException, OptionalNotFoundException {
@@ -177,22 +181,28 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         if (!exchangePosting.isPresent()) throw new OptionalNotFoundException("Not found exchange posting");
         if (!exchangePosting.get().getStatus().equals(String.valueOf(ExchangePostingEnum.PendingApproval)))
             throw new ErrMessageException("Status must be pending approval");
+
+        // Kiểm tra và lấy UnitType nếu cần
         Optional<UnitType> unitType = null;
         if (exchangePostingApprovalDto.getUnitTypeId() != 0) {
             unitType = unitTypeRepository.findById(exchangePostingApprovalDto.getUnitTypeId());
             if (!unitType.isPresent()) throw new OptionalNotFoundException("Not found unit type ");
         }
+
         ExchangePosting exchangePostingUpdate = exchangePosting.get();
         if (exchangePostingApprovalDto.getUnitTypeId() != 0) {
             RoomInfo roomInfo = exchangePostingUpdate.getRoomInfo();
             roomInfo.setUnitType(unitType.get());
-            RoomInfo roomInfoAfterSave = roomInfoRepository.save(roomInfo);
+            roomInfoRepository.save(roomInfo);
         }
-        if (exchangePostingUpdate.getExchangePackage().getId() == 2)
+
+        if (exchangePostingUpdate.getExchangePackage().getId() == 2) {
             exchangePostingUpdate.setStatus(String.valueOf(ExchangePostingEnum.Processing));
+        }
         exchangePostingUpdate.setNote(exchangePostingApprovalDto.getNote());
         exchangePostingUpdate.setIsVerify(true);
         ExchangePosting exchangePostingInDb = exchangePostingRepository.save(exchangePostingUpdate);
+
         try {
             EmailRequestDto emailRequestDto = new EmailRequestDto();
             emailRequestDto.setName(exchangePostingInDb.getOwner().getFullName());
@@ -209,8 +219,10 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         } catch (Exception e) {
             throw new ErrMessageException("Failed to send email notification");
         }
+
         return exchangePostingApprovalMapper.toDto(exchangePostingInDb);
     }
+
 
     @Override
     public ExchangePostingApprovalResponseDto rejectPostingTimeshareStaff(Integer postingId, String note) throws OptionalNotFoundException, ErrMessageException {
@@ -372,15 +384,50 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         exchangePostingUpdate.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
         exchangePostingUpdate.setNote(exchangePostingApprovalDto.getNote());
         ExchangeRequest exchangeRequestInDb = exchangeRequestRepository.save(exchangePostingUpdate);
+
+        ExchangeBooking requesterBooking =  ExchangeBooking.builder()
+                .isActive(true)
+                .checkoutDate(exchangeRequestInDb.getEndDate())
+                .checkinDate(exchangeRequestInDb.getStartDate())
+                .status(String.valueOf(ExchangeBookingEnum.Booked))
+                .exchangeRequest(exchangeRequestInDb)
+                .exchangePosting(exchangeRequestInDb.getExchangePosting())
+                .renter(exchangeRequestInDb.getOwner())
+                .roomInfo(exchangeRequestInDb.getRoomInfo())
+                .timeshare(exchangeRequestInDb.getTimeshare())
+                .build();
+        exchangeBookingRepository.save(requesterBooking);
+
+        ExchangeBooking ownerBooking = ExchangeBooking.builder()
+                .timeshare(exchangeRequestInDb.getExchangePosting().getTimeshare())
+                .roomInfo(exchangeRequestInDb.getExchangePosting().getRoomInfo())
+                .renter(exchangeRequestInDb.getExchangePosting().getOwner())
+                .exchangePosting(exchangeRequestInDb.getExchangePosting())
+                .exchangeRequest(exchangeRequestInDb)
+                .status(String.valueOf(ExchangeBookingEnum.Booked))
+                .checkoutDate(exchangeRequestInDb.getExchangePosting().getCheckoutDate())
+                .checkinDate(exchangeRequestInDb.getExchangePosting().getCheckinDate())
+                .isActive(true)
+                .build();
+        exchangeBookingRepository.save(ownerBooking);
+
         try {
             EmailRequestDto emailRequestDto = new EmailRequestDto();
-            emailRequestDto.setSubject(APPROVAL_EXCHANGE_REQUEST_SUBJECT);
-            emailRequestDto.setContent(APPROVAL_EXCHANGE_REQUEST_CONTENT);
-            sendinblueService.sendEmailWithTemplate(
-                    exchangeRequestInDb.getOwner().getUser().getEmail(),
-                    EmailEnum.BASIC_MAIL,
-                    emailRequestDto
+            emailRequestDto.setName(exchangeRequestInDb.getOwner().getFullName());
+            emailRequestDto.setSubject(APPROVAL_EXCHANGE_POSTING_SUBJECT);
+            emailRequestDto.setContent(APPROVAL_EXCHANGE_POSTING_CONTENT);
+            emailRequestDto.setMoney(exchangeRequestInDb.getExchangePosting().getExchangePackage().getPrice());
+            List<String> recipients = Arrays.asList(
+                    exchangeRequestInDb.getExchangePosting().getOwner().getUser().getEmail(),
+                    exchangeRequestInDb.getOwner().getUser().getEmail()
             );
+            for (String recipient : recipients) {
+                sendinblueService.sendEmailWithTemplate(
+                        recipient,
+                        EmailEnum.BASIC_MAIL,
+                        emailRequestDto
+                );
+            }
         } catch (Exception e) {
             throw new ErrMessageException("Failed to send email notification");
         }

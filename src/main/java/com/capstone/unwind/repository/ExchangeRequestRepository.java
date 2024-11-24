@@ -25,4 +25,5 @@ public interface ExchangeRequestRepository extends JpaRepository<ExchangeRequest
     Optional<ExchangeRequest> findByIdAndIsActive(@Param("requestId") Integer requestId);
 
 
+    Optional<ExchangeRequest> findByExchangePostingIdAndIsActive(Integer postingId,boolean isActive);
 }
