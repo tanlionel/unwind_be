@@ -108,7 +108,7 @@ public class WalletController {
         Page<WalletTransactionDto> walletDtoPage = walletService.getTsCompanyMoneyReceivedTransactions(page,size);
         return ResponseEntity.ok(walletDtoPage);
     }
-    @GetMapping("/admin/wallet-transaction")
+    @GetMapping("/system-staff/wallet-transaction")
     private ResponseEntity<Page<WalletTransactionDto>> getPaginationTransactionAdmin(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
