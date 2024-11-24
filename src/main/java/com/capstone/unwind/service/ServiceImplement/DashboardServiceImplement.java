@@ -12,6 +12,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class DashboardServiceImplement implements DashboardService {
@@ -31,6 +38,8 @@ public class DashboardServiceImplement implements DashboardService {
     private final UserService userService;
     @Autowired
     private final TimeshareCompanyRepository timeshareCompanyRepository;
+    @Autowired
+    private final WalletTransactionRepository walletTransactionRepository;
 
 
     @Override
@@ -51,6 +60,11 @@ public class DashboardServiceImplement implements DashboardService {
         return resortRepository.getTotalResorts(timeshareCompany.getId());
     }
     @Override
+    public Long getTotalCompany()  {
+
+        return timeshareCompanyRepository.getTotalCompany();
+    }
+    @Override
     public Long getTotalStaffByTsId() throws OptionalNotFoundException {
         User user = userService.getLoginUser();
         TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(user.getId());
@@ -69,22 +83,30 @@ public class DashboardServiceImplement implements DashboardService {
     }
     @Override
     public TotalPackageDto getTotalPackage() {
-        Long rentalPackage1 = rentalPostingRepository.getRentalPackage1();
-        Long rentalPackage2 = rentalPostingRepository.getRentalPackage2();
-        Long rentalPackage3 = rentalPostingRepository.getRentalPackage3();
-        Long rentalPackage4 = rentalPostingRepository.getRentalPackage4();
-
-        // Tính tổng các gói ExchangePackage
-        Long exchangePackage1 = exchangePostingRepository.getExchangePackage1();
-        Long exchangePackage2 = exchangePostingRepository.getExchangePackage2();
-
+        Long rentalPackage = rentalPostingRepository.getRentalPackage();
+        Long exchangePackage = exchangePostingRepository.getExchangePackage();
         return TotalPackageDto.builder()
-                .rentalPackage1(rentalPackage1 != null ? rentalPackage1 : 0L)
-                .rentalPackage2(rentalPackage2 != null ? rentalPackage2 : 0L)
-                .rentalPackage3(rentalPackage3 != null ? rentalPackage3 : 0L)
-                .rentalPackage4(rentalPackage4 != null ? rentalPackage4 : 0L)
-                .exchangePackage1(exchangePackage1 != null ? exchangePackage1 : 0L)
-                .exchangePackage2(exchangePackage2 != null ? exchangePackage2 : 0L)
+                .totalRentalPackage(rentalPackage != null ? rentalPackage : 0L)
+                .totalExchangePackage(exchangePackage != null ? exchangePackage : 0L)
                 .build();
+    }
+    @Override
+    public Map<String, Double> getMonthlyMoneyReceivedInLast12Months() {
+        User user = userService.getLoginUser();
+        TimeshareCompany timeshareCompany = timeshareCompanyRepository.findTimeshareCompanyByOwnerId(user.getId());
+
+        LocalDateTime startDate = LocalDate.now().minusMonths(12).atStartOfDay(ZoneId.systemDefault()).toLocalDateTime();
+
+        List<Object[]> results = walletTransactionRepository.findMonthlyMoneyReceived(timeshareCompany.getId(), startDate);
+
+        Map<String, Double> monthlyTotals = new LinkedHashMap<>();
+        for (Object[] result : results) {
+            Integer month = (Integer) result[0];
+            Integer year = (Integer) result[1];
+            Double totalMoney = (Double) result[2];
+            String key = String.format("%02d-%d", month, year);
+            monthlyTotals.put(key, totalMoney);
+        }
+        return monthlyTotals;
     }
 }

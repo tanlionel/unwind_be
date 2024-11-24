@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,4 +21,17 @@ public interface WalletTransactionRepository extends JpaRepository<WalletTransac
     Page<WalletTransaction> findAllMoneyReceived(@Param("walletId") Integer walletId, Pageable pageable);
     @Query("SELECT wt FROM WalletTransaction wt WHERE wt.wallet.id = :walletId  AND wt.money < 0")
     Page<WalletTransaction> findAllMoneySpent(@Param("walletId") Integer walletId, Pageable pageable);
+    @Query("SELECT FUNCTION('MONTH', wt.createdAt) AS month, " +
+            "       FUNCTION('YEAR', wt.createdAt) AS year, " +
+            "       SUM(wt.money) AS totalMoney " +
+            "FROM WalletTransaction wt " +
+            "WHERE wt.wallet.timeshareCompany.id = :timeshareCompanyId " +
+            "AND wt.money > 0 " +
+            "AND wt.createdAt >= :startDate " +
+            "GROUP BY FUNCTION('YEAR', wt.createdAt), FUNCTION('MONTH', wt.createdAt) " +
+            "ORDER BY FUNCTION('YEAR', wt.createdAt) ASC, FUNCTION('MONTH', wt.createdAt) ASC")
+    List<Object[]> findMonthlyMoneyReceived(@Param("timeshareCompanyId") Integer timeshareCompanyId,
+                                            @Param("startDate") LocalDateTime startDate);
+
+
 }

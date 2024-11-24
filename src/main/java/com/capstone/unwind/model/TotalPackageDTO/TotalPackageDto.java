@@ -9,10 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TotalPackageDto {
-    Long rentalPackage1;
-    Long rentalPackage2;
-    Long rentalPackage3;
-    Long rentalPackage4;
-    Long exchangePackage1;
-    Long exchangePackage2;
+    Long totalRentalPackage;
+    Long totalExchangePackage;
 }

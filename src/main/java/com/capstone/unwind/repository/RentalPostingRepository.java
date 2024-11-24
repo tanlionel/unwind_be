@@ -31,6 +31,17 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
             boolean isActive, String resortName, boolean roomInfoIsActive, String status, Pageable pageable);
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatus(boolean isActive,
           String resortName, String status, Pageable pageable);
+    @Query("SELECT r FROM RentalPosting r " +
+            "WHERE r.isActive = :isActive " +
+            "AND r.roomInfo.resort.resortName LIKE %:resortName% " +
+            "AND r.status = :status " +
+            "ORDER BY r.createdDate DESC")
+    Page<RentalPosting> findAllByFilters(
+            @Param("isActive") boolean isActive,
+            @Param("resortName") String resortName,
+            @Param("status") String status,
+            Pageable pageable);
+
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatusAndRentalPackage_Id(boolean isActive,
                                                                                                              String resortName, String status,Integer packageID, Pageable pageable);
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRentalPackage_Id(boolean isActive,
@@ -57,13 +68,7 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
     List<Integer> findAllNotValidYears(@Param("timeshareId") Integer timeshareId);
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRentalPackage_IdAndStatus(boolean b, String resortName, int i, Pageable pageable, String status);
 
-    @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.rentalPackage.id = 1")
-    Long getRentalPackage1();
-    @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.rentalPackage.id = 2")
-    Long getRentalPackage2();
-    @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.rentalPackage.id = 3")
-    Long getRentalPackage3();
-    @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.rentalPackage.id = 4")
-    Long getRentalPackage4();
+    @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.rentalPackage.isActive = true ")
+    Long getRentalPackage();
 
 }
