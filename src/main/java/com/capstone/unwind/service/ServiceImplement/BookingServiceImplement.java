@@ -8,11 +8,9 @@ import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.BookingDTO.*;
 import com.capstone.unwind.model.EmailRequestDTO.EmailRequestDto;
+import com.capstone.unwind.model.PostingDTO.RentalPackageBasicRequestDto;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
-import com.capstone.unwind.repository.ExchangeBookingRepository;
-import com.capstone.unwind.repository.MergedBookingRepository;
-import com.capstone.unwind.repository.RentalBookingRepository;
-import com.capstone.unwind.repository.RentalPostingRepository;
+import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.BookingService;
 import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
@@ -56,6 +54,8 @@ public class BookingServiceImplement implements BookingService {
     private final RentalBookingMapper rentalBookingMapper;
     @Autowired
     private final SendinblueService sendinblueService;
+    @Autowired
+    private final CustomerRepository customerRepository;
 
     @Override
     public RentalBookingDetailDto createBookingRentalPosting(Integer postingId, RentalBookingRequestDto rentalBookingRequestDto) throws OptionalNotFoundException, ErrMessageException {
@@ -93,7 +93,6 @@ public class BookingServiceImplement implements BookingService {
     @Override
     public RentalBookingDetailDto getRentalBookingDetailById(Integer bookingId) throws OptionalNotFoundException {
         RentalBooking rentalBooking = rentalBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
-        if (!rentalBooking.getIsActive()) throw new OptionalNotFoundException("Inactive booking");
         RentalBookingDetailDto rentalBookingDetailDto = rentalBookingDetailMapper.toDto(rentalBooking);
         rentalBookingDetailDto.setSource("rental");
         return rentalBookingDetailDto;
@@ -126,7 +125,6 @@ public class BookingServiceImplement implements BookingService {
     @Override
     public ExchangeBookingDetailDto getExchangeBookingDetailById(Integer bookingId) throws OptionalNotFoundException {
         ExchangeBooking exchangeBooking = exchangeBookingRepository.findById(bookingId).orElseThrow(()-> new OptionalNotFoundException("Not found booking"));
-        if (!exchangeBooking.getIsActive()) throw new OptionalNotFoundException("Inactive booking");
         ExchangeBookingDetailDto exchangeBookingDetailDto = exchangeBookingDetailMapper.toDto(exchangeBooking);
         exchangeBookingDetailDto.setSource("exchange");
         return exchangeBookingDetailDto;
@@ -225,6 +223,26 @@ public class BookingServiceImplement implements BookingService {
             throw new ErrMessageException("Failed to send email notification");
         }
         return rentalBookingMapper.toDto(rentalBookingInDb);
+    }
+
+    @Override
+    public Boolean createContactForm(Integer postingId, RentalPackageBasicRequestDto rentalPackageBasicRequestDto) throws ErrMessageException, OptionalNotFoundException {
+        RentalPosting rentalPosting = rentalPostingRepository.findByIdAndIsActive(postingId).orElseThrow(()->new OptionalNotFoundException("Not found posting"));
+        Customer customer = rentalPosting.getOwner();
+        try {
+            EmailRequestDto emailRequestDto = new EmailRequestDto();
+            emailRequestDto.setSubject(FORM_CONTACT_RENTAL_PACKAGE_01_SUBJECT);
+            String content = FORM_CONTACT_RENTAL_PACKAGE_01_CONTENT + "Tên người yêu cầu: "+rentalPackageBasicRequestDto.getFullName().trim()+" Liên lạc: " + rentalPackageBasicRequestDto.getPhone().trim()+" .Nội dung: "+rentalPackageBasicRequestDto.getNote().trim();
+            emailRequestDto.setContent(content);
+            sendinblueService.sendEmailWithTemplate(
+                    customer.getUser().getEmail(),
+                    EmailEnum.BASIC_MAIL,
+                    emailRequestDto
+            );
+        } catch (Exception e) {
+            throw new ErrMessageException("Failed to send email notification");
+        }
+        return true;
     }
 
 }

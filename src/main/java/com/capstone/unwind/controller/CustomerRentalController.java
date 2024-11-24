@@ -7,10 +7,7 @@ import com.capstone.unwind.model.BookingDTO.ExchangeBookingDetailDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingDetailDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingRequestDto;
-import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
-import com.capstone.unwind.model.PostingDTO.PostingResponseDTO;
-import com.capstone.unwind.model.PostingDTO.RentalPostingRequestDto;
-import com.capstone.unwind.model.PostingDTO.RentalPostingResponseDto;
+import com.capstone.unwind.model.PostingDTO.*;
 import com.capstone.unwind.service.ServiceInterface.BookingService;
 import com.capstone.unwind.service.ServiceInterface.RentalPostingService;
 import lombok.RequiredArgsConstructor;
@@ -86,5 +83,10 @@ public class CustomerRentalController {
     public ResponseEntity<RentalBookingDto> cancelBooking(@PathVariable Integer bookingId) throws ErrMessageException, OptionalNotFoundException {
         RentalBookingDto rentalBookingDetailDto = bookingService.cancelBooking(bookingId);
             return ResponseEntity.ok(rentalBookingDetailDto);
+    }
+    @PostMapping("rental/booking/form/{postingId}")
+    public ResponseEntity<Boolean> createContactForm(@PathVariable Integer postingId, @RequestBody RentalPackageBasicRequestDto rentalPackageBasicRequestDto) throws ErrMessageException, OptionalNotFoundException {
+        Boolean result = bookingService.createContactForm(postingId,rentalPackageBasicRequestDto);
+        return ResponseEntity.ok(result);
     }
 }
