@@ -233,8 +233,7 @@ public class BookingServiceImplement implements BookingService {
         posting.setStatus("Processing");
         rentalPostingRepository.save(posting);
 
-        booking.setStatus("Cancelled");
-        booking.setIsActive(false);
+        booking.setStatus(String.valueOf(RentalBookingEnum.Cancelled));
         RentalBooking rentalBookingInDb = rentalBookingRepository.save(booking);
         try {
             EmailRequestDto emailRequestDto = new EmailRequestDto();
