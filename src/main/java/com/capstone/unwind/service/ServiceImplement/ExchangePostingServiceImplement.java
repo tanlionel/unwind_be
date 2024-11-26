@@ -419,7 +419,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 .status(String.valueOf(ExchangeBookingEnum.Booked))
                 .exchangeRequest(exchangeRequestInDb)
                 .exchangePosting(exchangeRequestInDb.getExchangePosting())
-                .renter(exchangeRequestInDb.getOwner())
+                .renter(exchangeRequestInDb.getExchangePosting().getOwner())
                 .roomInfo(exchangeRequestInDb.getRoomInfo())
                 .timeshare(exchangeRequestInDb.getTimeshare())
                 .nights(days)
@@ -430,7 +430,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         ExchangeBooking ownerBooking = ExchangeBooking.builder()
                 .timeshare(exchangeRequestInDb.getExchangePosting().getTimeshare())
                 .roomInfo(exchangeRequestInDb.getExchangePosting().getRoomInfo())
-                .renter(exchangeRequestInDb.getExchangePosting().getOwner())
+                .renter(exchangeRequestInDb.getOwner())
                 .exchangePosting(exchangeRequestInDb.getExchangePosting())
                 .exchangeRequest(exchangeRequestInDb)
                 .status(String.valueOf(ExchangeBookingEnum.Booked))
@@ -528,6 +528,38 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         } else if (exchangePosting.getExchangePackage().getId() == 1) {
             exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
             exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Accepted));
+            Period period = Period.between(exchangeRequest.getEndDate(), exchangeRequest.getEndDate());
+            int days = period.getDays() + 1;
+
+            ExchangeBooking requesterBooking =  ExchangeBooking.builder()
+                    .isActive(true)
+                    .checkoutDate(exchangeRequest.getEndDate())
+                    .checkinDate(exchangeRequest.getStartDate())
+                    .status(String.valueOf(ExchangeBookingEnum.Booked))
+                    .exchangeRequest(exchangeRequest)
+                    .exchangePosting(exchangeRequest.getExchangePosting())
+                    .renter(exchangeRequest.getExchangePosting().getOwner())
+                    .roomInfo(exchangeRequest.getRoomInfo())
+                    .timeshare(exchangeRequest.getTimeshare())
+                    .nights(days)
+                    .isFeedback(false)
+                    .build();
+            exchangeBookingRepository.save(requesterBooking);
+
+            ExchangeBooking ownerBooking = ExchangeBooking.builder()
+                    .timeshare(exchangeRequest.getExchangePosting().getTimeshare())
+                    .roomInfo(exchangeRequest.getExchangePosting().getRoomInfo())
+                    .renter(exchangeRequest.getOwner())
+                    .exchangePosting(exchangeRequest.getExchangePosting())
+                    .exchangeRequest(exchangeRequest)
+                    .status(String.valueOf(ExchangeBookingEnum.Booked))
+                    .checkoutDate(exchangeRequest.getExchangePosting().getCheckoutDate())
+                    .checkinDate(exchangeRequest.getExchangePosting().getCheckinDate())
+                    .nights(exchangeRequest.getExchangePosting().getNights())
+                    .isFeedback(false)
+                    .isActive(true)
+                    .build();
+            exchangeBookingRepository.save(ownerBooking);
             try {
                 EmailRequestDto emailRequestDto = new EmailRequestDto();
                 emailRequestDto.setSubject(APPROVAL_EXCHANGE_REQUEST_SUBJECT);

@@ -80,10 +80,6 @@ public class TimeShareServiceImplement implements TimeShareService {
                 timeShareRequestDTO.getStartDate().isAfter(timeShareRequestDTO.getEndDate())) {
             throw new ErrMessageException("Start date must be less than end date and cannot be equal.");
         }
-        if (!timeShareRequestDTO.getStartDate().getMonth().equals(timeShareRequestDTO.getEndDate().getMonth())
-                || timeShareRequestDTO.getStartDate().getYear() != timeShareRequestDTO.getEndDate().getYear()) {
-            throw new ErrMessageException("Start date and end date must be in the same month.");
-        }
         if (timeShareRequestDTO.getStartDate().getYear() < timeShareRequestDTO.getStartYear() ||
                 timeShareRequestDTO.getEndDate().getYear() > timeShareRequestDTO.getEndYear()) {
             throw new ErrMessageException("The year of start date and end date must not exceed the defined start year and end year.");

@@ -42,6 +42,8 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
             @Param("status") String status,
             Pageable pageable);
 
+
+
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatusAndRentalPackage_Id(boolean isActive,
                                                                                                              String resortName, String status,Integer packageID, Pageable pageable);
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRentalPackage_Id(boolean isActive,
