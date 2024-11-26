@@ -409,7 +409,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         exchangePostingUpdate.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
         exchangePostingUpdate.setNote(exchangePostingApprovalDto.getNote());
         ExchangeRequest exchangeRequestInDb = exchangeRequestRepository.save(exchangePostingUpdate);
-        Period period = Period.between(exchangeRequestInDb.getEndDate(), exchangeRequestInDb.getEndDate());
+        Period period = Period.between(exchangeRequestInDb.getStartDate(), exchangeRequestInDb.getEndDate());
         int days = period.getDays() + 1;
 
         ExchangeBooking requesterBooking =  ExchangeBooking.builder()
@@ -528,7 +528,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         } else if (exchangePosting.getExchangePackage().getId() == 1) {
             exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
             exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Accepted));
-            Period period = Period.between(exchangeRequest.getEndDate(), exchangeRequest.getEndDate());
+            Period period = Period.between(exchangeRequest.getStartDate(), exchangeRequest.getEndDate());
             int days = period.getDays() + 1;
 
             ExchangeBooking requesterBooking =  ExchangeBooking.builder()
