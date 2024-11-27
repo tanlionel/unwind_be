@@ -100,6 +100,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         if (status != null) {
             spec = spec.and(RentalPostingSpecification.hasStatus(status));
         }
+        spec = spec.and(RentalPostingSpecification.hasPackageAndStatus());
         if (pageable.getSort().isUnsorted()) {
             pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdDate"));
         }
