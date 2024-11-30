@@ -53,6 +53,13 @@ public class CustomerRentalController {
         RentalPostingResponseDto rentalPostingResponseDto = rentalPostingService.createRentalPosting(rentalPostingRequestDto);
         return ResponseEntity.ok(rentalPostingResponseDto);
     }
+    @PutMapping("rental/{postingId}")
+    public ResponseEntity<RentalPostingResponseDto> updateRentalPosting(
+            @PathVariable Integer postingId,
+            @RequestBody  UpdateRentalPostingDto updateRentalPostingDto) throws ErrMessageException {
+        RentalPostingResponseDto response = rentalPostingService.updateRentalPosting(postingId, updateRentalPostingDto);
+        return ResponseEntity.ok(response);
+    }
     @PostMapping("rental/posting/confirmation/{postingId}")
     public ResponseEntity<RentalPostingResponseDto> actionConfirmationCustomerPosting(@PathVariable Integer postingId,@RequestParam(required = false) Float newPrice,@RequestParam(required = false) Boolean isAccepted) throws ErrMessageException, OptionalNotFoundException {
         RentalPostingResponseDto rentalPostingResponseDto =rentalPostingService.actionConfirmPosting(postingId,newPrice,isAccepted);

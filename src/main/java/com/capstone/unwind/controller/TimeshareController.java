@@ -30,6 +30,13 @@ public class TimeshareController {
         TimeShareResponseDTO timeShareResponse = timeShareService.createTimeShare(timeShareRequestDTO);
         return new ResponseEntity<>(timeShareResponse, HttpStatus.OK);
     }
+    @PutMapping("/{timeshareId}")
+    public ResponseEntity<UpdateTimeshareResponseDto> updateTimeshare(
+            @PathVariable Integer timeshareId,
+            @RequestBody  UpdateTimeshareDto updateTimeshareDto) throws OptionalNotFoundException {
+            UpdateTimeshareResponseDto response = timeShareService.updateTimeShare(timeshareId, updateTimeshareDto);
+            return ResponseEntity.ok(response);
+    }
     @GetMapping("/timeshares")
     public ResponseEntity<Page<ListTimeShareDTO>> getAllTimeShares(  @RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(defaultValue = "10") int size) throws OptionalNotFoundException{

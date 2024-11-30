@@ -2,13 +2,12 @@ package com.capstone.unwind.controller;
 
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.BookingDTO.ExchangeBookingDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingDetailDto;
 import com.capstone.unwind.model.BookingDTO.RentalBookingRequestDto;
+import com.capstone.unwind.model.BookingDTO.UpdateExchangeBookingDto;
 import com.capstone.unwind.model.ExchangePostingDTO.*;
-import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
-import com.capstone.unwind.model.PostingDTO.PostingResponseDTO;
-import com.capstone.unwind.model.PostingDTO.RentalPostingRequestDto;
-import com.capstone.unwind.model.PostingDTO.RentalPostingResponseDto;
+import com.capstone.unwind.model.PostingDTO.*;
 import com.capstone.unwind.service.ServiceInterface.BookingService;
 import com.capstone.unwind.service.ServiceInterface.ExchangePostingService;
 import com.capstone.unwind.service.ServiceInterface.RentalPostingService;
@@ -28,6 +27,9 @@ import org.springframework.web.bind.annotation.*;
 public class CustomerExchangeController {
     @Autowired
     ExchangePostingService exchangePostingService;
+    @Autowired
+    BookingService bookingService;
+
 
     @GetMapping("exchange/posting")
     public ResponseEntity<Page<PostingExchangeResponseDTO>> getAllActivePostings(
@@ -48,6 +50,14 @@ public class CustomerExchangeController {
         ExchangePostingResponseDto exchangePostingResponseDto = exchangePostingService.createExchangePosting(exchangePostingRequestDto);
         return ResponseEntity.ok(exchangePostingResponseDto);
     }
+    @PutMapping("exchange/{postingId}")
+    public ResponseEntity<ExchangePostingResponseDto> updateExchangePosting(
+            @PathVariable Integer postingId,
+            @RequestBody UpdateExchangePostingDto updateExchangePostingDto) throws ErrMessageException {
+        ExchangePostingResponseDto response = exchangePostingService.updateExchangePosting(postingId, updateExchangePostingDto);
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/deactivate/exchange/{postingId}")
     public ResponseEntity<PostingExchangeDetailResponseDTO> deActiveRentalPosting(
             @PathVariable Integer postingId) throws OptionalNotFoundException, ErrMessageException {
@@ -83,6 +93,15 @@ public class CustomerExchangeController {
     public ResponseEntity<ExchangeRequestBasicDto> approvalRequest(@PathVariable Integer requestId) throws ErrMessageException, OptionalNotFoundException {
         ExchangeRequestBasicDto exchangeRequestApprovalResponseDto = exchangePostingService.approvalRequestCustomer(requestId);
         return ResponseEntity.ok(exchangeRequestApprovalResponseDto);
+    }
+    @PutMapping("exchange/booking/primary-guest/{bookingId}")
+    public ResponseEntity<ExchangeBookingDto> updateExchangeBookingGuest(
+            @PathVariable Integer bookingId,
+            @RequestBody UpdateExchangeBookingDto updateExchangeBookingDto) throws ErrMessageException {
+
+            ExchangeBookingDto updatedBooking = bookingService.updateExchangeBookingGuest(bookingId, updateExchangeBookingDto);
+            return ResponseEntity.ok(updatedBooking);
+
     }
 
 }

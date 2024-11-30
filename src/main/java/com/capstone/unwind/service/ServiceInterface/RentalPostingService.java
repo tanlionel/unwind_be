@@ -28,4 +28,6 @@ public interface RentalPostingService {
     Page<PostingResponseDTO> getAllPostingsByResortId(Integer resortId, Pageable pageable);
     Page<PostingResponseTsStaffDTO> getAllPackagePostingSystemStaff(String resortName, Pageable pageable, String status, Integer packageId) throws OptionalNotFoundException;
     PostingDetailResponseDTO deActiveRentalPosting(Integer postingId) throws OptionalNotFoundException, ErrMessageException;
+    RentalPostingResponseDto updateRentalPosting(Integer postingId, UpdateRentalPostingDto updateRentalPostingDto)
+            throws  ErrMessageException;
 }

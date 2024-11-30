@@ -155,7 +155,7 @@ public class RoomServiceImplement implements RoomService {
         return responseDTO;
     }
     @Override
-    public UpdateRoomResponseDTO updateRoomAmenityByResortId(Integer roomId, UpdateTimeshareRequestDto timeShareRequestDTO)
+    public UpdateRoomResponseDTO updateRoomAmenityByRoomId(Integer roomId, UpdateTimeshareRequestDto timeShareRequestDTO)
             throws ErrMessageException, OptionalNotFoundException {
 //        User user = userService.getLoginUser();
 //        Customer customer = customerRepository.findByUserId(user.getId());

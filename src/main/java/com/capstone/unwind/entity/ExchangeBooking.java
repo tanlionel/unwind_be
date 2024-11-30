@@ -81,6 +81,8 @@ public class ExchangeBooking {
 
     @Column(name = "is_feedback")
     private Boolean isFeedback;
+    @Column(name = "is_primary_guest")
+    private Boolean isPrimaryGuest;
 
     @Column(name = "renter_full_legal_name", length = 45)
     private String renterFullLegalName;

@@ -26,4 +26,6 @@ public interface BookingService {
     RentalBookingDto cancelBooking(Integer bookingId) throws OptionalNotFoundException, ErrMessageException;
 
     Boolean createContactForm(Integer postingId, RentalPackageBasicRequestDto rentalPackageBasicRequestDto) throws ErrMessageException, OptionalNotFoundException;
+    ExchangeBookingDto updateExchangeBookingGuest(Integer bookingId, UpdateExchangeBookingDto updateExchangeBookingDto)
+            throws ErrMessageException;
 }
