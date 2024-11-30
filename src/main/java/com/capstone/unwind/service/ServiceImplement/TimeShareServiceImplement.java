@@ -115,12 +115,20 @@ public class TimeShareServiceImplement implements TimeShareService {
     }
     @Override
     public UpdateTimeshareResponseDto updateTimeShare(Integer timeshareId, UpdateTimeshareDto timeShareRequestDTO)
-            throws  OptionalNotFoundException {
+            throws OptionalNotFoundException, ErrMessageException {
         Timeshare timeshare = timeShareRepository.findById(timeshareId)
                 .orElseThrow(() -> new OptionalNotFoundException("Timeshare not found with ID: " + timeshareId));
-
         RoomInfo roomInfo = roomInfoRepository.findById(timeShareRequestDTO.getRoomInfoId())
                 .orElseThrow(() -> new OptionalNotFoundException("Room info not found with ID: " + timeShareRequestDTO.getRoomInfoId()));
+        boolean isTimeshareConflict = timeShareRepository.existsByRoomInfoAndDateRange(
+                roomInfo,
+                timeShareRequestDTO.getStartDate(),
+                timeShareRequestDTO.getEndDate()
+        );
+        if (isTimeshareConflict) {
+            throw new ErrMessageException("This room already has a timeshare for the specified date range.");
+        }
+
 
         timeshare.setStartYear(timeShareRequestDTO.getStartYear());
         timeshare.setEndYear(timeShareRequestDTO.getEndYear());
