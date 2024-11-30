@@ -14,6 +14,7 @@ import com.capstone.unwind.service.ServiceInterface.ExchangePostingService;
 import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import com.capstone.unwind.service.ServiceInterface.WalletService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -423,6 +424,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 .roomInfo(exchangeRequestInDb.getRoomInfo())
                 .timeshare(exchangeRequestInDb.getTimeshare())
                 .nights(days)
+                .isPrimaryGuest(false)
                 .isFeedback(false)
                 .build();
         exchangeBookingRepository.save(requesterBooking);
@@ -438,6 +440,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 .checkinDate(exchangeRequestInDb.getExchangePosting().getCheckinDate())
                 .nights(exchangeRequestInDb.getExchangePosting().getNights())
                 .isFeedback(false)
+                .isPrimaryGuest(false)
                 .isActive(true)
                 .build();
         exchangeBookingRepository.save(ownerBooking);
@@ -537,6 +540,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                     .checkinDate(exchangeRequest.getStartDate())
                     .status(String.valueOf(ExchangeBookingEnum.Booked))
                     .exchangeRequest(exchangeRequest)
+                    .isPrimaryGuest(false)
                     .exchangePosting(exchangeRequest.getExchangePosting())
                     .renter(exchangeRequest.getExchangePosting().getOwner())
                     .roomInfo(exchangeRequest.getRoomInfo())
@@ -556,6 +560,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                     .checkoutDate(exchangeRequest.getExchangePosting().getCheckoutDate())
                     .checkinDate(exchangeRequest.getExchangePosting().getCheckinDate())
                     .nights(exchangeRequest.getExchangePosting().getNights())
+                    .isPrimaryGuest(false)
                     .isFeedback(false)
                     .isActive(true)
                     .build();
@@ -581,5 +586,37 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
 
         return exchangeRequestListMapper.toDto(exchangeRequest);
     }
+    @Transactional
+    @Override
+    public ExchangePostingResponseDto updateExchangePosting(Integer postingId, UpdateExchangePostingDto updateExchangePostingDto)
+            throws  ErrMessageException {
+
+        ExchangePosting exchange = exchangePostingRepository.findById(postingId)
+                .orElseThrow(() -> new ErrMessageException("posting with ID " + postingId + " does not exist"));
+
+        if (!exchange.getStatus().equals(String.valueOf(ExchangePostingEnum.Processing))){
+            throw new ErrMessageException("Status must be Processing");
+        }
+        exchange.setDescription(updateExchangePostingDto.getDescription());
+        exchange.setIsActive(true);
+
+        ExchangePosting updatedExchangePosting = exchangePostingRepository.save(exchange);
+        documentStoreRepository.deactivateOldImages(updatedExchangePosting.getId(), DocumentStoreEnum.ExchangePosting.toString());
+
+        try {
+            for (String imageUrl : updateExchangePostingDto.getImageUrls()) {
+                DocumentStore document = new DocumentStore();
+                document.setType(DocumentStoreEnum.ExchangePosting.toString());
+                document.setEntityId(updatedExchangePosting.getId());
+                document.setImageUrl(imageUrl);
+                document.setIsActive(true);
+                documentStoreRepository.save(document);
+            }
+        } catch (Exception e) {
+            throw new ErrMessageException("Error when saving images");
+        }
+        return exchangePostingResponseMapper.toDto(updatedExchangePosting);
+    }
+
 
 }

@@ -40,7 +40,7 @@ public class RoomController {
     public ResponseEntity<UpdateRoomResponseDTO> updateTimeshare(
             @PathVariable Integer roomId,
             @RequestBody UpdateTimeshareRequestDto updateTimeshareRequestDto) throws ErrMessageException, OptionalNotFoundException {
-            UpdateRoomResponseDTO updatedTimeshare = roomService.updateRoomAmenityByResortId(roomId, updateTimeshareRequestDto);
+            UpdateRoomResponseDTO updatedTimeshare = roomService.updateRoomAmenityByRoomId(roomId, updateTimeshareRequestDto);
             return ResponseEntity.ok(updatedTimeshare);
     }
     @GetMapping("/{roomId}")

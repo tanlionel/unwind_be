@@ -13,6 +13,6 @@ public interface RoomService {
     RoomResponseDTO createRoom(RoomRequestDTO roomRequestDTO) throws EntityDoesNotExistException, UserDoesNotHavePermission, ErrMessageException;
     List<RoomInfoDto> getAllExistingRoomByResortId(Integer resortId);
     RoomDetailResponseDTO getRoomDetailById(Integer roomId) throws OptionalNotFoundException;
-    UpdateRoomResponseDTO updateRoomAmenityByResortId(Integer roomId, UpdateTimeshareRequestDto timeShareRequestDTO)
+    UpdateRoomResponseDTO updateRoomAmenityByRoomId(Integer roomId, UpdateTimeshareRequestDto timeShareRequestDTO)
             throws ErrMessageException, OptionalNotFoundException;
 }

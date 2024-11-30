@@ -15,6 +15,8 @@ public interface TimeShareService {
     TimeShareDetailDTO getTimeShareDetails(Integer timeShareID) throws OptionalNotFoundException;
 
     List<Integer> getTimeshareValidYears(Integer timeshareId) throws OptionalNotFoundException;
+    UpdateTimeshareResponseDto updateTimeShare(Integer timeshareId, UpdateTimeshareDto timeShareRequestDTO)
+            throws  OptionalNotFoundException;
 
 
 }

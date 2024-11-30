@@ -2,14 +2,13 @@ package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.config.FeeConfig;
 import com.capstone.unwind.entity.*;
-import com.capstone.unwind.enums.EmailEnum;
-import com.capstone.unwind.enums.RentalBookingEnum;
-import com.capstone.unwind.enums.RentalPostingEnum;
-import com.capstone.unwind.enums.WalletTransactionEnum;
+import com.capstone.unwind.enums.*;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.BookingDTO.*;
 import com.capstone.unwind.model.EmailRequestDTO.EmailRequestDto;
+import com.capstone.unwind.model.ExchangePostingDTO.ExchangePostingResponseDto;
+import com.capstone.unwind.model.ExchangePostingDTO.UpdateExchangePostingDto;
 import com.capstone.unwind.model.PostingDTO.RentalPackageBasicRequestDto;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
 import com.capstone.unwind.repository.*;
@@ -59,6 +58,7 @@ public class BookingServiceImplement implements BookingService {
     private final SendinblueService sendinblueService;
     @Autowired
     private final CustomerRepository customerRepository;
+    @Autowired final ExchangeBookingMapper exchangeBookingMapper;
 
 
     @Override
@@ -116,9 +116,9 @@ public class BookingServiceImplement implements BookingService {
         Page<MergedBooking> mergedBookingPage;
         TimeShareCompanyStaffDTO timeShareCompanyStaffDTO = timeShareStaffService.getLoginStaff();
         Integer resortId = timeShareCompanyStaffDTO.getResortId();
-        if (isComing == true && willGo == false){
+        if (isComing && !willGo){
             mergedBookingPage = mergedBookingRepository.findAllByCheckinDateAfterAndStatusAndResortId(searchDate,String.valueOf(RentalBookingEnum.Booked),resortId,pageable);
-        }else if (isComing==false && willGo==true){
+        }else if (!isComing && willGo){
             mergedBookingPage = mergedBookingRepository.findAllByCheckinDateBeforeAndCheckoutDateAfterAndStatusAndResortId(searchDate,searchDate,String.valueOf(RentalBookingEnum.CheckIn),resortId,pageable);
         }else {
             mergedBookingPage = mergedBookingRepository.findAllByCheckinDateOrCheckoutDateAndResortId(searchDate,searchDate,resortId,pageable);
@@ -199,6 +199,31 @@ public class BookingServiceImplement implements BookingService {
         ExchangeBookingDetailDto exchangeBookingDetailDto = exchangeBookingDetailMapper.toDto(exchangeBookingRepository.save(exchangeBooking));
         return exchangeBookingDetailDto;
     }
+    @Transactional
+    @Override
+    public ExchangeBookingDto updateExchangeBookingGuest(Integer bookingId, UpdateExchangeBookingDto updateExchangeBookingDto)
+            throws ErrMessageException {
+        ExchangeBooking exchange = exchangeBookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ErrMessageException("Booking with ID " + bookingId + " does not exist"));
+
+        if (exchange.getIsPrimaryGuest()) {
+            throw new ErrMessageException("The booking has already been updated.");
+        }
+        exchange.setPrimaryGuestEmail(updateExchangeBookingDto.getPrimaryGuestEmail());
+        exchange.setPrimaryGuestName(updateExchangeBookingDto.getPrimaryGuestName());
+        exchange.setPrimaryGuestPhone(updateExchangeBookingDto.getPrimaryGuestPhone());
+        exchange.setPrimaryGuestCountry(updateExchangeBookingDto.getPrimaryGuestCountry());
+        exchange.setPrimaryGuestCity(updateExchangeBookingDto.getPrimaryGuestCity());
+        exchange.setPrimaryGuestState(updateExchangeBookingDto.getPrimaryGuestState());
+        exchange.setPrimaryGuestStreet(updateExchangeBookingDto.getPrimaryGuestStreet());
+        exchange.setPrimaryGuestPostalCode(updateExchangeBookingDto.getPrimaryGuestPostalCode());
+        exchange.setIsPrimaryGuest(true);
+        exchange.setIsActive(true);
+        ExchangeBooking updatedExchangeBooking = exchangeBookingRepository.save(exchange);
+
+        return exchangeBookingMapper.toDto(updatedExchangeBooking);
+    }
+
     @Override
     public RentalBookingDto cancelBooking(Integer bookingId) throws OptionalNotFoundException, ErrMessageException {
         RentalBooking booking = rentalBookingRepository.findById(bookingId)

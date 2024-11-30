@@ -10,6 +10,7 @@ import com.capstone.unwind.model.ResortDTO.UnitTypeRequestDTO;
 import com.capstone.unwind.model.ResortDTO.UnitTypeResponseDTO;
 import com.capstone.unwind.model.RoomDTO.RoomAmenityDto;
 import com.capstone.unwind.model.RoomDTO.RoomInfoMapper;
+import com.capstone.unwind.model.RoomDTO.UpdateRoomResponseDTO;
 import com.capstone.unwind.model.TimeShareDTO.*;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.TimeShareService;
@@ -57,6 +58,8 @@ public class TimeShareServiceImplement implements TimeShareService {
     private final DocumentStoreRepository documentStoreRepository;
     @Autowired
     private RoomAmentityRepository roomAmentityRepository;
+    @Autowired
+    private UpdateTimeshareMapper updateTimeshareMapper;
 
     @Override
     public TimeShareResponseDTO createTimeShare(TimeShareRequestDTO timeShareRequestDTO) throws EntityDoesNotExistException, ErrMessageException, OptionalNotFoundException {
@@ -73,7 +76,7 @@ public class TimeShareServiceImplement implements TimeShareService {
         if (isTimeshareConflict) {
             throw new ErrMessageException("This room already has a timeshare for the specified date range.");
         }
-        if (timeShareRequestDTO.getStartYear() >= timeShareRequestDTO.getEndYear()) {
+        if (timeShareRequestDTO.getStartYear() > timeShareRequestDTO.getEndYear()) {
             throw new ErrMessageException("Start year must be less than end year.");
         }
 
@@ -110,6 +113,26 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .build();
         return timeShareResponseDTO;
     }
+    @Override
+    public UpdateTimeshareResponseDto updateTimeShare(Integer timeshareId, UpdateTimeshareDto timeShareRequestDTO)
+            throws  OptionalNotFoundException {
+        Timeshare timeshare = timeShareRepository.findById(timeshareId)
+                .orElseThrow(() -> new OptionalNotFoundException("Timeshare not found with ID: " + timeshareId));
+
+        RoomInfo roomInfo = roomInfoRepository.findById(timeShareRequestDTO.getRoomInfoId())
+                .orElseThrow(() -> new OptionalNotFoundException("Room info not found with ID: " + timeShareRequestDTO.getRoomInfoId()));
+
+        timeshare.setStartYear(timeShareRequestDTO.getStartYear());
+        timeshare.setEndYear(timeShareRequestDTO.getEndYear());
+        timeshare.setStartDate(timeShareRequestDTO.getStartDate());
+        timeshare.setEndDate(timeShareRequestDTO.getEndDate());
+        timeshare.setRoomInfo(roomInfo);
+        timeshare.setIsActive(true);
+        Timeshare updatedTimeshare = timeShareRepository.save(timeshare);
+
+        return updateTimeshareMapper.toDto(updatedTimeshare);
+    }
+
 
     @Override
     public Page<ListTimeShareDTO> getAllTimeShares(Pageable pageable) throws OptionalNotFoundException {
