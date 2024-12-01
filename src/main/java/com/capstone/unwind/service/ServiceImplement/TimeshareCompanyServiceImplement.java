@@ -1,14 +1,12 @@
 package com.capstone.unwind.service.ServiceImplement;
 
-import com.capstone.unwind.entity.DocumentStore;
-import com.capstone.unwind.entity.Location;
-import com.capstone.unwind.entity.TimeshareCompany;
-import com.capstone.unwind.entity.User;
+import com.capstone.unwind.entity.*;
 import com.capstone.unwind.enums.DocumentStoreEnum;
 import com.capstone.unwind.enums.EmailEnum;
 import com.capstone.unwind.exception.*;
 import com.capstone.unwind.model.EmailRequestDTO.EmailRequestDto;
 import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
+import com.capstone.unwind.model.ResortDTO.ResortRandomDto;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyDto;
 import com.capstone.unwind.model.TimeshareCompany.TimeshareCompanyMapper;
 import com.capstone.unwind.model.TimeshareCompany.UpdateTimeshareCompanyDto;
@@ -29,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.capstone.unwind.config.EmailMessageConfig.*;
 import static com.capstone.unwind.config.EmailMessageConfig.TIMESHARE_COMPANY_CREATION_CONTENT;
@@ -171,4 +170,5 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
         responseDTO.setImageUrls(imageUrls);
         return responseDTO;
     }
+
 }

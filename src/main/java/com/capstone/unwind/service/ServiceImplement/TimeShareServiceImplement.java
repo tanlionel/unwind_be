@@ -6,6 +6,7 @@ import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
+import com.capstone.unwind.model.ResortDTO.ResortRandomDto;
 import com.capstone.unwind.model.ResortDTO.UnitTypeRequestDTO;
 import com.capstone.unwind.model.ResortDTO.UnitTypeResponseDTO;
 import com.capstone.unwind.model.RoomDTO.RoomAmenityDto;
@@ -68,7 +69,7 @@ public class TimeShareServiceImplement implements TimeShareService {
         if (customer==null) throw new OptionalNotFoundException("Customer not found");
         RoomInfo roomInfo = roomInfoRepository.findById(timeShareRequestDTO.getRoomInfoId())
                 .orElseThrow(() -> new ErrMessageException("roomInfo with ID " + timeShareRequestDTO.getRoomInfoId() + " does not exist"));
-        boolean isTimeshareConflict = timeShareRepository.existsByRoomInfoAndDateRange(
+       /* boolean isTimeshareConflict = timeShareRepository.existsByRoomInfoAndDateRange(
                 roomInfo,
                 timeShareRequestDTO.getStartDate(),
                 timeShareRequestDTO.getEndDate()
@@ -78,7 +79,7 @@ public class TimeShareServiceImplement implements TimeShareService {
         }
         if (timeShareRequestDTO.getStartYear() > timeShareRequestDTO.getEndYear()) {
             throw new ErrMessageException("Start year must be less than end year.");
-        }
+        }*/
 
         Timeshare timeshare = Timeshare.builder()
                 .owner(customer)
@@ -120,14 +121,14 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .orElseThrow(() -> new OptionalNotFoundException("Timeshare not found with ID: " + timeshareId));
         RoomInfo roomInfo = roomInfoRepository.findById(timeShareRequestDTO.getRoomInfoId())
                 .orElseThrow(() -> new OptionalNotFoundException("Room info not found with ID: " + timeShareRequestDTO.getRoomInfoId()));
-        boolean isTimeshareConflict = timeShareRepository.existsByRoomInfoAndDateRange(
+        /*boolean isTimeshareConflict = timeShareRepository.existsByRoomInfoAndDateRange(
                 roomInfo,
                 timeShareRequestDTO.getStartDate(),
                 timeShareRequestDTO.getEndDate()
         );
         if (isTimeshareConflict) {
             throw new ErrMessageException("This room already has a timeshare for the specified date range.");
-        }
+        }*/
 
 
         timeshare.setStartYear(timeShareRequestDTO.getStartYear());
@@ -220,4 +221,6 @@ public class TimeShareServiceImplement implements TimeShareService {
 
         return validYears;
     }
+
+
 }

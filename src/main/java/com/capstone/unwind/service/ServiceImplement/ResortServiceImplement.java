@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.capstone.unwind.config.EmailMessageConfig.*;
 
@@ -56,6 +57,8 @@ public class ResortServiceImplement implements ResortService {
     private final UserService userService;
     @Autowired
     private final SendinblueService sendinblueService;
+    @Autowired
+    private final ResortRandomMapper resortRandomMapper;
 
     @Override
     public ResortDetailResponseDTO createResort(ResortRequestDTO resortDto) throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission {
@@ -338,6 +341,20 @@ public class ResortServiceImplement implements ResortService {
             return resortDto;
         });
         return resortDtoPage;
+    }
+
+    @Override
+    public List<ResortRandomDto> getRandomResorts() {
+        PageRequest pageable = PageRequest.of(0, 10);
+        Page<Resort> resorts = resortRepository.findTop10ByIsActiveOrderByRandom(pageable);
+
+        List<ResortRandomDto> resortDtoList = resorts.stream().map(resort -> {
+            ResortRandomDto resortDto = resortRandomMapper.toDto(resort);
+
+            return resortDto;
+        }).collect(Collectors.toList());
+
+        return resortDtoList;
     }
 
     @Override
