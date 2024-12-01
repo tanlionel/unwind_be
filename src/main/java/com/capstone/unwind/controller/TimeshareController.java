@@ -33,7 +33,7 @@ public class TimeshareController {
     @PutMapping("/{timeshareId}")
     public ResponseEntity<UpdateTimeshareResponseDto> updateTimeshare(
             @PathVariable Integer timeshareId,
-            @RequestBody  UpdateTimeshareDto updateTimeshareDto) throws OptionalNotFoundException {
+            @RequestBody  UpdateTimeshareDto updateTimeshareDto) throws OptionalNotFoundException, ErrMessageException {
             UpdateTimeshareResponseDto response = timeShareService.updateTimeShare(timeshareId, updateTimeshareDto);
             return ResponseEntity.ok(response);
     }

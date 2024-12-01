@@ -22,8 +22,9 @@ public class TimeshareCompany {
     @Column(name = "logo", length = 200)
     private String logo;
 
-    @Column(name = "address", length = 300)
-    private String address;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id", referencedColumnName = "location_id")
+    private Location location;
 
     @Column(name = "description", length = 500)
     private String description;

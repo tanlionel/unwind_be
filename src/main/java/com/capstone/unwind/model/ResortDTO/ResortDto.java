@@ -14,11 +14,12 @@ import java.io.Serializable;
 public class ResortDto implements Serializable {
     Integer id;
     String resortName;
+    String resortLocationName;
+    String resortLocationDisplayName;
     String logo;
     Float minPrice;
     Float maxPrice;
     String status;
-    String address;
     Integer timeshareCompanyId;
     Boolean isActive;
     Float averageRating;

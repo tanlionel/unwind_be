@@ -32,8 +32,9 @@ public class Resort {
     @Column(name = "status", length = 45)
     private String status;
 
-    @Column(name = "address", length = 200)
-    private String address;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id", referencedColumnName = "location_id")
+    private Location location;
 
     @Column(name = "description",length = 500)
     private String description;

@@ -49,7 +49,8 @@ public class ExchangeRequestDetailDto implements Serializable {
         Integer resortId;
         String resortResortName;
         String resortLogo;
-        String resortAddress;
+        String resortLocationName;
+        String resortLocationDisplayName;
         String resortDescription;
         String status;
         UnitTypeDto unitType;

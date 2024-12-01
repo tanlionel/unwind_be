@@ -46,7 +46,8 @@ public class ExchangeRequestPostingBasicDto implements Serializable {
         Integer resortId;
         String resortResortName;
         String resortLogo;
-        String resortAddress;
+        String resortLocationName;
+        String resortLocationDisplayName;
         String resortDescription;
         String status;
         Integer unitTypeId;

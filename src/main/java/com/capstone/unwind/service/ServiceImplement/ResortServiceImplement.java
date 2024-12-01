@@ -70,7 +70,14 @@ public class ResortServiceImplement implements ResortService {
                 .minPrice(resortDto.getMinPrice())
                 .maxPrice(resortDto.getMaxPrice())
                 .status(resortDto.getStatus())
-                .address(resortDto.getAddress())
+                .location(Location.builder()
+                        .name(resortDto.getLocation().getName())
+                        .displayName(resortDto.getLocation().getDisplayName())
+                        .latitude(resortDto.getLocation().getLatitude())
+                        .longitude(resortDto.getLocation().getLongitude())
+                        .country(resortDto.getLocation().getCountry())
+                        .placeId(resortDto.getLocation().getPlaceId())
+                        .build())
                 .timeshareCompany(timeshareCompany)
                 .status(resortDto.getStatus())
                 .description(resortDto.getDescription())
@@ -113,7 +120,14 @@ public class ResortServiceImplement implements ResortService {
                 .minPrice(resortInDb.getMinPrice())
                 .maxPrice(resortInDb.getMaxPrice())
                 .status(resortInDb.getStatus())
-                .address(resortInDb.getAddress())
+                .location(ResortDetailResponseDTO.LocationDTO.builder()
+                        .name(resortInDb.getLocation().getName())
+                        .displayName(resortInDb.getLocation().getDisplayName())
+                        .latitude(resortInDb.getLocation().getLatitude())
+                        .longitude(resortInDb.getLocation().getLongitude())
+                        .country(resortInDb.getLocation().getCountry())
+                        .placeId(resortInDb.getLocation().getPlaceId())
+                        .build())
                 .timeshareCompanyId(resortInDb.getTimeshareCompany().getId())
                 .description(resortInDb.getDescription())
                 .status(resortInDb.getStatus())
@@ -160,7 +174,19 @@ public class ResortServiceImplement implements ResortService {
         resort.setMinPrice(resortRequestDTO.getMinPrice());
         resort.setMaxPrice(resortRequestDTO.getMaxPrice());
         resort.setStatus(resortRequestDTO.getStatus());
-        resort.setAddress(resortRequestDTO.getAddress());
+        Location location = resort.getLocation();
+        if (location == null) {
+            location = new Location();
+        }
+
+        ResortRequestDTO.LocationDTO locationDTO = resortRequestDTO.getLocation();
+        location.setName(locationDTO.getName());
+        location.setDisplayName(locationDTO.getDisplayName());
+        location.setLatitude(locationDTO.getLatitude());
+        location.setLongitude(locationDTO.getLongitude());
+        location.setCountry(locationDTO.getCountry());
+        location.setPlaceId(locationDTO.getPlaceId());
+        resort.setLocation(location);
         resort.setTimeshareCompany(timeshareCompany);
         resort.setDescription(resortRequestDTO.getDescription());
         resort.setIsActive(true);
@@ -199,7 +225,14 @@ public class ResortServiceImplement implements ResortService {
                     .minPrice(updatedResort.getMinPrice())
                     .maxPrice(updatedResort.getMaxPrice())
                     .status(updatedResort.getStatus())
-                    .address(updatedResort.getAddress())
+                    .location(ResortDetailResponseDTO.LocationDTO.builder()
+                            .name(resort.getLocation().getName())
+                            .displayName(resort.getLocation().getDisplayName())
+                            .latitude(resort.getLocation().getLatitude())
+                            .longitude(resort.getLocation().getLongitude())
+                            .country(resort.getLocation().getCountry())
+                            .placeId(resort.getLocation().getPlaceId())
+                            .build())
                     .timeshareCompanyId(updatedResort.getTimeshareCompany().getId())
                     .description(updatedResort.getDescription())
                     .resortAmenityList(activeAmenities.stream()
@@ -245,7 +278,16 @@ public class ResortServiceImplement implements ResortService {
                 .minPrice(resortInDb.getMinPrice())
                 .maxPrice(resortInDb.getMaxPrice())
                 .status(resortInDb.getStatus())
-                .address(resortInDb.getAddress())
+                .location(resortInDb.getLocation() != null ?
+                        ResortDetailResponseDTO.LocationDTO.builder()
+                                .name(resortInDb.getLocation().getName())
+                                .displayName(resortInDb.getLocation().getDisplayName())
+                                .latitude(resortInDb.getLocation().getLatitude())
+                                .longitude(resortInDb.getLocation().getLongitude())
+                                .country(resortInDb.getLocation().getCountry())
+                                .placeId(resortInDb.getLocation().getPlaceId())
+                                .build()
+                        : null)
                 .timeshareCompanyId(resortInDb.getTimeshareCompany().getId())
                 .status(resortInDb.getStatus())
                 .imageUrls(imageUrls)
@@ -328,7 +370,16 @@ public class ResortServiceImplement implements ResortService {
                 .minPrice(resortInDb.getMinPrice())
                 .maxPrice(resortInDb.getMaxPrice())
                 .status(resortInDb.getStatus())
-                .address(resortInDb.getAddress())
+                .location(resortInDb.getLocation() != null ?
+                        ResortDetailResponseDTO.LocationDTO.builder()
+                                .name(resortInDb.getLocation().getName())
+                                .displayName(resortInDb.getLocation().getDisplayName())
+                                .latitude(resortInDb.getLocation().getLatitude())
+                                .longitude(resortInDb.getLocation().getLongitude())
+                                .country(resortInDb.getLocation().getCountry())
+                                .placeId(resortInDb.getLocation().getPlaceId())
+                                .build()
+                        : null)
                 .timeshareCompanyId(resortInDb.getTimeshareCompany().getId())
                 .status(resortInDb.getStatus())
                 .description(resortInDb.getDescription())

@@ -175,7 +175,7 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .resortImage(resort.get().getLogo())
                 .roomName(roomInfo.get().getRoomInfoName())
                 .roomCode(roomInfo.get().getRoomInfoCode())
-                .resortAddress(resort.get().getAddress())
+                .resortAddress(resort.get().getLocation().getName())
                 .startDate(timeShare.getStartDate())
                 .endDate(timeShare.getEndDate())
                 .resortId(resort.get().getId())

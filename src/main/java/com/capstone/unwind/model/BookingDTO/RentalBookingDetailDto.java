@@ -96,7 +96,8 @@ public class RentalBookingDetailDto implements Serializable {
                 Integer resortId;
                 String resortResortName;
                 String resortLogo;
-                String resortAddress;
+                String resortLocationName;
+                String resortLocationDisplayName;
                 String resortDescription;
                 Integer sleeps;
                 String view;

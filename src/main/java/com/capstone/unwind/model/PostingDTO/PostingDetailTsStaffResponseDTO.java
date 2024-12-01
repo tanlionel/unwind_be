@@ -31,7 +31,8 @@ public class PostingDetailTsStaffResponseDTO {
     private Integer resortId;
     private String resortName;
     private String resortDescription;
-    private String address;
+    String resortLocationName;
+    String resortLocationDisplayName;
     private Boolean isVerify;
     private Integer nights;
     private Float pricePerNights;
