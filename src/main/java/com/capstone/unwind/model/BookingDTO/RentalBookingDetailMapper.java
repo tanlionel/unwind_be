@@ -12,9 +12,10 @@ public interface RentalBookingDetailMapper {
     @Mapping(source = "rentalPosting.roomInfo.unitType.resortId",target = "rentalPosting.roomInfo.unitType.resort.id")
     @Mapping(source = "rentalPosting.roomInfo.unitType.resortResortName",target = "rentalPosting.roomInfo.unitType.resort.resortName")
     @Mapping(source = "rentalPosting.roomInfo.unitType.resortLogo",target = "rentalPosting.roomInfo.unitType.resort.logo")
-    @Mapping(source = "rentalPosting.roomInfo.unitType.resortLocationName",target = "rentalPosting.roomInfo.unitType.resort.location.name")
-    @Mapping(source = "rentalPosting.roomInfo.unitType.resortLocationDisplayName",target = "rentalPosting.roomInfo.unitType.resort.location.displayName")
     @Mapping(source = "rentalPosting.roomInfo.unitType.resortDescription",target = "rentalPosting.roomInfo.unitType.resort.description")
+
+    @Mapping(source = "rentalPosting.roomInfo.unitType.location", target = "rentalPosting.roomInfo.unitType.resort.location")
+
     RentalBooking toEntity(RentalBookingDetailDto rentalBookingDto);
 
     @InheritInverseConfiguration(name = "toEntity")

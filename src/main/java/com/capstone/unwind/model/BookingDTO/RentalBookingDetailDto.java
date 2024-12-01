@@ -96,12 +96,26 @@ public class RentalBookingDetailDto implements Serializable {
                 Integer resortId;
                 String resortResortName;
                 String resortLogo;
-                String resortLocationName;
-                String resortLocationDisplayName;
+                LocationDTO location;
                 String resortDescription;
                 Integer sleeps;
                 String view;
                 Boolean isActive;
+
+                @Data
+                @Getter
+                @Setter
+                @Builder
+                @AllArgsConstructor
+                @NoArgsConstructor
+                public static class LocationDTO {
+                    String name;
+                    String displayName;
+                    String latitude;
+                    String longitude;
+                    String country;
+                    String placeId;
+                }
             }
         }
 
@@ -117,5 +131,6 @@ public class RentalBookingDetailDto implements Serializable {
             String description;
             Boolean isActive;
         }
+
     }
 }

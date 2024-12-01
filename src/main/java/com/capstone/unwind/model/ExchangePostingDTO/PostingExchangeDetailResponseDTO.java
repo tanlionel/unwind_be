@@ -25,13 +25,12 @@ public class PostingExchangeDetailResponseDTO {
     private String roomName;
     private Integer resortId;
     private String resortName;
-    String resortLocationName;
-    String resortLocationDisplayName;
     private Boolean isVerify;
     private Integer nights;
     private Integer exchangePackageId;
     private String exchangePackageName;
     private String exchangePackageDuration;
+    private LocationDTO location;
     private String exchangePackageDescription;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate checkinDate;
@@ -95,5 +94,17 @@ public class PostingExchangeDetailResponseDTO {
         private Integer id;
         private String name;
         private String type;
+    }
+    @Data
+    @Getter
+    @Setter
+    @Builder
+    public static class LocationDTO {
+        String name;
+        String displayName;
+        String latitude;
+        String longitude;
+        String country;
+        String placeId;
     }
 }

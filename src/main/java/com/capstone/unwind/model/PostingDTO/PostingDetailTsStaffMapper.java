@@ -31,8 +31,6 @@ public interface PostingDetailTsStaffMapper {
     @Mapping(source = "timeshare.roomInfo.resort.id", target = "resortId")
     @Mapping(source = "timeshare.roomInfo.resort.resortName", target = "resortName")
     @Mapping(source = "timeshare.roomInfo.resort.description", target = "resortDescription")
-    @Mapping(source = "timeshare.roomInfo.resort.location.name", target = "resortLocationName")
-    @Mapping(source = "timeshare.roomInfo.resort.location.name", target = "resortLocationDisplayName")
     @Mapping(source = "isVerify", target = "isVerify")
     @Mapping(source = "nights", target = "nights")
     @Mapping(source = "pricePerNights", target = "pricePerNights")
@@ -48,6 +46,13 @@ public interface PostingDetailTsStaffMapper {
     @Mapping(source = "timeshare.roomInfo.resort.amenities", target = "resortAmenities")
     @Mapping(source = "timeshare.roomInfo.unitType.amenities", target = "unitTypeAmenities")
     @Mapping(source = "timeshare.roomInfo.amenities", target = "roomAmenities")
+
+    @Mapping(source = "timeshare.roomInfo.resort.location.name", target = "location.name")
+    @Mapping(source = "timeshare.roomInfo.resort.location.displayName", target = "location.displayName")
+    @Mapping(source = "timeshare.roomInfo.resort.location.latitude", target = "location.latitude")
+    @Mapping(source = "timeshare.roomInfo.resort.location.longitude", target = "location.longitude")
+    @Mapping(source = "timeshare.roomInfo.resort.location.country", target = "location.country")
+    @Mapping(source = "timeshare.roomInfo.resort.location.placeId", target = "location.placeId")
     PostingDetailTsStaffResponseDTO entityToDto(RentalPosting entity);
     PostingDetailTsStaffResponseDTO.ResortAmenityDTO toResortAmenityDTO(ResortAmenity amenity);
     PostingDetailTsStaffResponseDTO.unitType toUnitTypeDTO(UnitType unitType);

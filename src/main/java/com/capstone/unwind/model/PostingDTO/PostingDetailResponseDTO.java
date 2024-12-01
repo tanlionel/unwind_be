@@ -33,8 +33,7 @@ public class PostingDetailResponseDTO {
     private String roomName;
     private Integer resortId;
     private String resortName;
-    String resortLocationName;
-    String resortLocationDisplayName;
+    private LocationDTO location;
     private Boolean isVerify;
     private Integer nights;
     private Float pricePerNights;
@@ -109,5 +108,17 @@ public class PostingDetailResponseDTO {
         private Integer id;
         private String name;
         private String type;
+    }
+    @Data
+    @Getter
+    @Setter
+    @Builder
+    public static class LocationDTO {
+        String name;
+        String displayName;
+        String latitude;
+        String longitude;
+        String country;
+        String placeId;
     }
 }
