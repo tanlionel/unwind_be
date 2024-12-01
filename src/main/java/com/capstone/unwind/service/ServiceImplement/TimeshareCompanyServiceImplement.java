@@ -1,6 +1,7 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.DocumentStore;
+import com.capstone.unwind.entity.Location;
 import com.capstone.unwind.entity.TimeshareCompany;
 import com.capstone.unwind.entity.User;
 import com.capstone.unwind.enums.DocumentStoreEnum;
@@ -59,7 +60,14 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
         TimeshareCompany timeshareCompanyRequest = TimeshareCompany.builder()
                 .timeshareCompanyName(timeshareCompanyDto.getTimeshareCompanyName())
                 .logo(timeshareCompanyDto.getLogo())
-                .address(timeshareCompanyDto.getAddress())
+                .location(Location.builder()
+                        .name(timeshareCompanyDto.getLocation().getName())
+                        .displayName(timeshareCompanyDto.getLocation().getDisplayName())
+                        .latitude(timeshareCompanyDto.getLocation().getLatitude())
+                        .longitude(timeshareCompanyDto.getLocation().getLongitude())
+                        .country(timeshareCompanyDto.getLocation().getCountry())
+                        .placeId(timeshareCompanyDto.getLocation().getPlaceId())
+                        .build())
                 .description(timeshareCompanyDto.getDescription())
                 .contact(timeshareCompanyDto.getContact())
                 .isActive(true)
@@ -114,7 +122,19 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
 
         existingTimeshareCompany.setTimeshareCompanyName(timeshareCompanyDto.getTimeshareCompanyName());
         existingTimeshareCompany.setLogo(timeshareCompanyDto.getLogo());
-        existingTimeshareCompany.setAddress(timeshareCompanyDto.getAddress());
+        Location location = existingTimeshareCompany.getLocation();
+        if (location == null) {
+            location = new Location();
+        }
+
+        UpdateTimeshareCompanyDto.LocationDTO locationDTO = timeshareCompanyDto.getLocation();
+        location.setName(locationDTO.getName());
+        location.setDisplayName(locationDTO.getDisplayName());
+        location.setLatitude(locationDTO.getLatitude());
+        location.setLongitude(locationDTO.getLongitude());
+        location.setCountry(locationDTO.getCountry());
+        location.setPlaceId(locationDTO.getPlaceId());
+        existingTimeshareCompany.setLocation(location);
         existingTimeshareCompany.setDescription(timeshareCompanyDto.getDescription());
         existingTimeshareCompany.setContact(timeshareCompanyDto.getContact());
         TimeshareCompany updatedTimeshareCompany = timeshareCompanyRepository.save(existingTimeshareCompany);

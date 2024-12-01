@@ -17,11 +17,11 @@ public interface ExchangeRequestMapper {
     @Mapping(source = "roomInfo.resortId", target = "roomInfo.resort.id")
     @Mapping(source = "roomInfo.resortResortName", target = "roomInfo.resort.resortName")
     @Mapping(source = "roomInfo.resortLogo", target = "roomInfo.resort.logo")
-    @Mapping(source = "roomInfo.resortAddress", target = "roomInfo.resort.address")
     @Mapping(source = "roomInfo.resortDescription", target = "roomInfo.resort.description")
     @Mapping(source = "ownerAvatar", target = "owner.avatar")
     @Mapping(source = "ownerFullName", target = "owner.fullName")
     @Mapping(source = "ownerId", target = "owner.id")
+    @Mapping(source = "roomInfo.location", target = "roomInfo.resort.location")
     ExchangeRequest toEntity(ExchangeRequestDetailDto exchangeRequestDetailDto);
 
     @InheritInverseConfiguration(name = "toEntity")

@@ -17,10 +17,23 @@ public class TimeshareCompanyDto implements Serializable {
     Integer id;
     String timeshareCompanyName;
     String logo;
-    String address;
+    LocationDTO location;;
     String description;
     Integer ownerId;
     String contact;
     Boolean isActive;
     List<String> imageUrls ;
+
+    @Data
+    @Getter
+    @Setter
+    @Builder
+    public static class LocationDTO {
+        String name;
+        String displayName;
+        String latitude;
+        String longitude;
+        String country;
+        String placeId;
+    }
 }

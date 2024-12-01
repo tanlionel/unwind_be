@@ -27,8 +27,6 @@ public interface PostingExchangeDetailMapper {
     @Mapping(source = "timeshare.roomInfo.roomInfoName", target = "roomName")
     @Mapping(source = "timeshare.roomInfo.resort.id", target = "resortId")
     @Mapping(source = "timeshare.roomInfo.resort.resortName", target = "resortName")
-    @Mapping(source = "timeshare.roomInfo.resort.address", target = "address")
-    @Mapping(source = "isVerify", target = "isVerify")
     @Mapping(source = "nights", target = "nights")
     @Mapping(source = "exchangePackage.id", target = "exchangePackageId")
     @Mapping(source = "exchangePackage.packageName", target = "exchangePackageName")
@@ -42,6 +40,8 @@ public interface PostingExchangeDetailMapper {
     @Mapping(source = "timeshare.roomInfo.resort.amenities", target = "resortAmenities")
     @Mapping(source = "timeshare.roomInfo.unitType.amenities", target = "unitTypeAmenities")
     @Mapping(source = "timeshare.roomInfo.amenities", target = "roomAmenities")
+
+    @Mapping(source = "timeshare.roomInfo.resort.location", target = "location")
     PostingExchangeDetailResponseDTO entityToDto(ExchangePosting entity);
     PostingExchangeDetailResponseDTO.ResortAmenityDTO toResortAmenityDTO(ResortAmenity amenity);
     PostingExchangeDetailResponseDTO.unitType toUnitTypeDTO(UnitType unitType);

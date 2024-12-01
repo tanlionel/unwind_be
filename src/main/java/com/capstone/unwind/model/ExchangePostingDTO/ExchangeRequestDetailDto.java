@@ -5,7 +5,7 @@ import com.capstone.unwind.entity.ExchangeRequest;
 import com.capstone.unwind.entity.RoomInfo;
 import com.capstone.unwind.entity.UnitType;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Value;
+import lombok.*;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -49,7 +49,7 @@ public class ExchangeRequestDetailDto implements Serializable {
         Integer resortId;
         String resortResortName;
         String resortLogo;
-        String resortAddress;
+        LocationDTO location;
         String resortDescription;
         String status;
         UnitTypeDto unitType;
@@ -64,6 +64,18 @@ public class ExchangeRequestDetailDto implements Serializable {
             Float price;
             String description;
             String photos;
+        }
+        @Data
+        @Getter
+        @Setter
+        @Builder
+        public static class LocationDTO {
+            String name;
+            String displayName;
+            String latitude;
+            String longitude;
+            String country;
+            String placeId;
         }
     }
 

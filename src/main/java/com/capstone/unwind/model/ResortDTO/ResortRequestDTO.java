@@ -14,7 +14,7 @@ public class ResortRequestDTO {
     Float minPrice;
     Float maxPrice;
     String status;
-    String address;
+    LocationDTO location;
     Integer timeshareCompanyId;
     String description;
     List<ResortAmenity> resortAmenityList;
@@ -27,6 +27,18 @@ public class ResortRequestDTO {
     public static class ResortAmenity{
         String name;
         String type;
+    }
+    @Data
+    @Getter
+    @Setter
+    @Builder
+    public static class LocationDTO {
+        String name;
+        String displayName;
+        String latitude;
+        String longitude;
+        String country;
+        String placeId;
     }
 
 }

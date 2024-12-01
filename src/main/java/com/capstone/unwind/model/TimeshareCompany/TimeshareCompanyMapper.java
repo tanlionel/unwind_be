@@ -1,5 +1,6 @@
 package com.capstone.unwind.model.TimeshareCompany;
 
+import com.capstone.unwind.entity.Location;
 import com.capstone.unwind.entity.TimeshareCompany;
 import org.mapstruct.*;
 

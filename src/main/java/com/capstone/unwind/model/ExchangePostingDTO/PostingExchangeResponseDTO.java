@@ -23,7 +23,8 @@ public class PostingExchangeResponseDTO {
     private String roomName;
     private Integer resortId;
     private String resortName;
-    private String address;
+    String resortLocationName;
+    String resortLocationDisplayName;
     private Boolean isVerify;
     private Integer nights;
     private Integer exchangePackageId;
