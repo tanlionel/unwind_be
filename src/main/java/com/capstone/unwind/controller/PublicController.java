@@ -14,6 +14,7 @@ import com.capstone.unwind.model.PostingDTO.PostingDetailResponseDTO;
 import com.capstone.unwind.model.PostingDTO.PostingResponseDTO;
 import com.capstone.unwind.model.ResortDTO.ResortDetailResponseDTO;
 import com.capstone.unwind.model.ResortDTO.ResortDto;
+import com.capstone.unwind.model.ResortDTO.ResortRandomDto;
 import com.capstone.unwind.model.ResortDTO.UnitTypeResponseDTO;
 import com.capstone.unwind.model.RoomDTO.RoomInfoDto;
 import com.capstone.unwind.model.RoomDTO.RoomRequestDTO;
@@ -188,5 +189,10 @@ public class PublicController {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<FeedbackResponseDto> feedbackPage = feedbackService.getAllFeedbackByResortId(resortId, pageable);
         return feedbackPage ;
+    }
+    @GetMapping("/resort/random")
+    public ResponseEntity<List<ResortRandomDto>> getRandomResorts() {
+            List<ResortRandomDto> resortDtoList = resortService.getRandomResorts();
+            return ResponseEntity.ok(resortDtoList);
     }
 }

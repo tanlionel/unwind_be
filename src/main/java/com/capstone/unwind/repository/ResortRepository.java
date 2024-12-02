@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ResortRepository extends JpaRepository<Resort, Integer> {
     Page<Resort> findAllByResortNameContainingAndIsActiveAndTimeshareCompanyId(String resortName, Boolean isActive,Integer tsId, Pageable pageable);
@@ -29,4 +31,8 @@ public interface ResortRepository extends JpaRepository<Resort, Integer> {
     Long getTotalResorts();
     @Query("SELECT COUNT(r) FROM Resort r WHERE r.timeshareCompany.id = :tsId")
     Long getTotalResorts(@Param("tsId") Integer tsId);
+
+    @Query("SELECT r FROM Resort r WHERE r.isActive = true ORDER BY RAND()")
+    Page<Resort> findTop10ByIsActiveOrderByRandom(Pageable pageable);
+
 }

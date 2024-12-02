@@ -150,14 +150,17 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         if (timeshareCompanyStaffOpt.isEmpty()) {
             throw new OptionalNotFoundException("Timeshare company staff not found with id: " + user.getId());
         }
+        Pageable sortedPageable = pageable.getSort().isSorted()
+                ? pageable
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdDate"));
         TimeshareCompanyStaff timeshareCompanyStaff = timeshareCompanyStaffOpt.get();
         Page<RentalPosting> rentalPostings = null;
         if (packageId != null) {
             rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndStatusAndRoomInfo_Resort_IdAndRentalPackageId(
-                    true, roomInfoCode, String.valueOf(RentalPostingEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), packageId, pageable);
+                    true, roomInfoCode, String.valueOf(RentalPostingEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), packageId, sortedPageable);
         } else {
             rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndStatusAndRoomInfo_Resort_Id(
-                    true, roomInfoCode, String.valueOf(RentalPostingEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), pageable);
+                    true, roomInfoCode, String.valueOf(RentalPostingEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), sortedPageable);
         }
 
         Page<PostingResponseTsStaffDTO> postingDtoPage = rentalPostings.map(listRentalPostingTsStaffMapper::entityToDto);
@@ -166,18 +169,24 @@ public class RentalPostingServiceImplement implements RentalPostingService {
 
     @Override
     public Page<PostingResponseTsStaffDTO> getAllPostingsSystemStaff(String resortName, Pageable pageable, String status) throws OptionalNotFoundException {
+        Pageable sortedPageable = pageable.getSort().isSorted()
+                ? pageable
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<RentalPosting> rentalPostings;
         if (status == null) {
             rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRentalPackage_Id(
-                    true, resortName, 4, pageable);
+                    true, resortName, 4, sortedPageable);
         } else {
             rentalPostings = rentalPostingRepository.findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRentalPackage_IdAndStatus(
-                    true, resortName, 4, pageable, status);
+                    true, resortName, 4, sortedPageable, status);
         }
         return rentalPostings.map(listRentalPostingTsStaffMapper::entityToDto);
     }
 
     public Page<PostingResponseTsStaffDTO> getAllPackagePostingSystemStaff(String resortName, Pageable pageable, String status, Integer packageId) throws OptionalNotFoundException {
+        Pageable sortedPageable = pageable.getSort().isSorted()
+                ? pageable
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdDate"));
         Specification<RentalPosting> spec = Specification.where(RentalPostingSpecification.isActive(true))
                 .and(RentalPostingSpecification.resortNameContains(resortName));
 
@@ -189,7 +198,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
             spec = spec.and(RentalPostingSpecification.hasPackageId(packageId));
         }
 
-        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAll(spec, pageable);
+        Page<RentalPosting> rentalPostings = rentalPostingRepository.findAll(spec, sortedPageable);
         return rentalPostings.map(listRentalPostingTsStaffMapper::entityToDto);
     }
 

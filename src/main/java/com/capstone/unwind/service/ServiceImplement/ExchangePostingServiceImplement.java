@@ -151,8 +151,11 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
             throw new OptionalNotFoundException("Timeshare company staff not found with id: " + user.getId());
         }
         TimeshareCompanyStaff timeshareCompanyStaff = timeshareCompanyStaffOpt.get();
+        Pageable sortedPageable = pageable.getSort().isSorted()
+                ? pageable
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<ExchangePosting> exchangePostings = exchangePostingRepository.findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndStatusAndRoomInfo_Resort_Id(
-                true, roomInfoCode, String.valueOf(ExchangePostingEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), pageable);
+                true, roomInfoCode, String.valueOf(ExchangePostingEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), sortedPageable);
 
         Page<ExchangePostingResponseTsStaffDTO> postingDtoPage = exchangePostings.map(listExchangePostingTsStaffMapper::entityToDto);
         return postingDtoPage;
@@ -315,12 +318,15 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
     @Override
     public Page<PostingExchangeResponseDTO> getAllExchangePublicPostings(String resortName, Pageable pageable,Integer resortId) throws OptionalNotFoundException {
         Page<ExchangePosting> exchangePostings = null;
+        Pageable sortedPageable = pageable.getSort().isSorted()
+                ? pageable
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdDate"));
         if (resortId == null) {
             exchangePostings = exchangePostingRepository.findAllByFilters(true,
-                    resortName, String.valueOf(ExchangePostingEnum.Processing), pageable);
+                    resortName, String.valueOf(ExchangePostingEnum.Processing), sortedPageable);
         }else {
             exchangePostings = exchangePostingRepository.findAllByFiltersWithResortId(true,
-                    resortName, String.valueOf(ExchangePostingEnum.Processing),resortId, pageable);
+                    resortName, String.valueOf(ExchangePostingEnum.Processing),resortId, sortedPageable);
         }
         Page<PostingExchangeResponseDTO> postingDtoPage = exchangePostings.map(listExchangePostingMapper::entityToDto);
         return postingDtoPage;
@@ -382,9 +388,12 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         if (timeshareCompanyStaffOpt.isEmpty()) {
             throw new OptionalNotFoundException("Timeshare company staff not found with id: " + user.getId());
         }
+        Pageable sortedPageable = pageable.getSort().isSorted()
+                ? pageable
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdDate"));
         TimeshareCompanyStaff timeshareCompanyStaff = timeshareCompanyStaffOpt.get();
         Page<ExchangeRequest> exchangePostings = exchangeRequestRepository.findAllByIsActiveAndRoomInfo_RoomInfoCodeContainingAndStatusAndRoomInfo_Resort_Id(
-                true, roomInfoCode, String.valueOf(ExchangeRequestEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), pageable);
+                true, roomInfoCode, String.valueOf(ExchangeRequestEnum.PendingApproval), timeshareCompanyStaff.getResort().getId(), sortedPageable);
 
         Page<ExchangeRequestBasicDto> postingDtoPage = exchangePostings.map(exchangeRequestListMapper::toDto);
         return postingDtoPage;

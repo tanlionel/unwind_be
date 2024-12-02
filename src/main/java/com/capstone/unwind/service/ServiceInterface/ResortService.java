@@ -33,4 +33,5 @@ public interface ResortService {
             throws EntityDoesNotExistException, ErrMessageException, UserDoesNotHavePermission;
     UnitTypeResponseDTO deActiveUnitType(Integer unitTypeId)
             throws  ErrMessageException, UserDoesNotHavePermission;
+    public List<ResortRandomDto> getRandomResorts();
 }
