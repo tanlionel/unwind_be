@@ -24,6 +24,7 @@ public interface ExchangeRequestRepository extends JpaRepository<ExchangeRequest
     @Query("SELECT r FROM ExchangeRequest r WHERE r.id = :requestId AND r.isActive = true")
     Optional<ExchangeRequest> findByIdAndIsActive(@Param("requestId") Integer requestId);
 
-
+    @Query("SELECT COUNT(r) FROM ExchangeRequest r WHERE r.owner.id = :ownerId ")
+    Long getExchangeRequestByUserId(@Param("ownerId") Integer ownerId);
     Optional<ExchangeRequest> findByExchangePostingIdAndIsActive(Integer postingId,boolean isActive);
 }

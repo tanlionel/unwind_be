@@ -1,6 +1,7 @@
 package com.capstone.unwind.controller;
 
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.DashboardDTO.CustomerDashboardDto;
 import com.capstone.unwind.model.TotalPackageDTO.TotalPackageDto;
 import com.capstone.unwind.service.ServiceInterface.DashboardService;
 import com.capstone.unwind.service.ServiceInterface.ExchangePostingService;
@@ -54,5 +55,10 @@ public class DashboardController {
     @GetMapping("/timeshare-company/total-money/month")
     public ResponseEntity<Map<String, Double>> getMonthlyMoneyReceived() throws OptionalNotFoundException {
         return ResponseEntity.ok(dashboardService.getMonthlyMoneyReceivedInLast12Months());
+    }
+    @GetMapping("/customer/dashboard")
+    public ResponseEntity<CustomerDashboardDto> getCustomerDashboard() {
+        CustomerDashboardDto customerDashboard = dashboardService.getCustomerDashboard();
+        return ResponseEntity.ok(customerDashboard);
     }
 }

@@ -1,9 +1,11 @@
 package com.capstone.unwind.service.ServiceImplement;
 
+import com.capstone.unwind.entity.Customer;
 import com.capstone.unwind.entity.TimeshareCompany;
 import com.capstone.unwind.entity.User;
 import com.capstone.unwind.entity.Wallet;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.DashboardDTO.CustomerDashboardDto;
 import com.capstone.unwind.model.TotalPackageDTO.TotalPackageDto;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.DashboardService;
@@ -29,6 +31,8 @@ public class DashboardServiceImplement implements DashboardService {
     @Autowired
     private final UserRepository userRepository;
     @Autowired
+    private final CustomerRepository customerRepository;
+    @Autowired
     private final ResortRepository resortRepository;
     @Autowired
     private final TimeshareCompanyStaffRepository timeshareCompanyStaffRepository;
@@ -40,6 +44,12 @@ public class DashboardServiceImplement implements DashboardService {
     private final TimeshareCompanyRepository timeshareCompanyRepository;
     @Autowired
     private final WalletTransactionRepository walletTransactionRepository;
+    @Autowired
+    private final ExchangeRequestRepository exchangeRequestRepository;
+    @Autowired
+    private final RentalBookingRepository rentalBookingRepository;
+    @Autowired
+    private final ExchangeBookingRepository exchangeBookingRepository;
 
 
     @Override
@@ -90,6 +100,27 @@ public class DashboardServiceImplement implements DashboardService {
                 .totalRentalPackage(rentalPackage != null ? rentalPackage : 0L)
                 .totalExchangePackage(exchangePackage != null ? exchangePackage : 0L)
                 .totalMemberShip(membershipPackage != null ? membershipPackage : 0L)
+                .build();
+    }
+    @Override
+    public CustomerDashboardDto getCustomerDashboard() {
+        User user = userService.getLoginUser();
+        Customer customer = customerRepository.findByUserId(user.getId());
+        Long rentalPosting = rentalPostingRepository.getRentalPostingByUserId(customer.getId());
+        Long exchangePosting = exchangePostingRepository.getExchangePostingByUserId(customer.getId());
+        Long totalPosting = rentalPosting + exchangePosting;
+        Long totalRentalRenter = rentalPostingRepository.getRentalRenterByUserId(customer.getId());
+        Long totalExchangeRenter = exchangePostingRepository.getExchangeRenterByUserId(customer.getId());
+        Long totalExchangerRequest = exchangeRequestRepository.getExchangeRequestByUserId(customer.getId());
+        Long rentalBooking = rentalBookingRepository.getRentalBookingByUserId(customer.getId());
+        Long exchangeBooking = exchangeBookingRepository.getExchangeBookingByUserId(customer.getId());
+        Long totalBooking = rentalBooking + exchangeBooking;
+        return CustomerDashboardDto.builder()
+                .totalPosting(totalPosting != null ? totalPosting : 0L)
+                .totalRentalRenter(totalRentalRenter != null ? totalRentalRenter : 0L)
+                .totalExchangerRenter(totalExchangeRenter != null ? totalExchangeRenter : 0L)
+                .totalRequest(totalExchangerRequest != null ? totalExchangerRequest : 0L)
+                .totalBooking(totalBooking != null ? totalBooking : 0L)
                 .build();
     }
     @Override
