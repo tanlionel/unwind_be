@@ -16,6 +16,8 @@ public class ResortDto implements Serializable {
     String resortName;
     String resortLocationName;
     String resortLocationDisplayName;
+    String resortLocationLatitude;
+    String resortLocationLongitude;
     String logo;
     Float minPrice;
     Float maxPrice;
