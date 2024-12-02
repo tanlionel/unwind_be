@@ -42,7 +42,7 @@ public class ExchangeBookingDetailDto implements Serializable {
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss", timezone = "Asia/Bangkok")
     Timestamp updatedDate;
     String source;
-
+    Boolean isPrimaryGuest;
     /**
      * DTO for {@link RoomInfo}
      */
