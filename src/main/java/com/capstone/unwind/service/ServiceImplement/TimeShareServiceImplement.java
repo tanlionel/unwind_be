@@ -6,6 +6,7 @@ import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.exception.UserDoesNotHavePermission;
+import com.capstone.unwind.model.ResortDTO.ResortDetailResponseDTO;
 import com.capstone.unwind.model.ResortDTO.ResortRandomDto;
 import com.capstone.unwind.model.ResortDTO.UnitTypeRequestDTO;
 import com.capstone.unwind.model.ResortDTO.UnitTypeResponseDTO;
@@ -176,7 +177,18 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .resortImage(resort.get().getLogo())
                 .roomName(roomInfo.get().getRoomInfoName())
                 .roomCode(roomInfo.get().getRoomInfoCode())
-                .resortAddress(resort.get().getLocation().getName())
+                .location(resort.get().getLocation() != null ?
+                        TimeShareDetailDTO.LocationDTO.builder()
+                                .name(resort.get().getLocation().getName())
+                                .displayName(resort.get().getLocation().getDisplayName())
+                                .latitude(resort.get().getLocation().getLatitude())
+                                .longitude(resort.get().getLocation().getLongitude())
+                                .country(resort.get().getLocation().getCountry())
+                                .placeId(resort.get().getLocation().getPlaceId())
+                                .build()
+                        : null)
+                .startYear(timeShare.getStartYear())
+                .endYear(timeShare.getEndYear())
                 .startDate(timeShare.getStartDate())
                 .endDate(timeShare.getEndDate())
                 .resortId(resort.get().getId())

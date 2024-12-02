@@ -2,6 +2,7 @@ package com.capstone.unwind.model.TimeShareDTO;
 
 import com.capstone.unwind.model.RoomDTO.RoomAmenityDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -20,14 +21,15 @@ public class TimeShareDetailDTO {
     private String roomCode;
     private String roomName;
     private Integer roomId;
-
-    private String resortAddress;
-    private Integer resortId;
+    private Integer startYear;
+    private Integer endYear;
+    private LocationDTO location;
     private String resortImage;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate startDate;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate endDate;
+    private Integer resortId;
     private unitType unitType;
     private List<RoomAmenityDto> roomAmenities;
     @Data
@@ -52,5 +54,17 @@ public class TimeShareDetailDTO {
         String photos;
         Integer sleeps;
         String view;
+    }
+    @Data
+    @Getter
+    @Setter
+    @Builder
+    public static class LocationDTO {
+        String name;
+        String displayName;
+        String latitude;
+        String longitude;
+        String country;
+        String placeId;
     }
 }
