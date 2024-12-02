@@ -7,5 +7,5 @@ public enum ExchangePostingEnum {
     Closed,
     Expired,
     Reject,
-  /*  Completed,*/
+    Completed,
 }

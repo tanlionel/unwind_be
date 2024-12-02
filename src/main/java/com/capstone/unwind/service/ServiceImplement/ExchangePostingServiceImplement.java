@@ -415,6 +415,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
             roomInfo.setUnitType(unitType.get());
             RoomInfo roomInfoAfterSave = roomInfoRepository.save(roomInfo);
         }
+        exchangePostingUpdate.getExchangePosting().setStatus(String.valueOf(ExchangePostingEnum.Completed));
         exchangePostingUpdate.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
         exchangePostingUpdate.setNote(exchangePostingApprovalDto.getNote());
         ExchangeRequest exchangeRequestInDb = exchangeRequestRepository.save(exchangePostingUpdate);
@@ -538,7 +539,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
             exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Accepted));
         } else if (exchangePosting.getExchangePackage().getId() == 1) {
             exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
-            exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Accepted));
+            exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Completed));
             Period period = Period.between(exchangeRequest.getStartDate(), exchangeRequest.getEndDate());
             int days = period.getDays() + 1;
 

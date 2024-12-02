@@ -82,7 +82,7 @@ public interface ExchangePostingRepository extends JpaRepository<ExchangePosting
     @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.owner.id = :ownerId ")
     Long getExchangePostingByUserId(@Param("ownerId") Integer ownerId);
 
-    @Query("SELECT COUNT(r) FROM ExchangePosting r WHERE r.owner.id = :ownerId AND r.status = 'Accepted'")
+    @Query("SELECT COUNT(r) FROM ExchangePosting r WHERE r.owner.id = :ownerId AND r.status = 'Completed'")
     Long getExchangeRenterByUserId(@Param("ownerId") Integer ownerId);
 
 
