@@ -73,5 +73,9 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
 
     @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.rentalPackage.isActive = true ")
     Long getRentalPackage();
+    @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.owner.id = :ownerId")
+    Long getRentalPostingByUserId(@Param("ownerId") Integer ownerId);
 
+    @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.owner.id = :ownerId AND r.status = 'Completed'")
+    Long getRentalRenterByUserId(@Param("ownerId") Integer ownerId);
 }
