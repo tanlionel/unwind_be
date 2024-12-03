@@ -29,6 +29,10 @@ public class SecurityConfiguration {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests( auth ->
                         auth
+                                .requestMatchers("api/notifications/**")
+                                .permitAll()
+//                                .requestMatchers("/websocket/**")
+//                                .permitAll()
                                 .requestMatchers("api/auth/**")
                                 .permitAll()
                                 .requestMatchers("/v3/**")
