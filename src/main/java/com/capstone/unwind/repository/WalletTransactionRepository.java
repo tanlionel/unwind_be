@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,6 +35,8 @@ public interface WalletTransactionRepository extends JpaRepository<WalletTransac
                                             @Param("startDate") LocalDateTime startDate);
     @Query("SELECT COUNT(r) FROM WalletTransaction r WHERE r.transactionType = 'MEMBERSHIP'")
     Long getTotalMEMBERSGIP();
+    @Query("SELECT COUNT(w) FROM WalletTransaction w WHERE w.createdAt BETWEEN :startDate AND :endDate AND w.transactionType = 'MEMBERSHIP'")
+    Long countMembershipPackageByDateRange(@Param("startDate") Timestamp startDate, @Param("endDate") Timestamp endDate);
     Page<WalletTransaction> findAll(Pageable pageable);
     Page<WalletTransaction> findAllByTransactionType(String walletTransaction, Pageable pageable);
 

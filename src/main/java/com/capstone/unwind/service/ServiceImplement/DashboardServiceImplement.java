@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -96,6 +97,17 @@ public class DashboardServiceImplement implements DashboardService {
         Long rentalPackage = rentalPostingRepository.getRentalPackage();
         Long exchangePackage = exchangePostingRepository.getExchangePackage();
         Long membershipPackage = walletTransactionRepository.getTotalMEMBERSGIP();
+        return TotalPackageDto.builder()
+                .totalRentalPackage(rentalPackage != null ? rentalPackage : 0L)
+                .totalExchangePackage(exchangePackage != null ? exchangePackage : 0L)
+                .totalMemberShip(membershipPackage != null ? membershipPackage : 0L)
+                .build();
+    }
+    @Override
+    public TotalPackageDto getTotalPackageByDate(Timestamp startDate, Timestamp endDate) {
+        Long rentalPackage = rentalPostingRepository.countRentalPackageByDateRange(startDate, endDate);
+        Long exchangePackage = exchangePostingRepository.countExchangePackageByDateRange(startDate, endDate);
+        Long membershipPackage = walletTransactionRepository.countMembershipPackageByDateRange(startDate, endDate);
         return TotalPackageDto.builder()
                 .totalRentalPackage(rentalPackage != null ? rentalPackage : 0L)
                 .totalExchangePackage(exchangePackage != null ? exchangePackage : 0L)

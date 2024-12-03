@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,6 +74,8 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
 
     @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.rentalPackage.isActive = true ")
     Long getRentalPackage();
+    @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.createdDate BETWEEN :startDate AND :endDate")
+    Long countRentalPackageByDateRange(@Param("startDate") Timestamp startDate, @Param("endDate") Timestamp endDate);
     @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.owner.id = :ownerId")
     Long getRentalPostingByUserId(@Param("ownerId") Integer ownerId);
 
