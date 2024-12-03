@@ -7,9 +7,14 @@ import com.capstone.unwind.service.ServiceInterface.DashboardService;
 import com.capstone.unwind.service.ServiceInterface.ExchangePostingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Map;
 
 @RestController
@@ -25,6 +30,15 @@ public class DashboardController {
     @GetMapping("/system-staff/total-packages")
     public ResponseEntity<TotalPackageDto> getTotalPackage() {
         TotalPackageDto totalPackage = dashboardService.getTotalPackage();
+        return ResponseEntity.ok(totalPackage);
+    }
+    @GetMapping("/system-staff/total-packages/date")
+    public ResponseEntity<TotalPackageDto> getTotalPackageByDate(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        Timestamp startTimestamp = Timestamp.valueOf(startDate.atStartOfDay());
+        Timestamp endTimestamp = Timestamp.valueOf(endDate.atTime(LocalTime.MAX));
+        TotalPackageDto totalPackage = dashboardService.getTotalPackageByDate(startTimestamp, endTimestamp);
         return ResponseEntity.ok(totalPackage);
     }
     @GetMapping("/system-staff/total-customers")

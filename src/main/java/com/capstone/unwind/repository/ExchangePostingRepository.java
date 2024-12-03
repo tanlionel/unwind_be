@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,6 +79,8 @@ public interface ExchangePostingRepository extends JpaRepository<ExchangePosting
 
     @Query("SELECT COUNT(r) FROM ExchangePosting r WHERE r.exchangePackage.isActive = true ")
     Long getExchangePackage();
+    @Query("SELECT COUNT(e) FROM ExchangePosting e WHERE e.createdDate BETWEEN :startDate AND :endDate")
+    Long countExchangePackageByDateRange(@Param("startDate") Timestamp startDate, @Param("endDate") Timestamp endDate);
 
     @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.owner.id = :ownerId ")
     Long getExchangePostingByUserId(@Param("ownerId") Integer ownerId);
