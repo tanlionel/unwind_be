@@ -25,7 +25,7 @@ public interface PostingDetailMapper {
     @Mapping(source = "owner.fullName", target = "ownerName")
     @Mapping(source = "timeshare.id", target = "timeShareId")
     @Mapping(source = "timeshare.roomInfo.id", target = "roomInfoId")
-    @Mapping(source = "timeshare.roomInfo.roomInfoName", target = "roomName")
+    @Mapping(source = "timeshare.roomInfo.roomInfoCode", target = "roomCode")
     @Mapping(source = "timeshare.roomInfo.resort.id", target = "resortId")
     @Mapping(source = "timeshare.roomInfo.resort.resortName", target = "resortName")
     @Mapping(source = "isVerify", target = "isVerify")

@@ -22,7 +22,7 @@ public class PostingExchangeDetailResponseDTO {
     private String ownerName;
     private Integer timeShareId;
     private Integer roomInfoId;
-    private String roomName;
+    private String roomCode;
     private Integer resortId;
     private String resortName;
     private Boolean isVerify;
