@@ -352,9 +352,11 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 .owner(customer)
                 .startDate(exchangeRequestDto.getStartDate())
                 .endDate(exchangeRequestDto.getEndDate())
-                .status(String.valueOf(ExchangeRequestEnum.PendingCustomer))
+                .status(String.valueOf(ExchangeRequestEnum.PendingOwner))
                 .exchangePosting(exchangePosting)
+                .priceValuation(exchangeRequestDto.getPriceValuation())
                 .isActive(true)
+                .note(exchangeRequestDto.getNote())
                 .build();
         ExchangeRequestDetailDto exchangeRequestDetailDto = exchangeRequestMapper.toDto(exchangeRequestRepository.save(exchangeRequest));
 
@@ -405,59 +407,67 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
 
     @Override
     public ExchangeRequestBasicDto approvalRequestTimeshareStaff(Integer requestId, ExchangePostingApprovalDto exchangePostingApprovalDto) throws OptionalNotFoundException, ErrMessageException {
-        Optional<ExchangeRequest> ExchangeRequest = exchangeRequestRepository.findByIdAndIsActive(requestId);
-        if (!ExchangeRequest.isPresent()) throw new OptionalNotFoundException("Not found exchange posting");
-        if (!ExchangeRequest.get().getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingApproval)))
+        Optional<ExchangeRequest> exchangeRequest = exchangeRequestRepository.findByIdAndIsActive(requestId);
+        if (!exchangeRequest.isPresent()) throw new OptionalNotFoundException("Not found exchange posting");
+        if (!exchangeRequest.get().getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingApproval)))
             throw new ErrMessageException("Status must be pending approval");
         Optional<UnitType> unitType = null;
         if (exchangePostingApprovalDto.getUnitTypeId() != 0) {
             unitType = unitTypeRepository.findById(exchangePostingApprovalDto.getUnitTypeId());
             if (!unitType.isPresent()) throw new OptionalNotFoundException("Not found unit type ");
         }
-        ExchangeRequest exchangePostingUpdate = ExchangeRequest.get();
+        ExchangeRequest exchangeRequestUpdate = exchangeRequest.get();
         if (exchangePostingApprovalDto.getUnitTypeId() != 0) {
-            RoomInfo roomInfo = exchangePostingUpdate.getRoomInfo();
+            RoomInfo roomInfo = exchangeRequestUpdate.getRoomInfo();
             roomInfo.setUnitType(unitType.get());
             RoomInfo roomInfoAfterSave = roomInfoRepository.save(roomInfo);
         }
-        exchangePostingUpdate.getExchangePosting().setStatus(String.valueOf(ExchangePostingEnum.Completed));
-        exchangePostingUpdate.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
-        exchangePostingUpdate.setNote(exchangePostingApprovalDto.getNote());
-        ExchangeRequest exchangeRequestInDb = exchangeRequestRepository.save(exchangePostingUpdate);
-        Period period = Period.between(exchangeRequestInDb.getStartDate(), exchangeRequestInDb.getEndDate());
-        int days = period.getDays() + 1;
+        exchangeRequestUpdate.getExchangePosting().setStatus(String.valueOf(ExchangePostingEnum.Completed));
+        exchangeRequestUpdate.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
+        exchangeRequestUpdate.setNote(exchangePostingApprovalDto.getNote());
+        if (exchangeRequestUpdate.getPriceValuation() > 0 ){
+            exchangeRequestUpdate.setStatus(String.valueOf(ExchangeRequestEnum.PendingRenterPayment));
+        }else if(exchangeRequestUpdate.getPriceValuation()<0){
+            exchangeRequestUpdate.setStatus(String.valueOf(ExchangeRequestEnum.PendingOwnerPayment));
+        }
+        ExchangeRequest exchangeRequestInDb = exchangeRequestRepository.save(exchangeRequestUpdate);
 
-        ExchangeBooking requesterBooking =  ExchangeBooking.builder()
-                .isActive(true)
-                .checkoutDate(exchangeRequestInDb.getEndDate())
-                .checkinDate(exchangeRequestInDb.getStartDate())
-                .status(String.valueOf(ExchangeBookingEnum.Booked))
-                .exchangeRequest(exchangeRequestInDb)
-                .exchangePosting(exchangeRequestInDb.getExchangePosting())
-                .renter(exchangeRequestInDb.getExchangePosting().getOwner())
-                .roomInfo(exchangeRequestInDb.getRoomInfo())
-                .timeshare(exchangeRequestInDb.getTimeshare())
-                .nights(days)
-                .isPrimaryGuest(false)
-                .isFeedback(false)
-                .build();
-        exchangeBookingRepository.save(requesterBooking);
+        if (exchangeRequestInDb.getPriceValuation()== 0.0f){
+            Period period = Period.between(exchangeRequestInDb.getStartDate(), exchangeRequestInDb.getEndDate());
+            int days = period.getDays() + 1;
+            ExchangeBooking requesterBooking =  ExchangeBooking.builder()
+                    .isActive(true)
+                    .checkoutDate(exchangeRequestInDb.getEndDate())
+                    .checkinDate(exchangeRequestInDb.getStartDate())
+                    .status(String.valueOf(ExchangeBookingEnum.Booked))
+                    .exchangeRequest(exchangeRequestInDb)
+                    .exchangePosting(exchangeRequestInDb.getExchangePosting())
+                    .renter(exchangeRequestInDb.getExchangePosting().getOwner())
+                    .roomInfo(exchangeRequestInDb.getRoomInfo())
+                    .timeshare(exchangeRequestInDb.getTimeshare())
+                    .nights(days)
+                    .isPrimaryGuest(false)
+                    .isFeedback(false)
+                    .build();
+            exchangeBookingRepository.save(requesterBooking);
 
-        ExchangeBooking ownerBooking = ExchangeBooking.builder()
-                .timeshare(exchangeRequestInDb.getExchangePosting().getTimeshare())
-                .roomInfo(exchangeRequestInDb.getExchangePosting().getRoomInfo())
-                .renter(exchangeRequestInDb.getOwner())
-                .exchangePosting(exchangeRequestInDb.getExchangePosting())
-                .exchangeRequest(exchangeRequestInDb)
-                .status(String.valueOf(ExchangeBookingEnum.Booked))
-                .checkoutDate(exchangeRequestInDb.getExchangePosting().getCheckoutDate())
-                .checkinDate(exchangeRequestInDb.getExchangePosting().getCheckinDate())
-                .nights(exchangeRequestInDb.getExchangePosting().getNights())
-                .isFeedback(false)
-                .isPrimaryGuest(false)
-                .isActive(true)
-                .build();
-        exchangeBookingRepository.save(ownerBooking);
+            ExchangeBooking ownerBooking = ExchangeBooking.builder()
+                    .timeshare(exchangeRequestInDb.getExchangePosting().getTimeshare())
+                    .roomInfo(exchangeRequestInDb.getExchangePosting().getRoomInfo())
+                    .renter(exchangeRequestInDb.getOwner())
+                    .exchangePosting(exchangeRequestInDb.getExchangePosting())
+                    .exchangeRequest(exchangeRequestInDb)
+                    .status(String.valueOf(ExchangeBookingEnum.Booked))
+                    .checkoutDate(exchangeRequestInDb.getExchangePosting().getCheckoutDate())
+                    .checkinDate(exchangeRequestInDb.getExchangePosting().getCheckinDate())
+                    .nights(exchangeRequestInDb.getExchangePosting().getNights())
+                    .isFeedback(false)
+                    .isPrimaryGuest(false)
+                    .isActive(true)
+                    .build();
+            exchangeBookingRepository.save(ownerBooking);
+        }
+
         try{
             TimeShareCompanyStaffDTO timeshareCompanyStaff = timeShareStaffService.getLoginStaff();
             float fee = 0;
@@ -499,8 +509,11 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         if (!exchangeRequest.get().getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingApproval)))
             throw new ErrMessageException("Status must be pending approval");
         exchangeRequest.get().setNote(note);
-        exchangeRequest.get().setStatus(String.valueOf(ExchangeRequestEnum.Reject));
+        exchangeRequest.get().setStatus(String.valueOf(ExchangeRequestEnum.RejectApproval));
         ExchangeRequest exchangePostingInDb = exchangeRequestRepository.save(exchangeRequest.get());
+        ExchangePosting exchangePosting = exchangeRequest.get().getExchangePosting();
+        exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Processing));
+        exchangePostingRepository.save(exchangePosting);
         try{
             TimeShareCompanyStaffDTO timeshareCompanyStaff = timeShareStaffService.getLoginStaff();
             float fee = 0;
@@ -539,7 +552,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         if (exchangePosting == null) {
             throw new OptionalNotFoundException("Exchange Posting not found");
         }
-        if (exchangePosting.getExchangePackage().getId() == 2) {
+        if (exchangePosting.getExchangePackage().getId() == 2 && (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingOwner))||exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPricing)))) {
             exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.PendingApproval));
             exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Accepted));
         } else if (exchangePosting.getExchangePackage().getId() == 1) {
@@ -592,7 +605,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 throw new ErrMessageException("Failed to send email notification");
             }
         } else {
-            throw new ErrMessageException("Invalid exchange package type");
+            throw new ErrMessageException("Invalid request status or package type");
         }
 
         exchangeRequestRepository.save(exchangeRequest);
@@ -630,6 +643,42 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
             throw new ErrMessageException("Error when saving images");
         }
         return exchangePostingResponseMapper.toDto(updatedExchangePosting);
+    }
+
+    @Override
+    public ExchangeRequestBasicDto rejectRequestCustomer(Integer requestId) throws OptionalNotFoundException, ErrMessageException {
+        ExchangeRequest exchangeRequest = exchangeRequestRepository.findByIdAndIsActive(requestId).orElseThrow(()->new OptionalNotFoundException("Not found request exchange"));
+        if (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPricing)) || exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingOwner))){
+            if (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPricing))){
+                exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.RenterReject));
+            }else {
+                exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.OwnerReject));
+            }
+        }else {
+            throw new ErrMessageException("Must be status pending renter pricing or pending owner");
+        }
+        ExchangeRequest exchangeRequestInDb = exchangeRequestRepository.save(exchangeRequest);
+        return exchangeRequestListMapper.toDto(exchangeRequestInDb);
+    }
+
+    @Override
+    public ExchangeRequestBasicDto pricingRequest(Integer requestId, Float priceValuation,String note) throws OptionalNotFoundException, ErrMessageException {
+        ExchangeRequest exchangeRequest = exchangeRequestRepository.findByIdAndIsActive(requestId).orElseThrow(()->new OptionalNotFoundException("Not found request exchange"));
+        if (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPricing))||exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingOwner))){
+            if (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingOwner))){
+                exchangeRequest.setPriceValuation(priceValuation);
+                exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.PendingRenterPricing));
+                exchangeRequest.setNote(note);
+            }else {
+                exchangeRequest.setPriceValuation(priceValuation);
+                exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.PendingOwner));
+                exchangeRequest.setNote(note);
+            }
+        }else {
+            throw new ErrMessageException("Must be status pending renter pricing or pending owner");
+        }
+        ExchangeRequest exchangeRequestInDb = exchangeRequestRepository.save(exchangeRequest);
+        return exchangeRequestListMapper.toDto(exchangeRequestInDb);
     }
 
 

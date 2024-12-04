@@ -26,6 +26,8 @@ public class ExchangeRequestBasicDto implements Serializable {
     Timestamp createdDate;
     @JsonFormat(pattern = "dd-MM-yyyy HH::mm:ss", timezone = "Asia/Bangkok")
     Timestamp updatedDate;
+    Float priceValuation;
+
     Boolean isActive;
 
     /**

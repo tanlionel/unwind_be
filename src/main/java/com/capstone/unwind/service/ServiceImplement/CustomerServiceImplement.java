@@ -1,6 +1,10 @@
 package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.entity.*;
+import com.capstone.unwind.enums.ExchangeBookingEnum;
+import com.capstone.unwind.enums.ExchangePostingEnum;
+import com.capstone.unwind.enums.ExchangeRequestEnum;
+import com.capstone.unwind.enums.WalletTransactionEnum;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.CustomerDTO.*;
@@ -17,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -53,6 +58,12 @@ public class CustomerServiceImplement implements CustomerService {
     private final ExchangePackageRepository exchangePackageRepository;
     @Autowired
     private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private final ExchangeRequestRepository exchangeRequestRepository;
+    @Autowired
+    private final ExchangePostingRepository exchangePostingRepository;
+    @Autowired
+    private final ExchangeBookingRepository exchangeBookingRepository;
 
     @Override
     public CustomerDto createCustomer(CustomerRequestDto customerRequestDto) throws OptionalNotFoundException {
@@ -393,5 +404,127 @@ public class CustomerServiceImplement implements CustomerService {
         user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
 
         userRepository.save(user);
+    }
+
+    @Override
+    public WalletTransactionDto paymentExchangeRequestVNPAY(UUID uuid, Integer requestId) throws OptionalNotFoundException, ErrMessageException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+
+        ExchangeRequest exchangeRequest = exchangeRequestRepository.findByIdAndIsActive(requestId).orElseThrow(()-> new OptionalNotFoundException("not found exchange request"));
+        String description = "Thanh toán bù trừ trao đổi timeshare";
+        String transactionType = String.valueOf(WalletTransactionEnum.EXCHANGEREQUEST_VALUATION);
+        //update transaction
+        WalletTransaction walletTransaction = walletService.updateTransaction(uuid,description,transactionType);
+        exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
+        exchangeRequestRepository.save(exchangeRequest);
+        ExchangePosting exchangePosting = exchangeRequest.getExchangePosting();
+        exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Completed));
+        exchangePostingRepository.save(exchangePosting);
+
+
+
+        Period period = Period.between(exchangeRequest.getStartDate(), exchangeRequest.getEndDate());
+        int days = period.getDays() + 1;
+        ExchangeBooking requesterBooking =  ExchangeBooking.builder()
+                .isActive(true)
+                .checkoutDate(exchangeRequest.getEndDate())
+                .checkinDate(exchangeRequest.getStartDate())
+                .status(String.valueOf(ExchangeBookingEnum.Booked))
+                .exchangeRequest(exchangeRequest)
+                .exchangePosting(exchangeRequest.getExchangePosting())
+                .renter(exchangeRequest.getExchangePosting().getOwner())
+                .roomInfo(exchangeRequest.getRoomInfo())
+                .timeshare(exchangeRequest.getTimeshare())
+                .nights(days)
+                .isPrimaryGuest(false)
+                .isFeedback(false)
+                .build();
+        exchangeBookingRepository.save(requesterBooking);
+
+        ExchangeBooking ownerBooking = ExchangeBooking.builder()
+                .timeshare(exchangeRequest.getExchangePosting().getTimeshare())
+                .roomInfo(exchangeRequest.getExchangePosting().getRoomInfo())
+                .renter(exchangeRequest.getOwner())
+                .exchangePosting(exchangeRequest.getExchangePosting())
+                .exchangeRequest(exchangeRequest)
+                .status(String.valueOf(ExchangeBookingEnum.Booked))
+                .checkoutDate(exchangeRequest.getExchangePosting().getCheckoutDate())
+                .checkinDate(exchangeRequest.getExchangePosting().getCheckinDate())
+                .nights(exchangeRequest.getExchangePosting().getNights())
+                .isFeedback(false)
+                .isPrimaryGuest(false)
+                .isActive(true)
+                .build();
+        exchangeBookingRepository.save(ownerBooking);
+
+        return walletTransactionMapper.toDto(walletTransaction);
+    }
+
+    @Override
+    public WalletTransactionDto paymentExchangeRequestWallet(Integer exchangeRequestId) throws OptionalNotFoundException, ErrMessageException {
+        User user = userService.getLoginUser();
+        if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
+        if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
+        ExchangeRequest exchangeRequest = exchangeRequestRepository.findByIdAndIsActive(exchangeRequestId).orElseThrow(()-> new OptionalNotFoundException("not found exchange request"));
+
+
+        if (Math.abs(exchangeRequest.getPriceValuation())>user.getCustomer().getWallet().getAvailableMoney()) throw new ErrMessageException("not enough money");
+        user.getCustomer().getWallet().setAvailableMoney(user.getCustomer().getWallet().getAvailableMoney()-Math.abs(exchangeRequest.getPriceValuation()));
+
+        WalletTransaction walletTransaction = walletService.createTransactionWallet(0,-Math.abs(exchangeRequest.getPriceValuation()), "WALLET");
+        walletRepository.save(user.getCustomer().getWallet());
+
+
+        String description = "Thanh toán bù trừ trao đổi timeshare ";
+        String transactionType = String.valueOf(WalletTransactionEnum.EXCHANGEREQUEST_VALUATION);
+        //update transaction
+        WalletTransaction walletTransactionAfterUpdate = walletService.updateTransaction(walletTransaction.getId(),description,transactionType);
+
+
+        exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
+        exchangeRequestRepository.save(exchangeRequest);
+        ExchangePosting exchangePosting = exchangeRequest.getExchangePosting();
+        exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Completed));
+        exchangePostingRepository.save(exchangePosting);
+
+        walletRepository.save(user.getCustomer().getWallet());
+
+
+        Period period = Period.between(exchangeRequest.getStartDate(), exchangeRequest.getEndDate());
+        int days = period.getDays() + 1;
+        ExchangeBooking requesterBooking =  ExchangeBooking.builder()
+                .isActive(true)
+                .checkoutDate(exchangeRequest.getEndDate())
+                .checkinDate(exchangeRequest.getStartDate())
+                .status(String.valueOf(ExchangeBookingEnum.Booked))
+                .exchangeRequest(exchangeRequest)
+                .exchangePosting(exchangeRequest.getExchangePosting())
+                .renter(exchangeRequest.getExchangePosting().getOwner())
+                .roomInfo(exchangeRequest.getRoomInfo())
+                .timeshare(exchangeRequest.getTimeshare())
+                .nights(days)
+                .isPrimaryGuest(false)
+                .isFeedback(false)
+                .build();
+        exchangeBookingRepository.save(requesterBooking);
+
+        ExchangeBooking ownerBooking = ExchangeBooking.builder()
+                .timeshare(exchangeRequest.getExchangePosting().getTimeshare())
+                .roomInfo(exchangeRequest.getExchangePosting().getRoomInfo())
+                .renter(exchangeRequest.getOwner())
+                .exchangePosting(exchangeRequest.getExchangePosting())
+                .exchangeRequest(exchangeRequest)
+                .status(String.valueOf(ExchangeBookingEnum.Booked))
+                .checkoutDate(exchangeRequest.getExchangePosting().getCheckoutDate())
+                .checkinDate(exchangeRequest.getExchangePosting().getCheckinDate())
+                .nights(exchangeRequest.getExchangePosting().getNights())
+                .isFeedback(false)
+                .isPrimaryGuest(false)
+                .isActive(true)
+                .build();
+        exchangeBookingRepository.save(ownerBooking);
+        return walletTransactionMapper.toDto(walletTransactionAfterUpdate);
     }
 }

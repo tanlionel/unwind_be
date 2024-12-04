@@ -29,4 +29,8 @@ public interface ExchangePostingService {
     PostingExchangeDetailResponseDTO deActiveExchangePostingPosting(Integer postingId) throws OptionalNotFoundException, ErrMessageException;
     ExchangePostingResponseDto updateExchangePosting(Integer postingId, UpdateExchangePostingDto updateExchangePostingDto)
             throws  ErrMessageException;
+
+    ExchangeRequestBasicDto rejectRequestCustomer(Integer requestId) throws OptionalNotFoundException, ErrMessageException;
+
+    ExchangeRequestBasicDto pricingRequest(Integer requestId, Float priceValuation,String note) throws OptionalNotFoundException, ErrMessageException;
 }

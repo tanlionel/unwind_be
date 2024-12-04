@@ -36,4 +36,8 @@ public interface CustomerService {
     WalletTransactionDto paymentExchangePostingVNPAY(UUID uuid, Integer postingId) throws OptionalNotFoundException, ErrMessageException;
     boolean checkUserExists(String email);
     void changePassword( UpdatePasswordRequestDTO updatePasswordRequest) throws ErrMessageException;
+
+    WalletTransactionDto paymentExchangeRequestVNPAY(UUID uuid, Integer requestId) throws OptionalNotFoundException, ErrMessageException;
+
+    WalletTransactionDto paymentExchangeRequestWallet(Integer exchangeRequestId) throws OptionalNotFoundException, ErrMessageException;
 }
