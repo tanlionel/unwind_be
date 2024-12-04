@@ -32,6 +32,7 @@ public class TimeShareDetailDTO {
     private Integer resortId;
     private unitType unitType;
     private List<RoomAmenityDto> roomAmenities;
+    private boolean isVerify;
     @Data
     @Getter
     @Setter

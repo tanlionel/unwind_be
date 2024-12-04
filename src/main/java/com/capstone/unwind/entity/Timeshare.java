@@ -52,11 +52,17 @@ public class Timeshare {
     @JoinColumn(name = "room_info_id")
     private RoomInfo roomInfo;
 
+    @Column(name = "is_verify")
+    private Boolean isVerify;
+
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = Timestamp.from(Instant.now());
         this.updatedAt = Timestamp.from(Instant.now());
+        if (isVerify == null) {
+            isVerify = false;
+        }
     }
 
     @PreUpdate

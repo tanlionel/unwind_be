@@ -37,10 +37,12 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
             "WHERE r.isActive = :isActive " +
             "AND r.roomInfo.resort.resortName LIKE %:resortName% " +
             "AND r.status = :status " +
+            "AND (:nights IS NULL OR r.nights = :nights) " +
             "ORDER BY r.createdDate DESC")
     Page<RentalPosting> findAllByFilters(
             @Param("isActive") boolean isActive,
             @Param("resortName") String resortName,
+            @Param("nights") Integer nights,
             @Param("status") String status,
             Pageable pageable);
 

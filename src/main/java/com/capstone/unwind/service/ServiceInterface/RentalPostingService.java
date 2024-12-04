@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface RentalPostingService {
     Page<PostingResponseDTO> getAllPostings(Integer resortId, Pageable pageable, String status) throws OptionalNotFoundException;
-    Page<PostingResponseDTO> getAllPublicPostings(String resortName, Pageable pageable) throws OptionalNotFoundException;
+    Page<PostingResponseDTO> getAllPublicPostings(String resortName,Integer nights, Pageable pageable) throws OptionalNotFoundException;
     PostingDetailResponseDTO getRentalPostingDetailById(Integer postingId) throws OptionalNotFoundException;
     Page<PostingResponseTsStaffDTO> getAllPostingsTsStaff(String resortName,Integer packageId, Pageable pageable) throws OptionalNotFoundException;
     PostingDetailTsStaffResponseDTO getRentalPostingDetailTsStaffById(Integer postingId) throws OptionalNotFoundException;

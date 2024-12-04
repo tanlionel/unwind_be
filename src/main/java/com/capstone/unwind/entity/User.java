@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 @Entity
@@ -36,6 +37,11 @@ public class User implements UserDetails {
     @Column(name = "is_active")
     private Boolean isActive;
 
+    @Column(name = "forgot_pwd_token", length = 6)
+    private String forgotPwdToken;
+
+    @Column(name = "expired_pwd_token")
+    private LocalDateTime expiredPwdToken;
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Customer customer;
 

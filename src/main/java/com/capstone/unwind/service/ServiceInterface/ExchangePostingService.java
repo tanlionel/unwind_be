@@ -13,7 +13,7 @@ public interface ExchangePostingService {
     ExchangePostingApprovalResponseDto approvalPostingTimeshareStaff(Integer postingId, ExchangePostingApprovalDto exchangePostingApprovalDto) throws OptionalNotFoundException, ErrMessageException;
     ExchangePostingApprovalResponseDto rejectPostingTimeshareStaff(Integer postingId, String note) throws OptionalNotFoundException, ErrMessageException;
     Page<PostingExchangeResponseDTO> getAllPostings(Integer resortId, Pageable pageable,String status) throws OptionalNotFoundException;
-    Page<PostingExchangeResponseDTO> getAllExchangePublicPostings(String resortName, Pageable pageable,Integer resortId) throws OptionalNotFoundException;
+    Page<PostingExchangeResponseDTO> getAllExchangePublicPostings(String resortName,Integer nights, Pageable pageable,Integer resortId) throws OptionalNotFoundException;
 
     ExchangeRequestDetailDto createRequestExchange(Integer postingId, ExchangeRequestDto exchangeRequestDto) throws OptionalNotFoundException, ErrMessageException;
 

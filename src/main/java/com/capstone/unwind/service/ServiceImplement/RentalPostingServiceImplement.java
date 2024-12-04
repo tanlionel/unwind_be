@@ -114,9 +114,9 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     }
 
     @Override
-    public Page<PostingResponseDTO> getAllPublicPostings(String resortName, Pageable pageable) throws OptionalNotFoundException {
+    public Page<PostingResponseDTO> getAllPublicPostings(String resortName,Integer nights, Pageable pageable) throws OptionalNotFoundException {
         Page<RentalPosting> rentalPostings = rentalPostingRepository.findAllByFilters(true,
-                resortName, String.valueOf(RentalPostingEnum.Processing), pageable);
+                resortName,nights, String.valueOf(RentalPostingEnum.Processing), pageable);
         Page<PostingResponseDTO> postingDtoPage = rentalPostings.map(listRentalPostingMapper::entityToDto);
         return postingDtoPage;
     }
@@ -301,6 +301,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
             rentalPostingUpdate.setStatus(String.valueOf(RentalPostingEnum.Processing));
         rentalPostingUpdate.setNote(rentalPostingApprovalDto.getNote());
         rentalPostingUpdate.setIsVerify(true);
+        rentalPostingUpdate.getTimeshare().setIsVerify(true);
         RentalPosting rentalPostingInDb = rentalPostingRepository.save(rentalPostingUpdate);
         try {
             TimeShareCompanyStaffDTO timeshareCompanyStaff = timeShareStaffService.getLoginStaff();

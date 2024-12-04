@@ -3,6 +3,7 @@ package com.capstone.unwind.service.ServiceInterface;
 import com.capstone.unwind.entity.TimeshareCompanyStaff;
 import com.capstone.unwind.entity.User;
 import com.capstone.unwind.exception.AccountSuspendedException;
+import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.InvalidateException;
 import com.capstone.unwind.exception.UserDoesNotExistException;
 import com.capstone.unwind.model.AuthDTO.RegisterRequestDTO;
@@ -24,4 +25,8 @@ public interface UserService {
     UserDto createUser(RegisterRequestDTO registerRequestDTO) throws Exception;
     UserDto updateUser(Integer userId, UpdateUserRequestDTO updateUserRequestDTO) throws Exception;
     List<UserDto> getAllTimeshareCompanyAccount();
+    String getTokenForgot(String email) throws ErrMessageException;
+     void  resetPassword(String email,
+                               String token,
+                               String newPassword) throws ErrMessageException;
 }

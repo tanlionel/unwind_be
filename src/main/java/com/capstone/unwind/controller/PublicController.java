@@ -128,10 +128,11 @@ public class PublicController {
     public Page<PostingResponseDTO> getPublicPostings(
             @RequestParam(required = false, defaultValue = "0") Integer pageNo,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "") Integer nights,
             @RequestParam(required = false, defaultValue = "") String resortName) throws OptionalNotFoundException {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<PostingResponseDTO> postingResponsePage = rentalPostingService.getAllPublicPostings(resortName, pageable);
+        Page<PostingResponseDTO> postingResponsePage = rentalPostingService.getAllPublicPostings(resortName,nights, pageable);
 
         return postingResponsePage;
     }
@@ -144,10 +145,11 @@ public class PublicController {
             @RequestParam(required = false, defaultValue = "0") Integer pageNo,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(required = false, defaultValue = "") String resortName,
+            @RequestParam(required = false, defaultValue = "") Integer nights,
             @RequestParam(required = false, defaultValue = "") Integer resortId) throws OptionalNotFoundException {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<PostingExchangeResponseDTO> postingResponsePage = exchangePostingService.getAllExchangePublicPostings(resortName, pageable,resortId);
+        Page<PostingExchangeResponseDTO> postingResponsePage = exchangePostingService.getAllExchangePublicPostings(resortName,nights, pageable,resortId);
 
         return postingResponsePage;
     }

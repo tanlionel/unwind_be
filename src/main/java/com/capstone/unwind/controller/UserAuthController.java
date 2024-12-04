@@ -64,5 +64,21 @@ public class UserAuthController {
                         .tsCompanyId(timeshareCompanyStaff.getTimeshareCompany().getId())
                         .build());
     }
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam("email") String email) throws ErrMessageException {
 
+            String token = userService.getTokenForgot(email);
+            return ResponseEntity.ok("Token has been sent to your email.");
+
+    }
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(
+            @RequestParam("email") String email,
+            @RequestParam("token") String token,
+            @RequestParam("newPassword") String newPassword) throws ErrMessageException {
+
+        userService.resetPassword(email, token, newPassword);
+
+        return ResponseEntity.ok("Password reset successfully.");
+    }
 }

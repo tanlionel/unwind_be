@@ -3,6 +3,7 @@ package com.capstone.unwind.controller;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.CustomerDTO.*;
+import com.capstone.unwind.model.UserDTO.UpdatePasswordRequestDTO;
 import com.capstone.unwind.service.ServiceInterface.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,5 +60,11 @@ public class CustomerController {
     public ResponseEntity<Boolean> checkUserExists(@RequestParam String email) {
         boolean exists = customerService.checkUserExists(email);
         return ResponseEntity.ok(exists);
+    }
+    @PostMapping("/change-password")
+    public ResponseEntity<String> updatePassword(@RequestBody UpdatePasswordRequestDTO updatePasswordRequest) throws ErrMessageException {
+            customerService.changePassword(updatePasswordRequest);
+            return ResponseEntity.ok("Password updated successfully");
+
     }
 }

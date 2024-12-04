@@ -20,6 +20,8 @@ public interface PostingExchangeDetailMapper {
     @Mapping(source = "id", target = "exchangePostingId")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "expired", target = "expiredDate")
+    @Mapping(source = "createdDate", target = "createdDate")
+    @Mapping(source = "updatedDate", target = "updatedDate")
     @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(source = "owner.fullName", target = "ownerName")
     @Mapping(source = "timeshare.id", target = "timeShareId")
