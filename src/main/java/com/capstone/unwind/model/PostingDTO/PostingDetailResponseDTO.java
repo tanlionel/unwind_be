@@ -13,6 +13,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -57,6 +58,10 @@ public class PostingDetailResponseDTO {
     private List<RoomAmenityDTO> roomAmenities;
     private List<UnitTypeAmenityDTO> unitTypeAmenities;
     private List<String> imageUrls;
+    @JsonFormat(pattern = "dd-MM-yyyy HH::mm:ss", timezone = "Asia/Bangkok")
+    Timestamp createdDate;
+    @JsonFormat(pattern = "dd-MM-yyyy HH::mm:ss", timezone = "Asia/Bangkok")
+    Timestamp updatedDate;
     @Data
     @Getter
     @Setter

@@ -33,4 +33,5 @@ public class TimeShareResponseDTO {
     private Boolean isActive;
     private RoomInfoDto roomInfo;
     private List<RoomAmenityDto> roomAmenities;
+    private Boolean isVerify;
 }

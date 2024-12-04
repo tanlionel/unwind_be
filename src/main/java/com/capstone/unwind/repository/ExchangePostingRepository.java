@@ -48,10 +48,12 @@ public interface ExchangePostingRepository extends JpaRepository<ExchangePosting
             "WHERE e.isActive = :isActive " +
             "AND e.roomInfo.resort.resortName LIKE %:resortName% " +
             "AND e.status = :status " +
+            "AND (:nights IS NULL OR e.nights = :nights)" +
             "ORDER BY e.createdDate DESC")
     Page<ExchangePosting> findAllByFilters(
             @Param("isActive") boolean isActive,
             @Param("resortName") String resortName,
+            @Param("nights") Integer nights,
             @Param("status") String status,
             Pageable pageable);
 
@@ -61,12 +63,14 @@ public interface ExchangePostingRepository extends JpaRepository<ExchangePosting
             "WHERE e.isActive = :isActive " +
             "AND e.roomInfo.resort.resortName LIKE %:resortName% " +
             "AND e.status = :status " +
+            "AND (:nights IS NULL OR e.nights = :nights) "+
             "AND e.roomInfo.resort.id = :resortId " +
             "ORDER BY e.createdDate DESC")
     Page<ExchangePosting> findAllByFiltersWithResortId(
             @Param("isActive") boolean isActive,
             @Param("resortName") String resortName,
             @Param("status") String status,
+            @Param("nights") Integer nights,
             @Param("resortId") Integer resortId,
             Pageable pageable);
 

@@ -3,6 +3,7 @@ package com.capstone.unwind.service.ServiceInterface;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.CustomerDTO.*;
+import com.capstone.unwind.model.UserDTO.UpdatePasswordRequestDTO;
 import com.capstone.unwind.model.WalletDTO.MembershipResponseDto;
 import com.capstone.unwind.model.WalletDTO.WalletDto;
 import com.capstone.unwind.model.WalletDTO.WalletTransactionDto;
@@ -34,4 +35,5 @@ public interface CustomerService {
 
     WalletTransactionDto paymentExchangePostingVNPAY(UUID uuid, Integer postingId) throws OptionalNotFoundException, ErrMessageException;
     boolean checkUserExists(String email);
+    void changePassword( UpdatePasswordRequestDTO updatePasswordRequest) throws ErrMessageException;
 }

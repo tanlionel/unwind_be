@@ -207,6 +207,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         }
         exchangePostingUpdate.setNote(exchangePostingApprovalDto.getNote());
         exchangePostingUpdate.setIsVerify(true);
+        exchangePostingUpdate.getTimeshare().setIsVerify(true);
         ExchangePosting exchangePostingInDb = exchangePostingRepository.save(exchangePostingUpdate);
 
         try{
@@ -316,17 +317,17 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
     }
 
     @Override
-    public Page<PostingExchangeResponseDTO> getAllExchangePublicPostings(String resortName, Pageable pageable,Integer resortId) throws OptionalNotFoundException {
+    public Page<PostingExchangeResponseDTO> getAllExchangePublicPostings(String resortName,Integer nights, Pageable pageable,Integer resortId) throws OptionalNotFoundException {
         Page<ExchangePosting> exchangePostings = null;
         Pageable sortedPageable = pageable.getSort().isSorted()
                 ? pageable
                 : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdDate"));
         if (resortId == null) {
             exchangePostings = exchangePostingRepository.findAllByFilters(true,
-                    resortName, String.valueOf(ExchangePostingEnum.Processing), sortedPageable);
+                    resortName,nights, String.valueOf(ExchangePostingEnum.Processing), sortedPageable);
         }else {
             exchangePostings = exchangePostingRepository.findAllByFiltersWithResortId(true,
-                    resortName, String.valueOf(ExchangePostingEnum.Processing),resortId, sortedPageable);
+                    resortName, String.valueOf(ExchangePostingEnum.Processing),nights,resortId, sortedPageable);
         }
         Page<PostingExchangeResponseDTO> postingDtoPage = exchangePostings.map(listExchangePostingMapper::entityToDto);
         return postingDtoPage;

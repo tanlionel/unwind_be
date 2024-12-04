@@ -4,13 +4,16 @@ import com.capstone.unwind.entity.*;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.CustomerDTO.*;
+import com.capstone.unwind.model.UserDTO.UpdatePasswordRequestDTO;
 import com.capstone.unwind.model.WalletDTO.*;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.CustomerService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import com.capstone.unwind.service.ServiceInterface.WalletService;
+import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -48,6 +51,8 @@ public class CustomerServiceImplement implements CustomerService {
     private UserRepository userRepository;
     @Autowired
     private final ExchangePackageRepository exchangePackageRepository;
+    @Autowired
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public CustomerDto createCustomer(CustomerRequestDto customerRequestDto) throws OptionalNotFoundException {
@@ -371,5 +376,22 @@ public class CustomerServiceImplement implements CustomerService {
                 throw new ErrMessageException("Phone number must be 10 digits and start with 0.");
             }
         }
+    }
+    @Override
+    public void changePassword( UpdatePasswordRequestDTO updatePasswordRequest) throws ErrMessageException {
+        User user = userService.getLoginUser();
+
+
+        if (!passwordEncoder.matches(updatePasswordRequest.getCurrentPassword(), user.getPassword())) {
+            throw new ErrMessageException("Current password is incorrect");
+        }
+
+        if (!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getConfirmNewPassword())) {
+            throw new ErrMessageException("New password and confirmation password do not match");
+        }
+
+        user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
+
+        userRepository.save(user);
     }
 }

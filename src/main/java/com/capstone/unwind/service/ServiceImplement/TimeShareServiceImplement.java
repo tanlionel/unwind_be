@@ -126,10 +126,10 @@ public class TimeShareServiceImplement implements TimeShareService {
                 roomInfo,
                 timeShareRequestDTO.getStartDate(),
                 timeShareRequestDTO.getEndDate()
-        );
-        if (isTimeshareConflict) {
-            throw new ErrMessageException("This room already has a timeshare for the specified date range.");
-        }*/
+        );*/
+        if (Boolean.TRUE.equals(timeshare.getIsVerify())) {
+            throw new ErrMessageException("Post has been verified");
+        }
 
 
         timeshare.setStartYear(timeShareRequestDTO.getStartYear());
@@ -177,6 +177,7 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .resortImage(resort.get().getLogo())
                 .roomName(roomInfo.get().getRoomInfoName())
                 .roomCode(roomInfo.get().getRoomInfoCode())
+                .isVerify(timeShare.getIsVerify() != null ? timeShare.getIsVerify() : false)
                 .location(resort.get().getLocation() != null ?
                         TimeShareDetailDTO.LocationDTO.builder()
                                 .name(resort.get().getLocation().getName())
