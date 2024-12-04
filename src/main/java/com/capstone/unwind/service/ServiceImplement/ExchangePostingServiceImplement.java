@@ -106,6 +106,9 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 .status(String.valueOf(ExchangePostingEnum.PendingApproval))
                 .owner(user.getCustomer())
                 .exchangePackage(exchangePackage.get())
+                .preferCheckinDate(exchangePostingRequestDto.getPreferCheckinDate())
+                .preferCheckoutDate(exchangePostingRequestDto.getPreferCheckoutDate())
+                .preferLocation(exchangePostingRequestDto.getPreferLocation())
                 .isActive(true)
                 .build();
         if (exchangePostingRequestDto.getExchangePackageId() == 1)

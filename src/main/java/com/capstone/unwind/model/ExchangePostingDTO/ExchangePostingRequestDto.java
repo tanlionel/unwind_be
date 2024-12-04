@@ -21,5 +21,10 @@ public class ExchangePostingRequestDto implements Serializable {
     @JsonFormat(pattern = "dd-MM-yyyy")
     LocalDate checkoutDate;
     Integer timeshareId;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    LocalDate preferCheckinDate;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    LocalDate preferCheckoutDate;
+    String preferLocation;
     List<String> imageUrls;
 }
