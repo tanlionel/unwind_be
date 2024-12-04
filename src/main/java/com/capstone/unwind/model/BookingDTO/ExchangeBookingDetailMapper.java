@@ -11,6 +11,7 @@ public interface ExchangeBookingDetailMapper {
     @Mapping(source = "exchangePosting.roomInfo.unitType.resort.resortName",target = "roomInfo.unitType.resortName")
     @Mapping(source = "exchangePosting.roomInfo.unitType.resort.logo",target = "roomInfo.unitType.resortLogo")
     @Mapping(source = "exchangePosting.roomInfo.unitType.resort.description",target = "roomInfo.unitType.resortDescription")
+    @Mapping(source = "exchangePosting.roomInfo.unitType.resort.location",target = "roomInfo.unitType.location")
     @Mapping(source = "exchangePosting.roomInfo.unitType.title",target = "roomInfo.unitType.title")
     @Mapping(source = "exchangePosting.roomInfo.unitType.price",target = "roomInfo.unitType.price")
     @Mapping(source = "exchangePosting.roomInfo.unitType.description",target = "roomInfo.unitType.description")

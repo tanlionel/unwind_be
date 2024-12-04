@@ -75,11 +75,7 @@ public class CustomerRentalController {
         RentalBookingDetailDto rentalBookingDetailDto = bookingService.getRentalBookingDetailById(bookingId);
         return ResponseEntity.ok(rentalBookingDetailDto);
     }
-    @GetMapping("exchange/booking/{bookingId}")
-    public ResponseEntity<ExchangeBookingDetailDto> getExchangeBookingDetailById(@PathVariable Integer bookingId) throws OptionalNotFoundException {
-        ExchangeBookingDetailDto exchangeBookingDetailDto = bookingService.getExchangeBookingDetailById(bookingId);
-        return ResponseEntity.ok(exchangeBookingDetailDto);
-    }
+
     @GetMapping("booking")
     public Page<MergedBooking> getAllBookingPagination( @RequestParam(defaultValue = "0") int page,
                                                          @RequestParam(defaultValue = "10") int size){
