@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.Year;
 import java.util.Collections;
 import java.util.List;
@@ -141,6 +142,21 @@ public class TimeShareServiceImplement implements TimeShareService {
         Timeshare updatedTimeshare = timeShareRepository.save(timeshare);
 
         return updateTimeshareMapper.toDto(updatedTimeshare);
+    }
+
+    @Override
+    public Page<ListTimeShareDTO> getAllTimeSharesValidExchange(Pageable pageable, Integer exchangePostingId) throws OptionalNotFoundException {
+        User user = userService.getLoginUser();
+        Customer customer = customerRepository.findByUserId(user.getId());
+        if (customer == null) {
+            throw new OptionalNotFoundException("Customer does not exist for user with ID: " + user.getId());
+        }
+        ExchangePosting exchangePosting = exchangePostingRepository.findByIdAndIsActive(exchangePostingId).orElseThrow(()->new OptionalNotFoundException("Not found exchange posting"));
+        String preferLocation = exchangePosting.getPreferLocation();
+        LocalDate preferCheckinDate = exchangePosting.getPreferCheckinDate();
+        LocalDate preferCheckoutDate = exchangePosting.getPreferCheckoutDate();
+        Page<Timeshare> timeSharesPage = timeShareRepository.findFilteredTimeshares(customer.getId(),preferLocation,preferCheckinDate,preferCheckoutDate,pageable);
+        return timeSharesPage.map(listTimeShareMapper::toDto);
     }
 
 

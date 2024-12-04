@@ -19,4 +19,5 @@ public interface TimeShareService {
             throws OptionalNotFoundException, ErrMessageException;
 
 
+    Page<ListTimeShareDTO> getAllTimeSharesValidExchange(Pageable pageable, Integer exchangePostingId) throws OptionalNotFoundException;
 }

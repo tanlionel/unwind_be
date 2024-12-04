@@ -44,6 +44,14 @@ public class TimeshareController {
         Page<ListTimeShareDTO> timeShares = timeShareService.getAllTimeShares(pageable);
         return ResponseEntity.ok(timeShares);
     }
+    @GetMapping("/timeshares/valid-exchange")
+    public ResponseEntity<Page<ListTimeShareDTO>> getAllTimeSharesValidExchange(  @RequestParam(defaultValue = "0") int page,
+                                                                                  @RequestParam(defaultValue = "10") int size,
+                                                                                  @RequestParam Integer exchangePostingId) throws OptionalNotFoundException{
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ListTimeShareDTO> timeShares = timeShareService.getAllTimeSharesValidExchange(pageable,exchangePostingId);
+        return ResponseEntity.ok(timeShares);
+    }
 
     @GetMapping("/timeshare/{timeShareID}")
     public TimeShareDetailDTO getTimeShareDetails(@PathVariable Integer timeShareID) throws OptionalNotFoundException {
