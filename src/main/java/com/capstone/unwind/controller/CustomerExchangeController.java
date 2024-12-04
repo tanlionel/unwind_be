@@ -2,10 +2,7 @@ package com.capstone.unwind.controller;
 
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
-import com.capstone.unwind.model.BookingDTO.ExchangeBookingDto;
-import com.capstone.unwind.model.BookingDTO.RentalBookingDetailDto;
-import com.capstone.unwind.model.BookingDTO.RentalBookingRequestDto;
-import com.capstone.unwind.model.BookingDTO.UpdateExchangeBookingDto;
+import com.capstone.unwind.model.BookingDTO.*;
 import com.capstone.unwind.model.ExchangePostingDTO.*;
 import com.capstone.unwind.model.PostingDTO.*;
 import com.capstone.unwind.service.ServiceInterface.BookingService;
@@ -102,6 +99,11 @@ public class CustomerExchangeController {
             ExchangeBookingDto updatedBooking = bookingService.updateExchangeBookingGuest(bookingId, updateExchangeBookingDto);
             return ResponseEntity.ok(updatedBooking);
 
+    }
+    @GetMapping("exchange/booking/{bookingId}")
+    public ResponseEntity<ExchangeBookingDetailDto> getExchangeBookingDetailById(@PathVariable Integer bookingId) throws OptionalNotFoundException {
+        ExchangeBookingDetailDto exchangeBookingDetailDto = bookingService.getExchangeBookingDetailById(bookingId);
+        return ResponseEntity.ok(exchangeBookingDetailDto);
     }
 
 }

@@ -66,6 +66,19 @@ public class ExchangeBookingDetailDto implements Serializable {
             String resortName;
             String resortLogo;
             String resortDescription;
+            LocationDTO location;
+            @Data
+            @Getter
+            @Setter
+            @Builder
+            public static class LocationDTO {
+                String name;
+                String displayName;
+                String latitude;
+                String longitude;
+                String country;
+                String placeId;
+            }
         }
     }
 }
