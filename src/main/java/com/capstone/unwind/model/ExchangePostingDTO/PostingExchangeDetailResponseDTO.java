@@ -37,6 +37,11 @@ public class PostingExchangeDetailResponseDTO {
     private LocalDate checkinDate;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate checkoutDate;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate preferCheckinDate;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate preferCheckoutDate;
+    private String preferLocation;
     private String status;
     private boolean isActive;
     private unitType unitType;

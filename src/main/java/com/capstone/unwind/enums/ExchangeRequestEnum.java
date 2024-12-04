@@ -1,9 +1,13 @@
 package com.capstone.unwind.enums;
 
 public enum ExchangeRequestEnum {
-    PendingCustomer,
+    PendingOwner,
     PendingApproval,
-/*    RejectApproval,*/
-    Reject,
-    Complete
+    RejectApproval,
+    Complete,
+    PendingRenterPricing,
+    RenterReject,
+    OwnerReject,
+    PendingRenterPayment,
+    PendingOwnerPayment
 }

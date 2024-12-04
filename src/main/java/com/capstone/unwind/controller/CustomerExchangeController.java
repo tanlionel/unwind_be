@@ -91,6 +91,16 @@ public class CustomerExchangeController {
         ExchangeRequestBasicDto exchangeRequestApprovalResponseDto = exchangePostingService.approvalRequestCustomer(requestId);
         return ResponseEntity.ok(exchangeRequestApprovalResponseDto);
     }
+    @PostMapping("exchange/request/reject/{requestId}")
+    public ResponseEntity<ExchangeRequestBasicDto> rejectRequest(@PathVariable Integer requestId) throws ErrMessageException, OptionalNotFoundException {
+        ExchangeRequestBasicDto exchangeRequestBasicDto = exchangePostingService.rejectRequestCustomer(requestId);
+        return ResponseEntity.ok(exchangeRequestBasicDto);
+    }
+    @PostMapping("exchange/request/price-valuation/{requestId}")
+    public ResponseEntity<ExchangeRequestBasicDto> pricingRequest(@PathVariable Integer requestId,@RequestParam Float priceValuation,@RequestBody String note) throws OptionalNotFoundException, ErrMessageException {
+        ExchangeRequestBasicDto exchangeRequestBasicDto = exchangePostingService.pricingRequest(requestId,priceValuation,note);
+        return ResponseEntity.ok(exchangeRequestBasicDto);
+    }
     @PutMapping("exchange/booking/primary-guest/{bookingId}")
     public ResponseEntity<ExchangeBookingDto> updateExchangeBookingGuest(
             @PathVariable Integer bookingId,

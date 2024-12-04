@@ -17,5 +17,6 @@ public class ExchangeRequestDto implements Serializable {
     LocalDate startDate;
     @JsonFormat(pattern = "dd-MM-yyyy")
     LocalDate endDate;
-    Integer exchangePostingId;
+    Float priceValuation;
+    String note;
 }

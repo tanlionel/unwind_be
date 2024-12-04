@@ -27,4 +27,20 @@ public interface TimeShareRepository extends JpaRepository<Timeshare, Integer> {
     Page<Timeshare> findAllByOwnerIdAndIsActive(Integer ownerId, Pageable pageable,Boolean IsActive);
     @Query("SELECT t FROM Timeshare t WHERE t.owner.id = :ownerId AND t.isActive = :isActive ORDER BY t.createdAt DESC")
     Page<Timeshare> findByOwnerIdAndIsActive(Integer ownerId, Boolean isActive, Pageable pageable);
+    @Query("""
+            SELECT t FROM Timeshare t
+            JOIN t.roomInfo r
+            JOIN r.resort rs
+            JOIN rs.location l
+            WHERE t.owner.id = :ownerId
+              AND LOWER(l.displayName) LIKE LOWER(CONCAT('%', :preferLocation, '%'))
+              AND t.startDate <= :preferCheckoutDate
+              AND t.endDate >= :preferCheckinDate
+            """)
+    Page<Timeshare> findFilteredTimeshares(
+            @Param("ownerId") Integer ownerId,
+            @Param("preferLocation") String preferLocation,
+            @Param("preferCheckinDate") LocalDate preferCheckinDate,
+            @Param("preferCheckoutDate") LocalDate preferCheckoutDate,
+            Pageable pageable);
 }
