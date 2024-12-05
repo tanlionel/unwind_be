@@ -45,6 +45,7 @@ public interface WalletService {
     Page<WalletTransactionDto> getTsCompanyMoneyReceivedTransactions(Integer pageNo, Integer pageSize) throws OptionalNotFoundException;
 
     Page<WalletTransactionDto> getPaginationTransactionAdmin(int page, int size, WalletTransactionEnum walletTransactionEnum);
+
 }
 
 

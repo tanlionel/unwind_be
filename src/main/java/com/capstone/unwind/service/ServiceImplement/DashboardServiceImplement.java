@@ -4,23 +4,30 @@ import com.capstone.unwind.entity.Customer;
 import com.capstone.unwind.entity.TimeshareCompany;
 import com.capstone.unwind.entity.User;
 import com.capstone.unwind.entity.Wallet;
+import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.DashboardDTO.CustomerDashboardDto;
+import com.capstone.unwind.model.DashboardDTO.CustomerMoneyDashboardDto;
+import com.capstone.unwind.model.DashboardDTO.RevenueCostByDateDto;
 import com.capstone.unwind.model.TotalPackageDTO.TotalPackageDto;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.DashboardService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
+import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -154,4 +161,77 @@ public class DashboardServiceImplement implements DashboardService {
         }
         return monthlyTotals;
     }
+    @Override
+    public CustomerMoneyDashboardDto getCustomerMoneyDashboard(Timestamp startDate, Timestamp endDate) throws ErrMessageException {
+
+        if (startDate == null) {
+            startDate = Timestamp.valueOf(LocalDateTime.now().toLocalDate().atStartOfDay());
+        }
+
+        if (endDate == null) {
+            endDate = Timestamp.valueOf(LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX));
+        }
+
+        User user = userService.getLoginUser();
+        Customer customer = customerRepository.findByUserId(user.getId());
+
+        Wallet wallet = null;
+        try {
+            wallet = walletRepository.findWalletByOwnerId(customer.getId());
+            if (wallet == null) {
+                throw new ErrMessageException("Wallet not found for customer ID: " + customer.getId());
+            }
+        } catch (Exception e) {
+            throw new ErrMessageException("An unexpected error occurred while fetching wallet.");
+        }
+
+
+        Long totalRevenue = walletTransactionRepository.sumMoneyByCustomerIdAndMoneyGreaterThan(wallet.getId());
+        Long totalCosts = walletTransactionRepository.sumMoneyByCustomerIdAndMoneyLessThan(wallet.getId());
+
+
+        List<Long> revenueByDate = walletTransactionRepository.sumMoneyByCustomerIdAndDateRangeAndMoneyGreaterThan(wallet.getId(), startDate, endDate);
+        List<Long> costsByDate = walletTransactionRepository.sumMoneyByCustomerIdAndDateRangeAndMoneyLessThan(wallet.getId(), startDate, endDate);
+
+
+        List<Timestamp> allDates = new ArrayList<>();
+        Timestamp currentDate = startDate;
+
+        while (currentDate.before(endDate) || currentDate.equals(endDate)) {
+            allDates.add(currentDate);
+            LocalDateTime nextDay = currentDate.toLocalDateTime().plusDays(1);
+            currentDate = Timestamp.valueOf(nextDay);
+        }
+        allDates.sort(Comparator.naturalOrder());
+
+        Map<String, RevenueCostByDateDto> revenueCostByDateMap = new LinkedHashMap<>();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
+        for (Timestamp date : allDates) {
+            int index = allDates.indexOf(date);
+
+            Long revenueValue = (index < revenueByDate.size() && revenueByDate.get(index) != null)
+                    ? revenueByDate.get(index)
+                    : 0L;
+
+            Long costValue = (index < costsByDate.size() && costsByDate.get(index) != null)
+                    ? costsByDate.get(index)
+                    : 0L;
+
+            revenueCostByDateMap.put(dateFormat.format(date),
+                    RevenueCostByDateDto.builder()
+                            .revenueByDate(revenueValue)
+                            .revenueByCosts(costValue)
+                            .build());
+        }
+
+        return CustomerMoneyDashboardDto.builder()
+                .totalRevenue(totalRevenue)
+                .totalCosts(totalCosts)
+                .revenueCostByDateMap(revenueCostByDateMap)
+                .build();
+    }
+
+
 }
