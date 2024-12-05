@@ -15,6 +15,7 @@ import com.capstone.unwind.service.ServiceInterface.CustomerService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import com.capstone.unwind.service.ServiceInterface.WalletService;
 import io.swagger.models.auth.In;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -407,6 +408,7 @@ public class CustomerServiceImplement implements CustomerService {
     }
 
     @Override
+    @Transactional
     public WalletTransactionDto paymentExchangeRequestVNPAY(UUID uuid, Integer requestId) throws OptionalNotFoundException, ErrMessageException {
         User user = userService.getLoginUser();
         if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
@@ -422,7 +424,10 @@ public class CustomerServiceImplement implements CustomerService {
         ExchangePosting exchangePosting = exchangeRequest.getExchangePosting();
         exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Completed));
         exchangePostingRepository.save(exchangePosting);
-
+        exchangeRequestRepository.updateOtherRequestsStatusByExchangePosting(
+                exchangeRequest.getExchangePosting().getId(),
+                exchangeRequest.getId()
+        );
 
 
         Period period = Period.between(exchangeRequest.getStartDate(), exchangeRequest.getEndDate());
@@ -463,6 +468,7 @@ public class CustomerServiceImplement implements CustomerService {
     }
 
     @Override
+    @Transactional
     public WalletTransactionDto paymentExchangeRequestWallet(Integer exchangeRequestId) throws OptionalNotFoundException, ErrMessageException {
         User user = userService.getLoginUser();
         if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
@@ -491,7 +497,10 @@ public class CustomerServiceImplement implements CustomerService {
 
         walletRepository.save(user.getCustomer().getWallet());
 
-
+        exchangeRequestRepository.updateOtherRequestsStatusByExchangePosting(
+                exchangeRequest.getExchangePosting().getId(),
+                exchangeRequest.getId()
+        );
         Period period = Period.between(exchangeRequest.getStartDate(), exchangeRequest.getEndDate());
         int days = period.getDays() + 1;
         ExchangeBooking requesterBooking =  ExchangeBooking.builder()

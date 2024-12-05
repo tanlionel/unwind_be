@@ -27,4 +27,10 @@ public interface ExchangeRequestRepository extends JpaRepository<ExchangeRequest
     @Query("SELECT COUNT(r) FROM ExchangeRequest r WHERE r.owner.id = :ownerId ")
     Long getExchangeRequestByUserId(@Param("ownerId") Integer ownerId);
     Optional<ExchangeRequest> findByExchangePostingIdAndIsActive(Integer postingId,boolean isActive);
+
+    @Modifying
+    @Query("UPDATE ExchangeRequest er SET er.status = 'OwnerReject' WHERE er.exchangePosting.id = :exchangePostingId AND er.id <> :excludedRequestId")
+    void updateOtherRequestsStatusByExchangePosting(@Param("exchangePostingId") Integer exchangePostingId,
+                                                    @Param("excludedRequestId") Integer excludedRequestId);
+
 }

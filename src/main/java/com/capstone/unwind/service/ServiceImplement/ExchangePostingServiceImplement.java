@@ -406,6 +406,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
     }
 
     @Override
+    @Transactional
     public ExchangeRequestBasicDto approvalRequestTimeshareStaff(Integer requestId, ExchangePostingApprovalDto exchangePostingApprovalDto) throws OptionalNotFoundException, ErrMessageException {
         Optional<ExchangeRequest> exchangeRequest = exchangeRequestRepository.findByIdAndIsActive(requestId);
         if (!exchangeRequest.isPresent()) throw new OptionalNotFoundException("Not found exchange posting");
@@ -432,7 +433,12 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         }
         ExchangeRequest exchangeRequestInDb = exchangeRequestRepository.save(exchangeRequestUpdate);
 
+
         if (exchangeRequestInDb.getPriceValuation()== 0.0f){
+            exchangeRequestRepository.updateOtherRequestsStatusByExchangePosting(
+                    exchangeRequestUpdate.getExchangePosting().getId(),
+                    exchangeRequestUpdate.getId()
+            );
             Period period = Period.between(exchangeRequestInDb.getStartDate(), exchangeRequestInDb.getEndDate());
             int days = period.getDays() + 1;
             ExchangeBooking requesterBooking =  ExchangeBooking.builder()
@@ -449,6 +455,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                     .isPrimaryGuest(false)
                     .isFeedback(false)
                     .build();
+
             exchangeBookingRepository.save(requesterBooking);
 
             ExchangeBooking ownerBooking = ExchangeBooking.builder()
