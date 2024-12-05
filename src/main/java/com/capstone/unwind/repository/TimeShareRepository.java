@@ -28,19 +28,25 @@ public interface TimeShareRepository extends JpaRepository<Timeshare, Integer> {
     @Query("SELECT t FROM Timeshare t WHERE t.owner.id = :ownerId AND t.isActive = :isActive ORDER BY t.createdAt DESC")
     Page<Timeshare> findByOwnerIdAndIsActive(Integer ownerId, Boolean isActive, Pageable pageable);
     @Query("""
-            SELECT t FROM Timeshare t
-            JOIN t.roomInfo r
-            JOIN r.resort rs
-            JOIN rs.location l
-            WHERE t.owner.id = :ownerId
-              AND LOWER(l.displayName) LIKE LOWER(CONCAT('%', :preferLocation, '%'))
-              AND t.startDate <= :preferCheckoutDate
-              AND t.endDate >= :preferCheckinDate
-            """)
+        SELECT t FROM Timeshare t
+        JOIN t.roomInfo r
+        JOIN r.resort rs
+        JOIN rs.location l
+        WHERE t.owner.id = :ownerId
+          AND LOWER(l.displayName) LIKE LOWER(CONCAT('%', :preferLocation, '%'))
+          AND (
+              (MONTH(t.startDate) < MONTH(:preferCheckoutDate) OR 
+               (MONTH(t.startDate) = MONTH(:preferCheckoutDate) AND DAY(t.startDate) <= DAY(:preferCheckoutDate)))
+              AND
+              (MONTH(t.endDate) > MONTH(:preferCheckinDate) OR 
+               (MONTH(t.endDate) = MONTH(:preferCheckinDate) AND DAY(t.endDate) >= DAY(:preferCheckinDate)))
+          )
+        """)
     Page<Timeshare> findFilteredTimeshares(
             @Param("ownerId") Integer ownerId,
             @Param("preferLocation") String preferLocation,
             @Param("preferCheckinDate") LocalDate preferCheckinDate,
             @Param("preferCheckoutDate") LocalDate preferCheckoutDate,
             Pageable pageable);
+
 }
