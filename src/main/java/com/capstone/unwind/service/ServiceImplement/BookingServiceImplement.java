@@ -241,17 +241,17 @@ public class BookingServiceImplement implements BookingService {
         Float refundToOwner = totalPrice - refundToCustomer;
         Float feeToOwner = refundToCustomer;
         if (feeToOwner > 0) {
-            feeToOwner = -feeToOwner;
+            feeToOwner = feeToOwner;
         }
         Float feeToCustomer = refundToOwner;
         if (feeToOwner > 0) {
-            feeToCustomer= -feeToCustomer;
+            feeToCustomer= feeToCustomer;
         }
         refundToCustomer = Math.max(refundToCustomer, 0);
         refundToOwner = Math.max(refundToOwner, 0);
-        walletService.refundMoneyToCustomer(booking.getRenter().getId(), feeToCustomer, refundToCustomer,
+        walletService.refundMoneyToCustomer(booking.getRenter().getId(), 0, refundToCustomer,
                 "WALLET", "Hoàn tiền khi hủy đặt phòng ", "RENTALREFUND");
-        walletService.refundMoneyToCustomer(booking.getRentalPosting().getOwner().getId(), feeToOwner, refundToOwner,
+        walletService.refundMoneyToCustomer(booking.getRentalPosting().getOwner().getId(), 0, refundToOwner,
                 "WALLET", "Hoàn tiền khi hủy đặt phòng", "RENTALREFUND");
 
         RentalPosting posting = booking.getRentalPosting();
