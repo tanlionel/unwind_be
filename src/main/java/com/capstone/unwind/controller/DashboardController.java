@@ -4,6 +4,7 @@ import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.DashboardDTO.CustomerDashboardDto;
 import com.capstone.unwind.model.DashboardDTO.CustomerMoneyDashboardDto;
+import com.capstone.unwind.model.TotalPackageDTO.PackageDashboardDto;
 import com.capstone.unwind.model.TotalPackageDTO.TotalPackageDto;
 import com.capstone.unwind.service.ServiceInterface.DashboardService;
 import com.capstone.unwind.service.ServiceInterface.ExchangePostingService;
@@ -37,7 +38,7 @@ public class DashboardController {
         return ResponseEntity.ok(totalPackage);
     }
     @GetMapping("/system-staff/total-packages/date")
-    public ResponseEntity<TotalPackageDto> getTotalPackageByDate(
+    public ResponseEntity<PackageDashboardDto> getTotalPackageByDate(
             @RequestParam(value = "startDate", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(value = "endDate", required = false)
@@ -45,7 +46,7 @@ public class DashboardController {
         Timestamp startTimestamp = startDate != null ? Timestamp.valueOf(startDate) : null;
         Timestamp endTimestamp = endDate != null ? Timestamp.valueOf(endDate) : null;
 
-        TotalPackageDto totalPackage = dashboardService.getTotalPackageByDate(startTimestamp, endTimestamp);
+        PackageDashboardDto totalPackage = dashboardService.getTotalPackageByDate(startTimestamp, endTimestamp);
         return ResponseEntity.ok(totalPackage);
     }
 

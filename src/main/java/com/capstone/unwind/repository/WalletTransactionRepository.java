@@ -42,20 +42,35 @@ public interface WalletTransactionRepository extends JpaRepository<WalletTransac
     @Query("SELECT SUM(wt.money) FROM WalletTransaction wt WHERE wt.wallet.id = :walletId AND wt.money < 0")
     Long sumMoneyByCustomerIdAndMoneyLessThan(@Param("walletId") Integer walletId);
 
-    @Query("SELECT SUM(wt.money) FROM WalletTransaction wt WHERE wt.wallet.id = :walletId AND wt.createdAt BETWEEN :startDate AND :endDate AND wt.money > 0 GROUP BY FUNCTION('DATE', wt.createdAt)")
-    List<Long> sumMoneyByCustomerIdAndDateRangeAndMoneyGreaterThan(@Param("walletId") Integer walletId,
-                                                                   @Param("startDate") Timestamp startDate,
-                                                                   @Param("endDate") Timestamp endDate);
+    @Query("SELECT SUM(wt.money), CAST(wt.createdAt AS DATE) " +
+            "FROM WalletTransaction wt " +
+            "WHERE wt.wallet.id = :walletId " +
+            "AND wt.createdAt BETWEEN :startDate AND :endDate " +
+            "AND wt.money > 0 " +
+            "GROUP BY CAST(wt.createdAt AS DATE) " +
+            "ORDER BY CAST(wt.createdAt AS DATE)")
+    List<Object[]> sumMoneyByCustomerIdAndDateRangeAndMoneyGreaterThan(
+            @Param("walletId") Integer walletId,
+            @Param("startDate") Timestamp startDate,
+            @Param("endDate") Timestamp endDate);
 
-    @Query("SELECT SUM(wt.money) FROM WalletTransaction wt WHERE wt.wallet.id = :walletId AND wt.createdAt BETWEEN :startDate AND :endDate AND wt.money < 0 GROUP BY FUNCTION('DATE', wt.createdAt)")
-    List<Long> sumMoneyByCustomerIdAndDateRangeAndMoneyLessThan(@Param("walletId") Integer walletId,
-                                                                @Param("startDate") Timestamp startDate,
-                                                                @Param("endDate") Timestamp endDate);
+    @Query("SELECT SUM(wt.money), CAST(wt.createdAt AS DATE) " +
+            "FROM WalletTransaction wt " +
+            "WHERE wt.wallet.id = :walletId " +
+            "AND wt.createdAt BETWEEN :startDate AND :endDate " +
+            "AND wt.money < 0 " +
+            "GROUP BY CAST(wt.createdAt AS DATE) " +
+            "ORDER BY CAST(wt.createdAt AS DATE)")
+    List<Object[]> sumMoneyByCustomerIdAndDateRangeAndMoneyLessThan(
+            @Param("walletId") Integer walletId,
+            @Param("startDate") Timestamp startDate,
+            @Param("endDate") Timestamp endDate);
 
     @Query("SELECT COUNT(r) FROM WalletTransaction r WHERE r.transactionType = 'MEMBERSHIP'")
     Long getTotalMEMBERSGIP();
-    @Query("SELECT COUNT(w) FROM WalletTransaction w WHERE w.createdAt BETWEEN :startDate AND :endDate AND w.transactionType = 'MEMBERSHIP'")
-    Long countMembershipPackageByDateRange(@Param("startDate") Timestamp startDate, @Param("endDate") Timestamp endDate);
+    @Query("SELECT COUNT(w), FUNCTION('DATE', w.createdAt) FROM WalletTransaction w WHERE w.createdAt BETWEEN :startDate AND :endDate AND w.transactionType = 'MEMBERSHIP' GROUP BY FUNCTION('DATE', w.createdAt) ORDER BY FUNCTION('DATE', w.createdAt)")
+    List<Object[]> countMembershipPackageByDateRange(@Param("startDate") Timestamp startDate, @Param("endDate") Timestamp endDate);
+
     Page<WalletTransaction> findAll(Pageable pageable);
     Page<WalletTransaction> findAllByTransactionType(String walletTransaction, Pageable pageable);
 
