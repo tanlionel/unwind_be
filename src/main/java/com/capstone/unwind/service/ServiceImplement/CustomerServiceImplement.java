@@ -15,6 +15,7 @@ import com.capstone.unwind.service.ServiceInterface.CustomerService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
 import com.capstone.unwind.service.ServiceInterface.WalletService;
 import io.swagger.models.auth.In;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -407,6 +408,7 @@ public class CustomerServiceImplement implements CustomerService {
     }
 
     @Override
+    @Transactional
     public WalletTransactionDto paymentExchangeRequestVNPAY(UUID uuid, Integer requestId) throws OptionalNotFoundException, ErrMessageException {
         User user = userService.getLoginUser();
         if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
@@ -422,8 +424,17 @@ public class CustomerServiceImplement implements CustomerService {
         ExchangePosting exchangePosting = exchangeRequest.getExchangePosting();
         exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Completed));
         exchangePostingRepository.save(exchangePosting);
+        exchangeRequestRepository.updateOtherRequestsStatusByExchangePosting(
+                exchangeRequest.getExchangePosting().getId(),
+                exchangeRequest.getId()
+        );
 
-
+        Customer owner = exchangeRequest.getExchangePosting().getOwner();
+        owner.getWallet().setAvailableMoney(owner.getWallet().getAvailableMoney()+Math.abs(exchangeRequest.getPriceValuation()));
+        String descriptionOwner = "Nhận tiền thanh toán bù trừ trao đổi timeshare";
+        String transactionTypeOwner = String.valueOf(WalletTransactionEnum.EXCHANGEREQUEST_VALUATION);
+        WalletTransaction walletTransactionOwner = walletService.refundMoneyToCustomer(owner.getId(),0,Math.abs(exchangeRequest.getPriceValuation()),"WALLET",descriptionOwner,transactionTypeOwner);
+        walletRepository.save(owner.getWallet());
 
         Period period = Period.between(exchangeRequest.getStartDate(), exchangeRequest.getEndDate());
         int days = period.getDays() + 1;
@@ -463,6 +474,7 @@ public class CustomerServiceImplement implements CustomerService {
     }
 
     @Override
+    @Transactional
     public WalletTransactionDto paymentExchangeRequestWallet(Integer exchangeRequestId) throws OptionalNotFoundException, ErrMessageException {
         User user = userService.getLoginUser();
         if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
@@ -473,7 +485,7 @@ public class CustomerServiceImplement implements CustomerService {
         if (Math.abs(exchangeRequest.getPriceValuation())>user.getCustomer().getWallet().getAvailableMoney()) throw new ErrMessageException("not enough money");
         user.getCustomer().getWallet().setAvailableMoney(user.getCustomer().getWallet().getAvailableMoney()-Math.abs(exchangeRequest.getPriceValuation()));
 
-        WalletTransaction walletTransaction = walletService.createTransactionWallet(0,-Math.abs(exchangeRequest.getPriceValuation()), "WALLET");
+        WalletTransaction walletTransaction = walletService.createTransactionWallet(0,Math.abs(exchangeRequest.getPriceValuation()), "WALLET");
         walletRepository.save(user.getCustomer().getWallet());
 
 
@@ -491,6 +503,17 @@ public class CustomerServiceImplement implements CustomerService {
 
         walletRepository.save(user.getCustomer().getWallet());
 
+        exchangeRequestRepository.updateOtherRequestsStatusByExchangePosting(
+                exchangeRequest.getExchangePosting().getId(),
+                exchangeRequest.getId()
+        );
+
+        Customer owner = exchangeRequest.getExchangePosting().getOwner();
+        owner.getWallet().setAvailableMoney(owner.getWallet().getAvailableMoney()+Math.abs(exchangeRequest.getPriceValuation()));
+        String descriptionOwner = "Nhận tiền thanh toán bù trừ trao đổi timeshare";
+        String transactionTypeOwner = String.valueOf(WalletTransactionEnum.EXCHANGEREQUEST_VALUATION);
+        WalletTransaction walletTransactionOwner = walletService.refundMoneyToCustomer(owner.getId(),0,Math.abs(exchangeRequest.getPriceValuation()),"WALLET",descriptionOwner,transactionTypeOwner);
+        walletRepository.save(owner.getWallet());
 
         Period period = Period.between(exchangeRequest.getStartDate(), exchangeRequest.getEndDate());
         int days = period.getDays() + 1;
