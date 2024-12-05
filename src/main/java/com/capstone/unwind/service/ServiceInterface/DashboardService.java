@@ -21,7 +21,7 @@ public interface DashboardService {
     Long getTotalCompany() throws OptionalNotFoundException;
     Map<String, Double> getMonthlyMoneyReceivedInLast12Months();
     CustomerDashboardDto getCustomerDashboard();
-    TotalPackageDto getTotalPackageByDate(Timestamp startDate, Timestamp endDate);
+    TotalPackageDto getTotalPackageByDate(Timestamp startDate, Timestamp endDate) throws ErrMessageException;
 
     CustomerMoneyDashboardDto getCustomerMoneyDashboard(Timestamp startDate, Timestamp endDate) throws ErrMessageException;
 

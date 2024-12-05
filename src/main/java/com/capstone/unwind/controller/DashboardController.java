@@ -38,12 +38,17 @@ public class DashboardController {
     }
     @GetMapping("/system-staff/total-packages/date")
     public ResponseEntity<TotalPackageDto> getTotalPackageByDate(
-            @RequestParam(value = "startDate", required = false) Timestamp startDate,
-            @RequestParam(value = "endDate", required = false) Timestamp endDate) {
-        TotalPackageDto totalPackage = dashboardService.getTotalPackageByDate(startDate, endDate);
+            @RequestParam(value = "startDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(value = "endDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) throws ErrMessageException {
+        Timestamp startTimestamp = startDate != null ? Timestamp.valueOf(startDate) : null;
+        Timestamp endTimestamp = endDate != null ? Timestamp.valueOf(endDate) : null;
 
+        TotalPackageDto totalPackage = dashboardService.getTotalPackageByDate(startTimestamp, endTimestamp);
         return ResponseEntity.ok(totalPackage);
     }
+
 
     @GetMapping("/system-staff/total-customers")
     public ResponseEntity<Long> getTotalCustomers() {
@@ -81,10 +86,14 @@ public class DashboardController {
     }
     @GetMapping("/customer/daily-summary")
     public ResponseEntity<CustomerMoneyDashboardDto> getCustomerMoneyDashboard(
-            @RequestParam(value = "startDate", required = false) Timestamp startDate,
-            @RequestParam(value = "endDate", required = false) Timestamp endDate) throws ErrMessageException {
-        CustomerMoneyDashboardDto dashboard = dashboardService.getCustomerMoneyDashboard(startDate, endDate);
-        return ResponseEntity.ok(dashboard);
+            @RequestParam(value = "startDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(value = "endDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) throws ErrMessageException {
+        Timestamp startTimestamp = startDate != null ? Timestamp.valueOf(startDate) : null;
+        Timestamp endTimestamp = endDate != null ? Timestamp.valueOf(endDate) : null;
 
+            CustomerMoneyDashboardDto dashboard = dashboardService.getCustomerMoneyDashboard(startTimestamp, endTimestamp);
+            return ResponseEntity.ok(dashboard);
     }
 }
