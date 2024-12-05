@@ -111,7 +111,17 @@ public class DashboardServiceImplement implements DashboardService {
                 .build();
     }
     @Override
-    public TotalPackageDto getTotalPackageByDate(Timestamp startDate, Timestamp endDate) {
+    public TotalPackageDto getTotalPackageByDate(Timestamp startDate, Timestamp endDate) throws ErrMessageException {
+        if (startDate == null) {
+            startDate = Timestamp.valueOf(LocalDateTime.now().toLocalDate().atStartOfDay());
+        }
+
+        if (endDate == null) {
+            endDate = Timestamp.valueOf(LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX));
+        }
+        if (startDate.after(endDate)) {
+            throw new ErrMessageException("The startDate must be less than or equal to the endDate.");
+        }
         Long rentalPackage = rentalPostingRepository.countRentalPackageByDateRange(startDate, endDate);
         Long exchangePackage = exchangePostingRepository.countExchangePackageByDateRange(startDate, endDate);
         Long membershipPackage = walletTransactionRepository.countMembershipPackageByDateRange(startDate, endDate);
@@ -171,7 +181,9 @@ public class DashboardServiceImplement implements DashboardService {
         if (endDate == null) {
             endDate = Timestamp.valueOf(LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX));
         }
-
+        if (startDate.after(endDate)) {
+            throw new ErrMessageException("The startDate must be less than or equal to the endDate.");
+        }
         User user = userService.getLoginUser();
         Customer customer = customerRepository.findByUserId(user.getId());
 
