@@ -150,7 +150,7 @@ public class BookingServiceImplement implements BookingService {
                 //refund money to customer
                 RentalPosting rentalPosting = rentalBooking.getRentalPosting();
                 if (rentalPosting.getRentalPackage().getId() == 4){
-                    float fee = rentalPosting.getPricePerNights()*rentalPosting.getNights()*rentalPosting.getRentalPackage().getCommissionRate()/100+FeeConfig.fee_booking;
+                    float fee = rentalPosting.getPricePerNights()*rentalPosting.getNights()*rentalPosting.getRentalPackage().getCommissionRate()/100;
                     float money = rentalPosting.getPricePerNights()*rentalPosting.getNights()-fee;
                     String paymentMethod = "WALLET";
                     String description = "Giao dịch cộng tiền từ khách hàng đã check out";
@@ -159,7 +159,7 @@ public class BookingServiceImplement implements BookingService {
                 }else {
                     Customer owner = rentalPosting.getOwner();
                     if (owner==null) throw new ErrMessageException("Error when refund money to customer but reject successfully");
-                    float feeCustomer = rentalPosting.getPricePerNights()*rentalPosting.getNights()*rentalPosting.getRentalPackage().getCommissionRate()/100+FeeConfig.fee_booking;
+                    float feeCustomer = rentalPosting.getPricePerNights()*rentalPosting.getNights()*rentalPosting.getRentalPackage().getCommissionRate()/100;
                     float moneyCustomer = rentalPosting.getPricePerNights()*rentalPosting.getNights()-feeCustomer;
                     String paymentMethodCustomer = "WALLET";
                     String descriptionCustomer = "Giao dịch cộng tiền từ khách hàng đã check out";

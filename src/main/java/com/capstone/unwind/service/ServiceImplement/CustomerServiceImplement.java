@@ -429,6 +429,12 @@ public class CustomerServiceImplement implements CustomerService {
                 exchangeRequest.getId()
         );
 
+        Customer owner = exchangeRequest.getExchangePosting().getOwner();
+        owner.getWallet().setAvailableMoney(owner.getWallet().getAvailableMoney()+Math.abs(exchangeRequest.getPriceValuation()));
+        String descriptionOwner = "Nhận tiền thanh toán bù trừ trao đổi timeshare";
+        String transactionTypeOwner = String.valueOf(WalletTransactionEnum.EXCHANGEREQUEST_VALUATION);
+        WalletTransaction walletTransactionOwner = walletService.refundMoneyToCustomer(owner.getId(),0,Math.abs(exchangeRequest.getPriceValuation()),"WALLET",descriptionOwner,transactionTypeOwner);
+        walletRepository.save(owner.getWallet());
 
         Period period = Period.between(exchangeRequest.getStartDate(), exchangeRequest.getEndDate());
         int days = period.getDays() + 1;
@@ -479,7 +485,7 @@ public class CustomerServiceImplement implements CustomerService {
         if (Math.abs(exchangeRequest.getPriceValuation())>user.getCustomer().getWallet().getAvailableMoney()) throw new ErrMessageException("not enough money");
         user.getCustomer().getWallet().setAvailableMoney(user.getCustomer().getWallet().getAvailableMoney()-Math.abs(exchangeRequest.getPriceValuation()));
 
-        WalletTransaction walletTransaction = walletService.createTransactionWallet(0,-Math.abs(exchangeRequest.getPriceValuation()), "WALLET");
+        WalletTransaction walletTransaction = walletService.createTransactionWallet(0,Math.abs(exchangeRequest.getPriceValuation()), "WALLET");
         walletRepository.save(user.getCustomer().getWallet());
 
 
@@ -501,6 +507,14 @@ public class CustomerServiceImplement implements CustomerService {
                 exchangeRequest.getExchangePosting().getId(),
                 exchangeRequest.getId()
         );
+
+        Customer owner = exchangeRequest.getExchangePosting().getOwner();
+        owner.getWallet().setAvailableMoney(owner.getWallet().getAvailableMoney()+Math.abs(exchangeRequest.getPriceValuation()));
+        String descriptionOwner = "Nhận tiền thanh toán bù trừ trao đổi timeshare";
+        String transactionTypeOwner = String.valueOf(WalletTransactionEnum.EXCHANGEREQUEST_VALUATION);
+        WalletTransaction walletTransactionOwner = walletService.refundMoneyToCustomer(owner.getId(),0,Math.abs(exchangeRequest.getPriceValuation()),"WALLET",descriptionOwner,transactionTypeOwner);
+        walletRepository.save(owner.getWallet());
+
         Period period = Period.between(exchangeRequest.getStartDate(), exchangeRequest.getEndDate());
         int days = period.getDays() + 1;
         ExchangeBooking requesterBooking =  ExchangeBooking.builder()
