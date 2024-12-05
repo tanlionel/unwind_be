@@ -1,7 +1,9 @@
 package com.capstone.unwind.controller;
 
+import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.DashboardDTO.CustomerDashboardDto;
+import com.capstone.unwind.model.DashboardDTO.CustomerMoneyDashboardDto;
 import com.capstone.unwind.model.TotalPackageDTO.TotalPackageDto;
 import com.capstone.unwind.service.ServiceInterface.DashboardService;
 import com.capstone.unwind.service.ServiceInterface.ExchangePostingService;
@@ -15,6 +17,8 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -34,13 +38,13 @@ public class DashboardController {
     }
     @GetMapping("/system-staff/total-packages/date")
     public ResponseEntity<TotalPackageDto> getTotalPackageByDate(
-            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        Timestamp startTimestamp = Timestamp.valueOf(startDate.atStartOfDay());
-        Timestamp endTimestamp = Timestamp.valueOf(endDate.atTime(LocalTime.MAX));
-        TotalPackageDto totalPackage = dashboardService.getTotalPackageByDate(startTimestamp, endTimestamp);
+            @RequestParam(value = "startDate", required = false) Timestamp startDate,
+            @RequestParam(value = "endDate", required = false) Timestamp endDate) {
+        TotalPackageDto totalPackage = dashboardService.getTotalPackageByDate(startDate, endDate);
+
         return ResponseEntity.ok(totalPackage);
     }
+
     @GetMapping("/system-staff/total-customers")
     public ResponseEntity<Long> getTotalCustomers() {
         return ResponseEntity.ok(dashboardService.getTotalCustomers());
@@ -74,5 +78,13 @@ public class DashboardController {
     public ResponseEntity<CustomerDashboardDto> getCustomerDashboard() {
         CustomerDashboardDto customerDashboard = dashboardService.getCustomerDashboard();
         return ResponseEntity.ok(customerDashboard);
+    }
+    @GetMapping("/customer/daily-summary")
+    public ResponseEntity<CustomerMoneyDashboardDto> getCustomerMoneyDashboard(
+            @RequestParam(value = "startDate", required = false) Timestamp startDate,
+            @RequestParam(value = "endDate", required = false) Timestamp endDate) throws ErrMessageException {
+        CustomerMoneyDashboardDto dashboard = dashboardService.getCustomerMoneyDashboard(startDate, endDate);
+        return ResponseEntity.ok(dashboard);
+
     }
 }

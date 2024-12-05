@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,12 +34,33 @@ public interface WalletTransactionRepository extends JpaRepository<WalletTransac
             "ORDER BY FUNCTION('YEAR', wt.createdAt) ASC, FUNCTION('MONTH', wt.createdAt) ASC")
     List<Object[]> findMonthlyMoneyReceived(@Param("timeshareCompanyId") Integer timeshareCompanyId,
                                             @Param("startDate") LocalDateTime startDate);
+
+
+    @Query("SELECT SUM(wt.money) FROM WalletTransaction wt WHERE wt.wallet.id = :walletId AND wt.money > 0")
+    Long sumMoneyByCustomerIdAndMoneyGreaterThan(@Param("walletId") Integer walletId);
+
+    @Query("SELECT SUM(wt.money) FROM WalletTransaction wt WHERE wt.wallet.id = :walletId AND wt.money < 0")
+    Long sumMoneyByCustomerIdAndMoneyLessThan(@Param("walletId") Integer walletId);
+
+    @Query("SELECT SUM(wt.money) FROM WalletTransaction wt WHERE wt.wallet.id = :walletId AND wt.createdAt BETWEEN :startDate AND :endDate AND wt.money > 0 GROUP BY FUNCTION('DATE', wt.createdAt)")
+    List<Long> sumMoneyByCustomerIdAndDateRangeAndMoneyGreaterThan(@Param("walletId") Integer walletId,
+                                                                   @Param("startDate") Timestamp startDate,
+                                                                   @Param("endDate") Timestamp endDate);
+
+    @Query("SELECT SUM(wt.money) FROM WalletTransaction wt WHERE wt.wallet.id = :walletId AND wt.createdAt BETWEEN :startDate AND :endDate AND wt.money < 0 GROUP BY FUNCTION('DATE', wt.createdAt)")
+    List<Long> sumMoneyByCustomerIdAndDateRangeAndMoneyLessThan(@Param("walletId") Integer walletId,
+                                                                @Param("startDate") Timestamp startDate,
+                                                                @Param("endDate") Timestamp endDate);
+
     @Query("SELECT COUNT(r) FROM WalletTransaction r WHERE r.transactionType = 'MEMBERSHIP'")
     Long getTotalMEMBERSGIP();
     @Query("SELECT COUNT(w) FROM WalletTransaction w WHERE w.createdAt BETWEEN :startDate AND :endDate AND w.transactionType = 'MEMBERSHIP'")
     Long countMembershipPackageByDateRange(@Param("startDate") Timestamp startDate, @Param("endDate") Timestamp endDate);
     Page<WalletTransaction> findAll(Pageable pageable);
     Page<WalletTransaction> findAllByTransactionType(String walletTransaction, Pageable pageable);
+
+
+
 
 
 
