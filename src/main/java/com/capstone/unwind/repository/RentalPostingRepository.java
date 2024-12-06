@@ -76,8 +76,11 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
 
     @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.rentalPackage.isActive = true ")
     Long getRentalPackage();
-    @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.createdDate BETWEEN :startDate AND :endDate")
-    Long countRentalPackageByDateRange(@Param("startDate") Timestamp startDate, @Param("endDate") Timestamp endDate);
+    @Query("SELECT COUNT(r), FUNCTION('DATE', r.createdDate) FROM RentalPosting r WHERE r.createdDate BETWEEN :startDate AND :endDate GROUP BY FUNCTION('DATE', r.createdDate) ORDER BY FUNCTION('DATE', r.createdDate)")
+    List<Object[]> countRentalPackageByDateRange(@Param("startDate") Timestamp startDate, @Param("endDate") Timestamp endDate);
+
+
+
     @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.owner.id = :ownerId")
     Long getRentalPostingByUserId(@Param("ownerId") Integer ownerId);
 
