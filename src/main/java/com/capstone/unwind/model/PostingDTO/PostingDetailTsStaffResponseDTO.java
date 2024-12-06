@@ -30,6 +30,7 @@ public class PostingDetailTsStaffResponseDTO {
     private String roomName;
     private Integer resortId;
     private String resortName;
+    private String resortImage;
     private String resortDescription;
     private LocationDTO location;
     private Boolean isVerify;

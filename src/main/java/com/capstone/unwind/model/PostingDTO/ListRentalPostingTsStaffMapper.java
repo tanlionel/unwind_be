@@ -25,6 +25,7 @@ public interface ListRentalPostingTsStaffMapper {
     @Mapping(source = "timeshare.roomInfo.roomInfoCode", target = "roomCode")
     @Mapping(source = "timeshare.roomInfo.resort.id", target = "resortId")
     @Mapping(source = "timeshare.roomInfo.resort.resortName", target = "resortName")
+    @Mapping(source = "timeshare.roomInfo.resort.logo", target = "resortImage")
     @Mapping(source = "pricePerNights", target = "pricePerNights")
     @Mapping(target = "totalPrice", expression = "java(calculateTotalPrice(entity.getNights(), entity.getPricePerNights()))")
     @Mapping(source = "checkinDate", target = "checkinDate")

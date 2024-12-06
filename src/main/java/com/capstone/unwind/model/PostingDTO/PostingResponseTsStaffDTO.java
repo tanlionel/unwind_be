@@ -23,6 +23,7 @@ public class PostingResponseTsStaffDTO {
     private String rentalPackageName;
     private String roomCode;
     private Integer resortId;
+    private String resortImage;
     private String resortName;
     private Float pricePerNights;
     private Float totalPrice;
