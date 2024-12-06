@@ -8,11 +8,20 @@ import com.capstone.unwind.model.TimeShareStaffDTO.LoginTSStaffRequestDto;
 import com.capstone.unwind.service.ServiceInterface.JwtService;
 import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -25,6 +34,9 @@ public class UserAuthController {
     private final JwtService jwtService;
     @Autowired
     private final TimeShareStaffService timeShareStaffService;
+    private static final String HEADER = "Authorization";
+    private static final String SUB_STRING = "Bearer ";
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequestDTO registeredUser) throws Exception{
         User user = userService.registerUser(registeredUser);
@@ -50,6 +62,33 @@ public class UserAuthController {
                         .build()
         );
     }
+    @GetMapping("/oauth2-success")
+    public ResponseEntity<String> handleLoginGoogleSuccess(HttpServletRequest request, HttpServletResponse response) {
+        String jwtToken = null;
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwtToken".equals(cookie.getName())) {
+                    jwtToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (jwtToken != null) {
+            Cookie cookie = new Cookie("jwtToken", null);
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+
+            return ResponseEntity.ok(jwtToken);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không có sẵn");
+        }
+    }
+
+
 
     @PostMapping("/timeshare-company-staff/login")
     public ResponseEntity<?> signInStaffRole(@RequestBody LoginTSStaffRequestDto loginTSStaffRequestDto) throws AccountSuspendedException, OptionalNotFoundException, InvalidateException, TokenExpiredException, UserDoesNotExistException {

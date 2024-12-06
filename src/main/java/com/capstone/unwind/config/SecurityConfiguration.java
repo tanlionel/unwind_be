@@ -4,13 +4,17 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.SecurityContextConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -22,6 +26,8 @@ public class SecurityConfiguration {
     private final JwtAuthFilter jwtAuthFilter;
     @Autowired
     private final AuthenticationProvider authenticationProvider;
+    @Autowired
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -67,11 +73,21 @@ public class SecurityConfiguration {
                                 .hasAuthority("TIMESHARECOMPANYSTAFF")
                                 .requestMatchers("api/test/api/some-endpoint")
                                 .hasAuthority("TIMESHARECOMPANYSTAFF")
+                                .requestMatchers("/api/auth/oauth2-login", "/api/auth/oauth2-success")
+                                .permitAll()
                                 .anyRequest()
                                 .authenticated())
+
+                .oauth2Login(oauth -> oauth
+                        .defaultSuccessUrl("/api/auth/oauth2-success", true)
+                        .successHandler(oAuth2LoginSuccessHandler)
+                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                );
 
         return http.build();
     }
