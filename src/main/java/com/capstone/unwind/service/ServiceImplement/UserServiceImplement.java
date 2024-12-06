@@ -176,8 +176,9 @@ public class UserServiceImplement implements UserService {
                 if (user == null) throw new ErrMessageException( "Email not found");
 
         // Random 6 ký tự
-        String token = RandomStringUtils.randomAlphanumeric(6).toUpperCase();
+        String token = RandomStringUtils.randomNumeric(6);
         user.setForgotPwdToken(token);
+
 
         // Set thời gian hết hạn (10 phút sau)
         LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(10);
