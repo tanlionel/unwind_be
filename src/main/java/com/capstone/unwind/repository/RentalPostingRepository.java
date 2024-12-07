@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,8 +77,9 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
 
     @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.rentalPackage.isActive = true ")
     Long getRentalPackage();
-    @Query("SELECT COUNT(r), FUNCTION('DATE', r.createdDate) FROM RentalPosting r WHERE r.createdDate BETWEEN :startDate AND :endDate GROUP BY FUNCTION('DATE', r.createdDate) ORDER BY FUNCTION('DATE', r.createdDate)")
-    List<Object[]> countRentalPackageByDateRange(@Param("startDate") Timestamp startDate, @Param("endDate") Timestamp endDate);
+    @Query("SELECT COUNT(r) FROM RentalPosting r WHERE DATE(r.createdDate) = :date")
+    Long countRentalPackageByDateRange(@Param("date") LocalDate date);
+
 
 
 

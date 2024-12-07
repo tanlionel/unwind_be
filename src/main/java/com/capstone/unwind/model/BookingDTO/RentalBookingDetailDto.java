@@ -58,7 +58,6 @@ public class RentalBookingDetailDto implements Serializable {
         Float rentalPackagePrice;
         Timestamp createdDate;
         Timestamp updatedDate;
-
         /**
          * DTO for {@link RoomInfo}
          */
@@ -70,7 +69,7 @@ public class RentalBookingDetailDto implements Serializable {
             Boolean isActive;
             String status;
             UnitTypeDto unitType;
-
+            String resortLogo;
             /**
              * DTO for {@link UnitType}
              */
@@ -94,7 +93,6 @@ public class RentalBookingDetailDto implements Serializable {
                 String photos;
                 Integer resortId;
                 String resortResortName;
-                String resortLogo;
                 LocationDTO location;
                 String resortDescription;
                 Integer sleeps;

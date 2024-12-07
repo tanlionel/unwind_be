@@ -38,7 +38,7 @@ public class DashboardController {
         return ResponseEntity.ok(totalPackage);
     }
     @GetMapping("/system-staff/total-packages/date")
-    public ResponseEntity<PackageDashboardDto> getTotalPackageByDate(
+    public ResponseEntity< List<PackageDashboardDto>> getTotalPackageByDate(
             @RequestParam(value = "startDate", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(value = "endDate", required = false)
@@ -46,7 +46,7 @@ public class DashboardController {
         Timestamp startTimestamp = startDate != null ? Timestamp.valueOf(startDate) : null;
         Timestamp endTimestamp = endDate != null ? Timestamp.valueOf(endDate) : null;
 
-        PackageDashboardDto totalPackage = dashboardService.getTotalPackageByDate(startTimestamp, endTimestamp);
+        List<PackageDashboardDto> totalPackage = dashboardService.getTotalPackageByDate(startTimestamp, endTimestamp);
         return ResponseEntity.ok(totalPackage);
     }
 

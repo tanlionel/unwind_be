@@ -9,7 +9,7 @@ public interface ExchangeBookingDetailMapper {
     ExchangeBooking toEntity(ExchangeBookingDetailDto exchangeBookingDetailDto);
     @Mapping(source = "exchangePosting.roomInfo.unitType.resort.id",target = "roomInfo.unitType.resortId")
     @Mapping(source = "exchangePosting.roomInfo.unitType.resort.resortName",target = "roomInfo.unitType.resortName")
-    @Mapping(source = "exchangePosting.roomInfo.unitType.resort.logo",target = "roomInfo.unitType.resortLogo")
+    @Mapping(source = "exchangePosting.roomInfo.unitType.resort.logo",target = "roomInfo.resortLogo")
     @Mapping(source = "exchangePosting.roomInfo.unitType.resort.description",target = "roomInfo.unitType.resortDescription")
     @Mapping(source = "exchangePosting.roomInfo.unitType.resort.location",target = "roomInfo.unitType.location")
     @Mapping(source = "exchangePosting.roomInfo.unitType.title",target = "roomInfo.unitType.title")

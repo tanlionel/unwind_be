@@ -1,8 +1,9 @@
 package com.capstone.unwind.model.TotalPackageDTO;
 
-import com.capstone.unwind.model.DashboardDTO.RevenueCostByDateDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
+import java.util.Date;
 import java.util.Map;
 
 @Data
@@ -12,5 +13,9 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PackageDashboardDto {
-    private Map<String, TotalPackageDto> packageByDateMap;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    Date date;
+    Long totalRentalPackage;
+    Long totalExchangePackage;
+    Long totalMemberShip;
 }
