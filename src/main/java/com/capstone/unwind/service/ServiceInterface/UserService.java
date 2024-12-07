@@ -2,11 +2,9 @@ package com.capstone.unwind.service.ServiceInterface;
 
 import com.capstone.unwind.entity.TimeshareCompanyStaff;
 import com.capstone.unwind.entity.User;
-import com.capstone.unwind.exception.AccountSuspendedException;
-import com.capstone.unwind.exception.ErrMessageException;
-import com.capstone.unwind.exception.InvalidateException;
-import com.capstone.unwind.exception.UserDoesNotExistException;
+import com.capstone.unwind.exception.*;
 import com.capstone.unwind.model.AuthDTO.RegisterRequestDTO;
+import com.capstone.unwind.model.NotificationDTO.FcmTokenRequest;
 import com.capstone.unwind.model.UserDTO.UpdateUserRequestDTO;
 import com.capstone.unwind.model.UserDTO.UserDto;
 import org.springframework.data.domain.Page;
@@ -29,4 +27,6 @@ public interface UserService {
      void  resetPassword(String email,
                                String token,
                                String newPassword) throws ErrMessageException;
+
+    Boolean saveFcmToken(FcmTokenRequest request) throws OptionalNotFoundException;
 }
