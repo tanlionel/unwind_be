@@ -40,6 +40,9 @@ public class User implements UserDetails {
     @Column(name = "forgot_pwd_token", length = 6)
     private String forgotPwdToken;
 
+    @Column(name = "fcm_token",length = 500)
+    private String fcmToken;
+
     @Column(name = "expired_pwd_token")
     private LocalDateTime expiredPwdToken;
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
