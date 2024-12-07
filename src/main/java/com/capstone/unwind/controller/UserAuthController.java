@@ -63,7 +63,7 @@ public class UserAuthController {
         );
     }
     @GetMapping("/oauth2-success")
-    public ResponseEntity<String> handleLoginGoogleSuccess(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> handleLoginGoogleSuccess(HttpServletRequest request, HttpServletResponse response) throws TokenExpiredException, UserDoesNotExistException, InvalidateException {
         String jwtToken = null;
         Cookie[] cookies = request.getCookies();
 
@@ -81,11 +81,16 @@ public class UserAuthController {
             cookie.setMaxAge(0);
             cookie.setPath("/");
             response.addCookie(cookie);
-
-            return ResponseEntity.ok(jwtToken);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không có sẵn");
         }
+        String refreshToken = jwtToken;
+        String accessToken = jwtService.generateAccessToken(refreshToken);
+        return ResponseEntity.ok(
+                ResponseObjectDTO.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build());
     }
 
 
