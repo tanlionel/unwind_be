@@ -270,9 +270,11 @@ public class DashboardServiceImplement implements DashboardService {
             if (cost == null) {
                 cost = 0.0;
             }
+            Double allRevenue = walletTransactionRepository.sumMoneyByCustomerIdAndMoneyGreaterThan(wallet.getId());
+            Double allCosts = walletTransactionRepository.sumMoneyByCustomerIdAndMoneyLessThan(wallet.getId());
 
-            totalRevenue += revenue;
-            totalCosts += cost;
+            totalRevenue += allRevenue;
+            totalCosts += allCosts;
 
             // Lưu vào map
             revenueMap.put(new Date(date.getTime()), revenue);
