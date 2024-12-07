@@ -8,13 +8,11 @@ import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
 import com.capstone.unwind.model.DashboardDTO.CustomerDashboardDto;
 import com.capstone.unwind.model.DashboardDTO.CustomerMoneyDashboardDto;
-import com.capstone.unwind.model.DashboardDTO.RevenueCostByDateDto;
 import com.capstone.unwind.model.TotalPackageDTO.PackageDashboardDto;
 import com.capstone.unwind.model.TotalPackageDTO.TotalPackageDto;
 import com.capstone.unwind.repository.*;
 import com.capstone.unwind.service.ServiceInterface.DashboardService;
 import com.capstone.unwind.service.ServiceInterface.UserService;
-import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,9 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -152,100 +148,71 @@ public class DashboardServiceImplement implements DashboardService {
         return monthlyTotals;
     }
     @Override
-    public PackageDashboardDto getTotalPackageByDate(Timestamp startDate, Timestamp endDate) throws ErrMessageException {
+    public List<PackageDashboardDto> getTotalPackageByDate(Timestamp startDate, Timestamp endDate) throws ErrMessageException {
 
-        // Set default startDate and endDate if null
         if (startDate == null) {
             startDate = Timestamp.valueOf(LocalDateTime.now().toLocalDate().atStartOfDay());
         }
-
         if (endDate == null) {
             endDate = Timestamp.valueOf(LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX));
         }
-
-        // Validate the date range
         if (startDate.after(endDate)) {
             throw new ErrMessageException("The startDate must be less than or equal to the endDate.");
         }
 
-        // Get total package counts for each day (returns a list of Object[] with count and date)
-        List<Object[]> rentalPackageResults = rentalPostingRepository.countRentalPackageByDateRange(startDate, endDate);
-        List<Object[]> exchangePackageResults = exchangePostingRepository.countExchangePackageByDateRange(startDate, endDate);
-        List<Object[]> membershipPackageResults = walletTransactionRepository.countMembershipPackageByDateRange(startDate, endDate);
-
-        // Create a list of all dates in the range
+        Long totalRentalPosting = 0L;
+        Long totalExchangePosting = 0L;
+        Long totalMembership = 0L;
         List<Timestamp> allDates = new ArrayList<>();
         Timestamp currentDate = startDate;
 
         while (currentDate.before(endDate) || currentDate.equals(endDate)) {
             allDates.add(currentDate);
-            LocalDateTime nextDay = currentDate.toLocalDateTime().plusDays(1);
-            currentDate = Timestamp.valueOf(nextDay);
+            currentDate = Timestamp.valueOf(currentDate.toLocalDateTime().plusDays(1));
         }
-        allDates.sort(Comparator.naturalOrder());
 
-        // Map to store package data by date
-        Map<String, TotalPackageDto> packageByDateMap = new LinkedHashMap<>();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        Map<Date, Long> rentalMap = new LinkedHashMap<>();
+        Map<Date, Long> exchangeMap = new LinkedHashMap<>();
+        Map<Date, Long> membershipMap = new LinkedHashMap<>();
 
-        // Initialize values for each date
         for (Timestamp date : allDates) {
-            packageByDateMap.put(dateFormat.format(date),
-                    TotalPackageDto.builder()
-                            .totalRentalPackage(0L)
-                            .totalExchangePackage(0L)
-                            .totalMemberShip(0L)
-                            .build());
+            LocalDate localDate = date.toLocalDateTime().toLocalDate();
+
+            Long rentalPackageResults = rentalPostingRepository.countRentalPackageByDateRange(localDate);
+            Long exchangePackageResults = exchangePostingRepository.countExchangePackageByDateRange(localDate);
+            Long membershipPackageResults = walletTransactionRepository.countMembershipPackageByDateRange(localDate);
+
+            rentalPackageResults = (rentalPackageResults == null) ? 0L : rentalPackageResults;
+            exchangePackageResults = (exchangePackageResults == null) ? 0L : exchangePackageResults;
+            membershipPackageResults = (membershipPackageResults == null) ? 0L : membershipPackageResults;
+
+            totalRentalPosting += rentalPackageResults;
+            totalExchangePosting += exchangePackageResults;
+            totalMembership += membershipPackageResults;
+
+            // Save results to maps
+            rentalMap.put(new Date(date.getTime()), rentalPackageResults);
+            exchangeMap.put(new Date(date.getTime()), exchangePackageResults);
+            membershipMap.put(new Date(date.getTime()), membershipPackageResults);
         }
 
-        // Map the results to the corresponding dates (handle both java.sql.Date and java.sql.Timestamp)
-        for (Object[] rentalResult : rentalPackageResults) {
-            Object dateObj = rentalResult[1];
-            Timestamp rentalDate = convertToTimestamp(dateObj);
-            Long rentalCount = (Long) rentalResult[0];
+        List<PackageDashboardDto> packageByDateDtos = new ArrayList<>();
+        rentalMap.forEach((date, rentalPackageResults) -> {
+            Long exchangePackageResults = exchangeMap.getOrDefault(date, 0L);
+            Long membershipPackageResults = membershipMap.getOrDefault(date, 0L);
 
-            packageByDateMap.computeIfPresent(dateFormat.format(rentalDate), (key, value) -> {
-                value.setTotalRentalPackage(rentalCount);
-                return value;
-            });
-        }
+            packageByDateDtos.add(PackageDashboardDto.builder()
+                    .date(date)
+                    .totalRentalPackage(rentalPackageResults)
+                    .totalExchangePackage(exchangePackageResults)
+                    .totalMemberShip(membershipPackageResults)
+                    .build());
+        });
 
-        for (Object[] exchangeResult : exchangePackageResults) {
-            Object dateObj = exchangeResult[1];
-            Timestamp exchangeDate = convertToTimestamp(dateObj);
-            Long exchangeCount = (Long) exchangeResult[0];
-
-            packageByDateMap.computeIfPresent(dateFormat.format(exchangeDate), (key, value) -> {
-                value.setTotalExchangePackage(exchangeCount);
-                return value;
-            });
-        }
-
-        for (Object[] membershipResult : membershipPackageResults) {
-            Object dateObj = membershipResult[1];
-            Timestamp membershipDate = convertToTimestamp(dateObj);
-            Long membershipCount = (Long) membershipResult[0];
-
-            packageByDateMap.computeIfPresent(dateFormat.format(membershipDate), (key, value) -> {
-                value.setTotalMemberShip(membershipCount);
-                return value;
-            });
-        }
-
-
-        for (Map.Entry<String, TotalPackageDto> entry : packageByDateMap.entrySet()) {
-            TotalPackageDto dto = entry.getValue();
-
-            dto.setTotalRentalPackage(Optional.ofNullable(dto.getTotalRentalPackage()).orElse(0L));
-            dto.setTotalExchangePackage(Optional.ofNullable(dto.getTotalExchangePackage()).orElse(0L));
-            dto.setTotalMemberShip(Optional.ofNullable(dto.getTotalMemberShip()).orElse(0L));
-        }
-
-        // Return the final DTO
-        return PackageDashboardDto.builder()
-                .packageByDateMap(packageByDateMap)
-                .build();
+        return packageByDateDtos;
     }
+
+
 
     private Timestamp convertToTimestamp(Object dateObj) {
         if (dateObj instanceof java.sql.Date) {
@@ -259,88 +226,74 @@ public class DashboardServiceImplement implements DashboardService {
 
     @Override
     public CustomerMoneyDashboardDto getCustomerMoneyDashboard(Timestamp startDate, Timestamp endDate) throws ErrMessageException {
-
         if (startDate == null) {
             startDate = Timestamp.valueOf(LocalDateTime.now().toLocalDate().atStartOfDay());
         }
-
         if (endDate == null) {
             endDate = Timestamp.valueOf(LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX));
         }
-
         if (startDate.after(endDate)) {
             throw new ErrMessageException("The startDate must be less than or equal to the endDate.");
         }
 
-        // Get the logged-in user and their customer information
+        // Lấy thông tin người dùng và ví
         User user = userService.getLoginUser();
         Customer customer = customerRepository.findByUserId(user.getId());
-
         Wallet wallet = walletRepository.findWalletByOwnerId(customer.getId());
         if (wallet == null) {
             throw new ErrMessageException("Wallet not found for customer ID: " + customer.getId());
         }
 
-        Long totalRevenue = walletTransactionRepository.sumMoneyByCustomerIdAndMoneyGreaterThan(wallet.getId());
-        Long totalCosts = walletTransactionRepository.sumMoneyByCustomerIdAndMoneyLessThan(wallet.getId());
-
-        List<Object[]> revenueByDate = walletTransactionRepository.sumMoneyByCustomerIdAndDateRangeAndMoneyGreaterThan(wallet.getId(), startDate, endDate);
-        List<Object[]> costsByDate = walletTransactionRepository.sumMoneyByCustomerIdAndDateRangeAndMoneyLessThan(wallet.getId(), startDate, endDate);
-
+        // Tính doanh thu và chi phí cho từng ngày trong khoảng thời gian
+        Double totalRevenue = 0.0;
+        Double totalCosts = 0.0;
         List<Timestamp> allDates = new ArrayList<>();
         Timestamp currentDate = startDate;
+
         while (currentDate.before(endDate) || currentDate.equals(endDate)) {
             allDates.add(currentDate);
-            LocalDateTime nextDay = currentDate.toLocalDateTime().plusDays(1);
-            currentDate = Timestamp.valueOf(nextDay);
+            currentDate = Timestamp.valueOf(currentDate.toLocalDateTime().plusDays(1));
         }
 
-        allDates.sort(Comparator.naturalOrder());
+        Map<Date, Double> revenueMap = new LinkedHashMap<>();
+        Map<Date, Double> costMap = new LinkedHashMap<>();
 
-        Map<String, RevenueCostByDateDto> revenueCostByDateMap = new LinkedHashMap<>();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-
-
-        Map<String, Long> revenueMap = new HashMap<>();
-        Map<String, Long> costsMap = new HashMap<>();
-
-        // Populate revenue map
-        for (Object[] revenueResult : revenueByDate) {
-            Object dateObj = revenueResult[1];
-            Timestamp revenueDate = convertToTimestamp(dateObj);
-            Double revenueValue = (Double) revenueResult[0];
-
-            String formattedDate = dateFormat.format(revenueDate);
-            revenueMap.put(formattedDate, revenueValue != null ? revenueValue.longValue() : 0L);
-        }
-
-        for (Object[] costsResult : costsByDate) {
-            Object dateObj = costsResult[1];
-            Timestamp costDate = convertToTimestamp(dateObj);
-            Double costValue = (Double) costsResult[0];
-
-            String formattedDate = dateFormat.format(costDate);
-            costsMap.put(formattedDate, costValue != null ? costValue.longValue() : 0L);
-        }
-
-        // Populate the revenueCostByDateMap
         for (Timestamp date : allDates) {
-            String formattedDate = dateFormat.format(date);
-            Long revenueValue = revenueMap.getOrDefault(formattedDate, 0L);
-            Long costValue = costsMap.getOrDefault(formattedDate, 0L);
+            LocalDate localDate = date.toLocalDateTime().toLocalDate();
 
-            revenueCostByDateMap.put(formattedDate,
-                    RevenueCostByDateDto.builder()
-                            .revenueByDate(revenueValue)
-                            .revenueByCosts(costValue)
-                            .build());
+            Double revenue = walletTransactionRepository.sumMoneyByCustomerIdAndDateAndMoneyGreaterThan(wallet.getId(), localDate);
+            Double cost = walletTransactionRepository.sumMoneyByCustomerIdAndDateAndMoneyLessThan(wallet.getId(), localDate);
+
+            if (revenue == null) {
+                revenue = 0.0;
+            }
+            if (cost == null) {
+                cost = 0.0;
+            }
+
+            totalRevenue += revenue;
+            totalCosts += cost;
+
+            // Lưu vào map
+            revenueMap.put(new Date(date.getTime()), revenue);
+            costMap.put(new Date(date.getTime()), cost);
         }
 
-        // Return the final DTO
+        // Tạo danh sách DTO từ map
+        List<CustomerMoneyDashboardDto.RevenueCostByDateDto> revenueCostByDateDtos = new ArrayList<>();
+        revenueMap.forEach((date, revenue) -> {
+            Double cost = costMap.getOrDefault(date, 0.0);
+            revenueCostByDateDtos.add(CustomerMoneyDashboardDto.RevenueCostByDateDto.builder()
+                    .date(date)
+                    .revenueByDate(revenue)
+                    .revenueByCosts(cost)
+                    .build());
+        });
+
         return CustomerMoneyDashboardDto.builder()
-                .totalRevenue(Optional.ofNullable(totalRevenue).orElse(0L))
-                .totalCosts(Optional.ofNullable(totalCosts).orElse(0L))     // Default to 0 if null
-                .revenueCostByDateMap(revenueCostByDateMap)
+                .totalRevenue(totalRevenue)
+                .totalCosts(totalCosts)
+                .revenueCostByDateDtos(revenueCostByDateDtos)
                 .build();
     }
 

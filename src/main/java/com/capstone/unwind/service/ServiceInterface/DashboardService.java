@@ -10,6 +10,7 @@ import com.capstone.unwind.model.TotalPackageDTO.TotalPackageDto;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 public interface DashboardService {
@@ -22,7 +23,7 @@ public interface DashboardService {
     Long getTotalCompany() throws OptionalNotFoundException;
     Map<String, Double> getMonthlyMoneyReceivedInLast12Months();
     CustomerDashboardDto getCustomerDashboard();
-    PackageDashboardDto getTotalPackageByDate(Timestamp startDate, Timestamp endDate) throws ErrMessageException;
+    List<PackageDashboardDto> getTotalPackageByDate(Timestamp startDate, Timestamp endDate) throws ErrMessageException;
 
     CustomerMoneyDashboardDto getCustomerMoneyDashboard(Timestamp startDate, Timestamp endDate) throws ErrMessageException;
 

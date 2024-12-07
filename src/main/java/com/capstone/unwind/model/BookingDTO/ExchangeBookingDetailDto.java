@@ -51,7 +51,7 @@ public class ExchangeBookingDetailDto implements Serializable {
         String roomInfoCode;
         String roomInfoName;
         UnitTypeDto unitType;
-
+        String resortLogo;
         /**
          * DTO for {@link UnitType}
          */
@@ -64,7 +64,6 @@ public class ExchangeBookingDetailDto implements Serializable {
             String photos;
             Integer resortId;
             String resortName;
-            String resortLogo;
             String resortDescription;
             LocationDTO location;
             @Data
