@@ -7,6 +7,7 @@ import com.capstone.unwind.enums.EmailEnum;
 import com.capstone.unwind.exception.*;
 import com.capstone.unwind.model.AuthDTO.RegisterRequestDTO;
 import com.capstone.unwind.model.EmailRequestDTO.EmailRequestDto;
+import com.capstone.unwind.model.NotificationDTO.FcmTokenRequest;
 import com.capstone.unwind.model.UserDTO.UpdateUserRequestDTO;
 import com.capstone.unwind.model.UserDTO.UserDto;
 import com.capstone.unwind.model.UserDTO.UserMapper;
@@ -236,5 +237,14 @@ public class UserServiceImplement implements UserService {
 
         userRepository.save(user);
 
+    }
+
+    @Override
+    public Boolean saveFcmToken(FcmTokenRequest request) throws OptionalNotFoundException {
+        User user = userRepository.findUserById(request.getUserId());
+        if (user == null) throw new OptionalNotFoundException("Not found user");
+        user.setFcmToken(request.getFcmToken());
+        userRepository.save(user);
+        return true;
     }
 }
