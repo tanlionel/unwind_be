@@ -317,22 +317,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         }
 
 
-        try {
-            EmailRequestDto emailRequestDto = new EmailRequestDto();
-            emailRequestDto.setName(rentalPostingInDb.getOwner().getFullName());
-            emailRequestDto.setSubject(APPROVAL_RENTAL_POSTING_SUBJECT);
-            emailRequestDto.setContent(APPROVAL_RENTAL_POSTING_CONTENT);
-            emailRequestDto.setTransactionType("RENTALPOSTING");
-            emailRequestDto.setMoney(rentalPostingInDb.getRentalPackage().getPrice());
 
-            sendinblueService.sendEmailWithTemplate(
-                    rentalPostingInDb.getOwner().getUser().getEmail(),
-                    EmailEnum.TRANSACTION_MAIL,
-                    emailRequestDto
-            );
-        } catch (Exception e) {
-            throw new ErrMessageException("Failed to send email notification");
-        }
         return rentalPostingApprovalMapper.toDto(rentalPostingInDb);
     }
 
@@ -354,22 +339,7 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         String descriptionCustomer = "Giao dịch hoàn tiền từ chối bài đăng";
         String transactionTypeCustomer = "RENTALPOSTING";
         WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(customer.get().getId(), feeCustomer, moneyCustomer, paymentMethodCusomer, descriptionCustomer, transactionTypeCustomer);
-        try {
-            EmailRequestDto emailRequestDto = new EmailRequestDto();
-            emailRequestDto.setName(rentalPostingInDb.getOwner().getFullName());
-            emailRequestDto.setSubject(REJECT_RENTAL_POSTING_SUBJECT);
-            emailRequestDto.setContent(REJECT_RENTAL_POSTING_CONTENT);
-            emailRequestDto.setTransactionType(walletTransaction.getTransactionType());
-            emailRequestDto.setMoney(walletTransaction.getMoney());
 
-            sendinblueService.sendEmailWithTemplate(
-                    rentalPostingInDb.getOwner().getUser().getEmail(),
-                    EmailEnum.TRANSACTION_MAIL,
-                    emailRequestDto
-            );
-        } catch (Exception e) {
-            throw new ErrMessageException("Failed to send email notification");
-        }
         try {
             TimeShareCompanyStaffDTO timeshareCompanyStaff = timeShareStaffService.getLoginStaff();
             float fee = 0;

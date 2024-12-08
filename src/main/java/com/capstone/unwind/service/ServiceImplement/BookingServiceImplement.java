@@ -260,18 +260,6 @@ public class BookingServiceImplement implements BookingService {
 
         booking.setStatus(String.valueOf(RentalBookingEnum.Cancelled));
         RentalBooking rentalBookingInDb = rentalBookingRepository.save(booking);
-        try {
-            EmailRequestDto emailRequestDto = new EmailRequestDto();
-            emailRequestDto.setSubject(REJECT_RENTAL_BOOKING_SUBJECT);
-            emailRequestDto.setContent(REJECT_RENTAL_BOOKING_CONTENT);
-            sendinblueService.sendEmailWithTemplate(
-                    booking.getRentalPosting().getOwner().getUser().getEmail(),
-                    EmailEnum.BASIC_MAIL,
-                    emailRequestDto
-            );
-        } catch (Exception e) {
-            throw new ErrMessageException("Failed to send email notification");
-        }
         return rentalBookingMapper.toDto(rentalBookingInDb);
     }
 
