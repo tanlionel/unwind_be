@@ -5,6 +5,7 @@ public enum ExchangePostingEnum {
     Processing,
     Accepted,
     Closed,
+    ClosedBySystemStaff,
     Expired,
     Reject,
     Completed,

@@ -443,6 +443,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                     .isActive(true)
                     .build();
             exchangeBookingRepository.save(ownerBooking);
+            exchangePostingRepository.closeProcessingExchangePostingsByOwner(requesterBooking.getExchangePosting().getOwner().getId(),ownerBooking.getCheckinDate().getYear());
         }
 
         try{
@@ -539,7 +540,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                     .isActive(true)
                     .build();
             exchangeBookingRepository.save(ownerBooking);
-
+            exchangePostingRepository.closeProcessingExchangePostingsByOwner(requesterBooking.getExchangePosting().getOwner().getId(),ownerBooking.getCheckinDate().getYear());
         } else {
             throw new ErrMessageException("Invalid request status or package type");
         }
