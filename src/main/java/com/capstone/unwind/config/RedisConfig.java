@@ -2,6 +2,8 @@ package com.capstone.unwind.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.support.NoOpCacheManager;
+import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -24,12 +26,12 @@ public class RedisConfig {
 
     @Value("${redis.port}")
     private int redisPort;
+
     @Bean
-    JedisConnectionFactory jedisConnectionFactory() {
-        JedisConnectionFactory jedisConFactory
-                = new JedisConnectionFactory();
-        jedisConFactory.setHostName("localhost");
-        jedisConFactory.setPort(6379);
+    public JedisConnectionFactory jedisConnectionFactory() {
+        JedisConnectionFactory jedisConFactory = new JedisConnectionFactory();
+        jedisConFactory.setHostName(redisHost);
+        jedisConFactory.setPort(redisPort);
         return jedisConFactory;
     }
 
@@ -42,13 +44,29 @@ public class RedisConfig {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-        RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(1))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
-                .disableCachingNullValues();
+        // Kiểm tra kết nối Redis trước khi tạo CacheManager
+        if (isRedisAvailable(redisConnectionFactory)) {
+            // Nếu Redis khả dụng, cấu hình RedisCacheManager
+            RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+                    .entryTtl(Duration.ofHours(1)) // Thời gian hết hạn 1 giờ
+                    .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
+                    .disableCachingNullValues(); // Tắt caching null values
 
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(cacheConfig)
-                .build();
+            return RedisCacheManager.builder(redisConnectionFactory)
+                    .cacheDefaults(cacheConfig)
+                    .build();
+        } else {
+            // Nếu Redis không khả dụng, trả về CacheManager mặc định không dùng Redis
+            return new NoOpCacheManager(); // Không sử dụng caching
+        }
+    }
+
+    private boolean isRedisAvailable(RedisConnectionFactory redisConnectionFactory) {
+        try {
+            redisConnectionFactory.getConnection().ping(); // Ping Redis server
+            return true;
+        } catch (Exception e) {
+            return false; // Redis không khả dụng
+        }
     }
 }
