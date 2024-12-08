@@ -71,13 +71,14 @@ public class NotificationController {
         return notificationList;
     }
 
-    @GetMapping("/topic/")
-    public Page<Notification> getAllNotificationCustomer(@RequestParam String topic,
+    @GetMapping("/topic")
+    public Page<Notification> getAllNotificationTopic(@RequestParam String topic,
                                                          @RequestParam(required = false,defaultValue = "0") Integer pageNo,
                                                          @RequestParam(required = false,defaultValue = "10") Integer pageSize){
         Page<Notification> notificationList = notificationService.getAllNotificationByTopic(topic,pageNo,pageSize);
         return notificationList;
     }
+
 
     @PostMapping("/mark-read/{notiId}")
     public Notification markNotificationReadByNotiId(@PathVariable Integer notiId) throws OptionalNotFoundException {
@@ -96,6 +97,7 @@ public class NotificationController {
         Boolean isSuccess = notificationService.markAllReadByTopic(topic);
         return isSuccess;
     }
+
 
 
 }

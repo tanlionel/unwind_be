@@ -2,9 +2,7 @@ package com.capstone.unwind.service.ServiceImplement;
 
 import com.capstone.unwind.config.FeeConfig;
 import com.capstone.unwind.entity.*;
-import com.capstone.unwind.enums.DocumentStoreEnum;
-import com.capstone.unwind.enums.EmailEnum;
-import com.capstone.unwind.enums.RentalPostingEnum;
+import com.capstone.unwind.enums.*;
 import com.capstone.unwind.exception.EntityDoesNotExistException;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
@@ -82,6 +80,10 @@ public class RentalPostingServiceImplement implements RentalPostingService {
     private final DocumentStoreRepository documentStoreRepository;
     @Autowired
     private final SendinblueService sendinblueService;
+    @Autowired
+    private NotificationRepository notificationRepository;
+    @Autowired
+    private FcmService fcmService;
 
 
     /*    private final String processing = "Processing";
@@ -259,6 +261,45 @@ public class RentalPostingServiceImplement implements RentalPostingService {
             );
         } catch (Exception e) {
             throw new ErrMessageException("Failed to send email notification");
+        }
+        if (rentalPosting.getRentalPackage().getId()!=1){
+            String title = "Yêu cầu duyệt bài đăng cho thuê";
+            String content = "Xin chào, bạn vừa có một yêu cầu duyệt bài đăng đăng cho thuê từ một khách hàng";
+            String topic = "resort"+rentalPosting.getRoomInfo().getResort().getId();
+            Notification notification = Notification.builder()
+                    .title(title)
+                    .content(content)
+                    .isRead(false)
+                    .type(String.valueOf(NotificationEnum.RentalPosting))
+                    .entityId(rentalPosting.getId())
+                    .role(topic)
+                    .build();
+            notificationRepository.save(notification);
+            try{
+                fcmService.pushNotificationTopic(title,content,topic);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            if (rentalPosting.getRentalPackage().getId()==4){
+                String titleSystemStaff = "Yêu cầu duyệt bài đăng cho thuê";
+                String contentSystemStaff = "Xin chào, bạn vừa có một yêu cầu duyệt bài đăng đăng cho thuê từ một khách hàng";
+                String topicSystemStaff = "systemstaff";
+                Notification notificationSystemStaff = Notification.builder()
+                        .title(titleSystemStaff)
+                        .content(contentSystemStaff)
+                        .isRead(false)
+                        .type(String.valueOf(NotificationEnum.RentalPosting))
+                        .entityId(rentalPosting.getId())
+                        .role(String.valueOf(UserRole.SYSTEMSTAFF))
+                        .build();
+                notificationRepository.save(notificationSystemStaff);
+                try{
+                    fcmService.pushNotificationTopic(title,content,topicSystemStaff);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
         }
         return rentalPostingResponseMapper.toDto(rentalPostingInDb);
     }

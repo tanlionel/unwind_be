@@ -12,10 +12,7 @@ import com.capstone.unwind.model.ExchangePostingDTO.UpdateExchangePostingDto;
 import com.capstone.unwind.model.PostingDTO.RentalPackageBasicRequestDto;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
 import com.capstone.unwind.repository.*;
-import com.capstone.unwind.service.ServiceInterface.BookingService;
-import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
-import com.capstone.unwind.service.ServiceInterface.UserService;
-import com.capstone.unwind.service.ServiceInterface.WalletService;
+import com.capstone.unwind.service.ServiceInterface.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,8 +55,12 @@ public class BookingServiceImplement implements BookingService {
     private final SendinblueService sendinblueService;
     @Autowired
     private final CustomerRepository customerRepository;
-    @Autowired final ExchangeBookingMapper exchangeBookingMapper;
-
+    @Autowired
+    final ExchangeBookingMapper exchangeBookingMapper;
+    @Autowired
+    private final FcmService fcmService;
+    @Autowired
+    private final NotificationRepository notificationRepository;
 
     @Override
     public RentalBookingDetailDto createBookingRentalPosting(Integer postingId, RentalBookingRequestDto rentalBookingRequestDto) throws OptionalNotFoundException, ErrMessageException {
@@ -92,6 +93,25 @@ public class BookingServiceImplement implements BookingService {
                 .build();
         RentalBooking rentalBookingInDb = rentalBookingRepository.save(rentalBooking);
         rentalPostingRepository.closeAllRentalPostingsByOwnerInYear(rentalBookingInDb.getRentalPosting().getOwner().getId(),rentalBookingInDb.getCheckinDate().getYear());
+
+        //send notification
+        String title = "Bài đăng cho thuê được thuê";
+        String content = "Bài đăng cho thuê của bạn vừa mới được thuê từ một vị khách";
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(rentalPosting.getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.RentalPosting))
+                .entityId(rentalPosting.getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = rentalPosting.getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return rentalBookingDetailMapper.toDto(rentalBookingInDb);
     }
 
@@ -175,6 +195,23 @@ public class BookingServiceImplement implements BookingService {
             throw new ErrMessageException("not be check in and check out in the same time");
         }
 
+        String title = "Thay đổi trạng thái đặt phòng";
+        String content = "Xin chào, trạng thái đặt phòng của bạn đã được thay đổi bởi nhân viên tại " + rentalBooking.getRentalPosting().getRoomInfo().getResort().getResortName();
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(rentalBooking.getRenter().getUser().getId())
+                .type(String.valueOf(NotificationEnum.RentalBooking))
+                .entityId(rentalBooking.getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = rentalBooking.getRenter().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         RentalBookingDetailDto rentalBookingDetailDto = rentalBookingDetailMapper.toDto(rentalBookingRepository.save(rentalBooking));
         return rentalBookingDetailDto;
     }
@@ -196,6 +233,23 @@ public class BookingServiceImplement implements BookingService {
             throw new ErrMessageException("must be checkin or checkout");
         }else if (isCheckOut && isCheckIn){
             throw new ErrMessageException("not be check in and check out in the same time");
+        }
+        String title = "Thay đổi trạng thái đặt phòng";
+        String content = "Xin chào, trạng thái đặt phòng của bạn đã được thay đổi bởi nhân viên tại " + exchangeBooking.getExchangePosting().getRoomInfo().getResort().getResortName();
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(exchangeBooking.getRenter().getUser().getId())
+                .type(String.valueOf(NotificationEnum.ExchangeBooking))
+                .entityId(exchangeBooking.getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = exchangeBooking.getRenter().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
         }
         ExchangeBookingDetailDto exchangeBookingDetailDto = exchangeBookingDetailMapper.toDto(exchangeBookingRepository.save(exchangeBooking));
         return exchangeBookingDetailDto;
@@ -261,6 +315,24 @@ public class BookingServiceImplement implements BookingService {
 
         booking.setStatus(String.valueOf(RentalBookingEnum.Cancelled));
         RentalBooking rentalBookingInDb = rentalBookingRepository.save(booking);
+
+        String title = "Người thuê hủy đặt phòng";
+        String content = "Bài đăng cho thuê của bạn vừa mới được hủy từ một vị khách";
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(booking.getRentalPosting().getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.RentalPosting))
+                .entityId(booking.getRentalPosting().getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = booking.getRentalPosting().getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return rentalBookingMapper.toDto(rentalBookingInDb);
     }
 

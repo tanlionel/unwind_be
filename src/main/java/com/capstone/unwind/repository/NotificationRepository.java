@@ -15,8 +15,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
     Page<Notification> findAllByUserId(Integer userId, Pageable pageable);
     Page<Notification> findAllByRole(String role,Pageable pageable);
 
-
-
     @Modifying
     @Transactional
     @Query("UPDATE Notification n set n.isRead=true where n.userId =: userId")
@@ -26,4 +24,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
     @Transactional
     @Query("UPDATE Notification n set n.isRead=true where n.role =: topic")
     void markAllReadByTopic(@Param("topic") String topic);
+
+
 }
