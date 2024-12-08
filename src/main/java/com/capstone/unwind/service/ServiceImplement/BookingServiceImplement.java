@@ -91,6 +91,7 @@ public class BookingServiceImplement implements BookingService {
                 .renterLegalAvatar(customer.getAvatar())
                 .build();
         RentalBooking rentalBookingInDb = rentalBookingRepository.save(rentalBooking);
+        rentalPostingRepository.closeAllRentalPostingsByOwnerInYear(rentalBookingInDb.getRentalPosting().getOwner().getId(),rentalBookingInDb.getCheckinDate().getYear());
         return rentalBookingDetailMapper.toDto(rentalBookingInDb);
     }
 

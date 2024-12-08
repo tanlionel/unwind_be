@@ -25,10 +25,12 @@ public interface ExchangePostingRepository extends JpaRepository<ExchangePosting
                                                                                                           String RoomCode,String status, Integer resortId ,Pageable pageable);
     @Query("SELECT YEAR(r.checkinDate) FROM ExchangePosting r " +
             "LEFT JOIN ExchangeBooking rb ON r.id = rb.exchangePosting.id " +
+            "LEFT JOIN ExchangeRequest rq ON r.id = rq.exchangePosting.id " +
             "WHERE r.timeshare.id = :timeshareId " +
             "AND r.isActive = true " +
-            "AND (rb.status IN ('Booked', 'NoShow', 'CheckIn', 'CheckOut') " +
-            "   AND r.status not IN ('Closed'))"+
+            "AND (rb.status IN ('Booked', 'NoShow', 'CheckIn', 'CheckOut')) " +
+            "AND (rq.status IN ('Completed'))"+
+            "   AND r.status not IN ('Closed')"+
             "   OR(r.exchangePackage.id = 1 and r.status = 'Completed')")
     List<Integer> findAllNotValidYears(@Param("timeshareId") Integer timeshareId);
 
@@ -43,6 +45,12 @@ public interface ExchangePostingRepository extends JpaRepository<ExchangePosting
             @Param("resortId") Integer resortId,Pageable pageable
     );
 
+    @Modifying
+    @Transactional
+    @Query("UPDATE ExchangePosting rp SET rp.status = 'ClosedBySystem' " +
+            "WHERE rp.status = 'Processing' AND rp.owner.id = :ownerId " +
+            "AND FUNCTION('YEAR', rp.checkinDate) = :year")
+    void closeProcessingExchangePostingsByOwner(@Param("ownerId") Integer ownerId, @Param("year") Integer year);
     Page<ExchangePosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndStatus(boolean isActive,
                                                                                           String resortName, String status, Pageable pageable);
     @Query("SELECT e FROM ExchangePosting e " +

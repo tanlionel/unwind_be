@@ -2,10 +2,12 @@ package com.capstone.unwind.repository;
 
 import com.capstone.unwind.entity.RentalPosting;
 import com.capstone.unwind.entity.Resort;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -71,7 +73,7 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
             "AND r.isActive = true " +
             "AND (rb.status IN ('Booked', 'NoShow', 'CheckIn', 'CheckOut', 'Refund', 'PaymentCompleted') " +
             "     OR (r.rentalPackage.id = 4 AND r.status not IN ('Closed')))"+
-            "   OR(r.rentalPackage.id = 1 and r.status = 'Completed')")
+            "   OR(r.rentalPackage.id = 1 and r.status = 'Complete')")
     List<Integer> findAllNotValidYears(@Param("timeshareId") Integer timeshareId);
     Page<RentalPosting> findAllByIsActiveAndRoomInfo_Resort_ResortNameContainingAndRentalPackage_IdAndStatus(boolean b, String resortName, int i, Pageable pageable, String status);
 
@@ -88,4 +90,14 @@ public interface RentalPostingRepository extends JpaRepository<RentalPosting,Int
 
     @Query("SELECT COUNT(r) FROM RentalPosting r WHERE r.owner.id = :ownerId AND r.status = 'Completed'")
     Long getRentalRenterByUserId(@Param("ownerId") Integer ownerId);
+
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE RentalPosting rp SET rp.status = 'ClosedBySystem' " +
+            "WHERE rp.status = 'Processing' AND rp.owner.id = :ownerId " +
+            "AND FUNCTION('YEAR', rp.checkinDate) = :year")
+    void closeAllRentalPostingsByOwnerInYear(@Param("ownerId") Integer ownerId, @Param("year") Integer year);
+
+
 }

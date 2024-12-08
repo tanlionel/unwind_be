@@ -33,4 +33,6 @@ public interface ExchangeRequestRepository extends JpaRepository<ExchangeRequest
     void updateOtherRequestsStatusByExchangePosting(@Param("exchangePostingId") Integer exchangePostingId,
                                                     @Param("excludedRequestId") Integer excludedRequestId);
 
+
+
 }
