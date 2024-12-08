@@ -224,22 +224,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         }catch (Exception e){
             throw new ErrMessageException("Fail to create transaction wallet ts company");
         }
-        try {
-            EmailRequestDto emailRequestDto = new EmailRequestDto();
-            emailRequestDto.setName(exchangePostingInDb.getOwner().getFullName());
-            emailRequestDto.setSubject(APPROVAL_EXCHANGE_POSTING_SUBJECT);
-            emailRequestDto.setContent(APPROVAL_EXCHANGE_POSTING_CONTENT);
-            emailRequestDto.setTransactionType("EXCHANGEPOSTING");
-            emailRequestDto.setMoney(exchangePostingInDb.getExchangePackage().getPrice());
 
-            sendinblueService.sendEmailWithTemplate(
-                    exchangePostingInDb.getOwner().getUser().getEmail(),
-                    EmailEnum.TRANSACTION_MAIL,
-                    emailRequestDto
-            );
-        } catch (Exception e) {
-            throw new ErrMessageException("Failed to send email notification");
-        }
 
         return exchangePostingApprovalMapper.toDto(exchangePostingInDb);
     }
@@ -275,22 +260,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         }catch (Exception e){
             throw new ErrMessageException("Fail to create transaction wallet ts company");
         }
-        try {
-            EmailRequestDto emailRequestDto = new EmailRequestDto();
-            emailRequestDto.setName(exchangePostingInDb.getOwner().getFullName());
-            emailRequestDto.setSubject(REJECT_EXCHANGE_POSTING_SUBJECT);
-            emailRequestDto.setContent(REJECT_EXCHANGE_POSTING_CONTENT);
-            emailRequestDto.setTransactionType(walletTransaction.getTransactionType());
-            emailRequestDto.setMoney(walletTransaction.getMoney());
 
-            sendinblueService.sendEmailWithTemplate(
-                    exchangePostingInDb.getOwner().getUser().getEmail(),
-                    EmailEnum.TRANSACTION_MAIL,
-                    emailRequestDto
-            );
-        } catch (Exception e) {
-            throw new ErrMessageException("Failed to send email notification");
-        }
         return exchangePostingApprovalMapper.toDto(exchangePostingInDb);
     }
 
@@ -486,26 +456,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         }catch (Exception e){
             throw new ErrMessageException("Fail to create transaction wallet ts company");
         }
-        try {
-            EmailRequestDto emailRequestDto = new EmailRequestDto();
-            emailRequestDto.setName(exchangeRequestInDb.getOwner().getFullName());
-            emailRequestDto.setSubject(APPROVAL_EXCHANGE_POSTING_SUBJECT);
-            emailRequestDto.setContent(APPROVAL_EXCHANGE_POSTING_CONTENT);
-            emailRequestDto.setMoney(exchangeRequestInDb.getExchangePosting().getExchangePackage().getPrice());
-            List<String> recipients = Arrays.asList(
-                    exchangeRequestInDb.getExchangePosting().getOwner().getUser().getEmail(),
-                    exchangeRequestInDb.getOwner().getUser().getEmail()
-            );
-            for (String recipient : recipients) {
-                sendinblueService.sendEmailWithTemplate(
-                        recipient,
-                        EmailEnum.BASIC_MAIL,
-                        emailRequestDto
-                );
-            }
-        } catch (Exception e) {
-            throw new ErrMessageException("Failed to send email notification");
-        }
+
         return exchangeRequestListMapper.toDto(exchangeRequestInDb);
     }
 
@@ -532,18 +483,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         }catch (Exception e){
             throw new ErrMessageException("Fail to create transaction wallet ts company");
         }
-        try {
-            EmailRequestDto emailRequestDto = new EmailRequestDto();
-            emailRequestDto.setSubject(REJECT_EXCHANGE_REQUEST_SUBJECT);
-            emailRequestDto.setContent(REJECT_EXCHANGE_REQUEST_SUBJECT);
-            sendinblueService.sendEmailWithTemplate(
-                    exchangePostingInDb.getOwner().getUser().getEmail(),
-                    EmailEnum.BASIC_MAIL,
-                    emailRequestDto
-            );
-        } catch (Exception e) {
-            throw new ErrMessageException("Failed to send email notification");
-        }
+
         return exchangeRequestListMapper.toDto(exchangePostingInDb);
     }
 
@@ -599,18 +539,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                     .isActive(true)
                     .build();
             exchangeBookingRepository.save(ownerBooking);
-            try {
-                EmailRequestDto emailRequestDto = new EmailRequestDto();
-                emailRequestDto.setSubject(APPROVAL_EXCHANGE_REQUEST_SUBJECT);
-                emailRequestDto.setContent(APPROVAL_EXCHANGE_REQUEST_CONTENT);
-                sendinblueService.sendEmailWithTemplate(
-                        exchangeRequest.getOwner().getUser().getEmail(),
-                        EmailEnum.BASIC_MAIL,
-                        emailRequestDto
-                );
-            } catch (Exception e) {
-                throw new ErrMessageException("Failed to send email notification");
-            }
+
         } else {
             throw new ErrMessageException("Invalid request status or package type");
         }
