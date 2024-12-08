@@ -21,6 +21,7 @@ public class ExchangePostingResponseTsStaffDTO {
     private String roomCode;
     private Integer resortId;
     private String resortName;
+    private String resortImage;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate checkinDate;
     @JsonFormat(pattern = "dd-MM-yyyy")

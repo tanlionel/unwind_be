@@ -42,6 +42,7 @@ public interface PostingExchangeDetailMapper {
     @Mapping(source = "timeshare.roomInfo.resort.amenities", target = "resortAmenities")
     @Mapping(source = "timeshare.roomInfo.unitType.amenities", target = "unitTypeAmenities")
     @Mapping(source = "timeshare.roomInfo.amenities", target = "roomAmenities")
+    @Mapping(source = "timeshare.roomInfo.resort.logo", target = "resortImage")
     @Mapping(source = "timeshare.roomInfo.resort.location", target = "location")
     PostingExchangeDetailResponseDTO entityToDto(ExchangePosting entity);
     PostingExchangeDetailResponseDTO.ResortAmenityDTO toResortAmenityDTO(ResortAmenity amenity);
