@@ -356,6 +356,44 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         } catch (Exception e) {
             throw new ErrMessageException("Fail to create transaction wallet ts company");
         }
+        String title = "Yêu cầu duyệt bài";
+        String content = "Xin chào, yêu cầu duyệt bài của bạn đã được duyệt.";
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(rentalPosting.get().getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.RentalPosting))
+                .entityId(rentalPosting.get().getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = rentalPosting.get().getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        if (rentalPostingUpdate.getRentalPackage().getId()==4){
+            String titleSystemStaff = "Yêu cầu duyệt bài đăng cho thuê";
+            String contentSystemStaff = "Xin chào, bạn vừa có một yêu cầu duyệt bài đăng đăng cho thuê từ một khách hàng";
+            String topic = "systemstaff";
+            Notification notificationSystemStaff = Notification.builder()
+                    .title(titleSystemStaff)
+                    .content(contentSystemStaff)
+                    .isRead(false)
+                    .type(String.valueOf(NotificationEnum.RentalPosting))
+                    .entityId(rentalPosting.get().getId())
+                    .role(topic)
+                    .build();
+            notificationRepository.save(notificationSystemStaff);
+            try{
+                fcmService.pushNotificationTopic(title,content,topic);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+
+        }
 
 
 
@@ -392,7 +430,23 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         } catch (Exception e) {
             throw new ErrMessageException("Fail to create transaction wallet ts company");
         }
-
+        String title = "Yêu cầu duyệt bài";
+        String content = "Xin chào, yêu cầu duyệt bài của bạn đã bị từ chối.";
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(rentalPosting.get().getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.RentalPosting))
+                .entityId(rentalPosting.get().getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = rentalPosting.get().getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return rentalPostingApprovalMapper.toDto(rentalPostingInDb);
     }
 
@@ -406,6 +460,23 @@ public class RentalPostingServiceImplement implements RentalPostingService {
         rentalPosting.setStatus(String.valueOf(RentalPostingEnum.AwaitingConfirmation));
         rentalPosting.setPriceValuation(newPriceValuation);
         RentalPostingApprovalResponseDto rentalPostingApprovalResponseDto = rentalPostingApprovalMapper.toDto(rentalPostingRepository.save(rentalPosting));
+        String title = "Yêu cầu trao quyền sở hữu bài đăng";
+        String content = "Xin chào, trao quyền sở hữu bài đăng của bạn đã được duyệt.";
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(rentalPosting.getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.RentalPosting))
+                .entityId(rentalPosting.getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = rentalPosting.getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return rentalPostingApprovalResponseDto;
     }
 
@@ -424,6 +495,23 @@ public class RentalPostingServiceImplement implements RentalPostingService {
             if (isAccepted) {
                 rentalPosting.setStatus(String.valueOf(RentalPostingEnum.Processing));
                 rentalPosting.setPricePerNights(rentalPosting.getPriceValuation());
+                String title = "Yêu cầu duyệt bài đăng cho thuê";
+                String content = "Xin chào, khách hàng đã đồng ý với yêu cầu của hệ thống";
+                String topic = "systemstaff";
+                Notification notification = Notification.builder()
+                        .title(title)
+                        .content(content)
+                        .isRead(false)
+                        .type(String.valueOf(NotificationEnum.RentalPosting))
+                        .entityId(rentalPosting.getId())
+                        .role(topic)
+                        .build();
+                notificationRepository.save(notification);
+                try{
+                    fcmService.pushNotificationTopic(title,content,topic);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             } else if (!isAccepted) {
                 rentalPosting.setStatus(String.valueOf(RentalPostingEnum.RejectPrice));
                 Customer customer = userService.getLoginUser().getCustomer();
@@ -435,7 +523,25 @@ public class RentalPostingServiceImplement implements RentalPostingService {
                 String description = "Giao dịch hoàn tiền từ chối chuyển nhượng quyền sở hữu timeshare gói 4";
                 String transactionType = "RENTALPOSTING";
                 WalletTransaction walletTransaction = walletService.refundMoneyToCustomer(customer.getId(), fee, money, paymentMethod, description, transactionType);
-
+                rentalPosting.setStatus(String.valueOf(RentalPostingEnum.Processing));
+                rentalPosting.setPricePerNights(rentalPosting.getPriceValuation());
+                String title = "Yêu cầu duyệt bài đăng cho thuê";
+                String content = "Xin chào, khách hàng đã từ chối ý với yêu cầu của hệ thống";
+                String topic = "systemstaff";
+                Notification notification = Notification.builder()
+                        .title(title)
+                        .content(content)
+                        .isRead(false)
+                        .type(String.valueOf(NotificationEnum.RentalPosting))
+                        .entityId(rentalPosting.getId())
+                        .role(topic)
+                        .build();
+                notificationRepository.save(notification);
+                try{
+                    fcmService.pushNotificationTopic(title,content,topic);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         }
         RentalPosting rentalPostingInDb = rentalPostingRepository.save(rentalPosting);

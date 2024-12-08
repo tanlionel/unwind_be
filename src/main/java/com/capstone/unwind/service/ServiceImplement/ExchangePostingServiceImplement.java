@@ -10,10 +10,7 @@ import com.capstone.unwind.model.ExchangePostingDTO.*;
 import com.capstone.unwind.model.PostingDTO.*;
 import com.capstone.unwind.model.TimeShareStaffDTO.TimeShareCompanyStaffDTO;
 import com.capstone.unwind.repository.*;
-import com.capstone.unwind.service.ServiceInterface.ExchangePostingService;
-import com.capstone.unwind.service.ServiceInterface.TimeShareStaffService;
-import com.capstone.unwind.service.ServiceInterface.UserService;
-import com.capstone.unwind.service.ServiceInterface.WalletService;
+import com.capstone.unwind.service.ServiceInterface.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +79,10 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
     private final SendinblueService sendinblueService;
     @Autowired
     private final ExchangeBookingRepository exchangeBookingRepository;
+    @Autowired
+    private final NotificationRepository notificationRepository;
+    @Autowired
+    private final FcmService fcmService;
 
     @Override
     public ExchangePostingResponseDto createExchangePosting(ExchangePostingRequestDto exchangePostingRequestDto) throws ErrMessageException, OptionalNotFoundException {
@@ -142,6 +143,25 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
             );
         } catch (Exception e) {
             throw new ErrMessageException("Failed to send email notification");
+        }
+        if (exchangelPosting.getExchangePackage().getId()==2){
+            String title = "Yêu cầu duyệt bài đăng cho trao đổi";
+            String content = "Xin chào, bạn vừa có một yêu cầu duyệt bài đăng trao đổi";
+            String topic = "resort"+exchangelPosting.getRoomInfo().getResort().getId();
+            Notification notification = Notification.builder()
+                    .title(title)
+                    .content(content)
+                    .isRead(false)
+                    .type(String.valueOf(NotificationEnum.ExchangePosting))
+                    .entityId(exchangelPosting.getId())
+                    .role(topic)
+                    .build();
+            notificationRepository.save(notification);
+            try{
+                fcmService.pushNotificationTopic(title,content,topic);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
         return exchangePostingResponseMapper.toDto(exchangePostingInDb);
     }
@@ -224,7 +244,23 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         }catch (Exception e){
             throw new ErrMessageException("Fail to create transaction wallet ts company");
         }
-
+        String title = "Yêu cầu duyệt bài đăng trao đổi";
+        String content = "Bài đăng trao đổi của bạn vừa được duyệt.";
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(exchangePostingInDb.getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.ExchangePosting))
+                .entityId(exchangePostingInDb.getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = exchangePostingInDb.getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         return exchangePostingApprovalMapper.toDto(exchangePostingInDb);
     }
@@ -260,7 +296,23 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         }catch (Exception e){
             throw new ErrMessageException("Fail to create transaction wallet ts company");
         }
-
+        String title = "Yêu cầu duyệt bài đăng trao đổi";
+        String content = "Bài đăng trao đổi của bạn vừa bị từ chối.";
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(exchangePostingInDb.getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.ExchangePosting))
+                .entityId(exchangePostingInDb.getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = exchangePostingInDb.getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return exchangePostingApprovalMapper.toDto(exchangePostingInDb);
     }
 
@@ -329,7 +381,23 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 .note(exchangeRequestDto.getNote())
                 .build();
         ExchangeRequestDetailDto exchangeRequestDetailDto = exchangeRequestMapper.toDto(exchangeRequestRepository.save(exchangeRequest));
-
+        String title = "Yêu cầu trao đổi timeshare";
+        String content = "Xin chào, bạn có một người yêu cầu trao đổi timeshare từ hệ thống.";
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(exchangeRequest.getExchangePosting().getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.ExchangePosting))
+                .entityId(exchangeRequest.getExchangePosting().getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = exchangeRequest.getExchangePosting().getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return exchangeRequestDetailDto;
     }
 
@@ -444,6 +512,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                     .build();
             exchangeBookingRepository.save(ownerBooking);
             exchangePostingRepository.closeProcessingExchangePostingsByOwner(requesterBooking.getExchangePosting().getOwner().getId(),ownerBooking.getCheckinDate().getYear());
+
         }
 
         try{
@@ -457,7 +526,41 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         }catch (Exception e){
             throw new ErrMessageException("Fail to create transaction wallet ts company");
         }
+        String title = "Yêu cầu trao đổi đã được duyệt";
+        String content = "Xin chào, yêu cầu  trao đổi của bạn đã được duyệt ";
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(exchangeRequest.get().getExchangePosting().getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.ExchangePosting))
+                .entityId(exchangeRequest.get().getExchangePosting().getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = exchangeRequest.get().getExchangePosting().getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
+        String titleRenter = "Yêu cầu trao đổi đã được duyệt";
+        String contentRenter = "Xin chào, yêu cầu  trao đổi của bạn đã được duyệt ";
+        Notification notificationRenter = Notification.builder()
+                .title(titleRenter)
+                .content(contentRenter)
+                .isRead(false)
+                .userId(exchangeRequest.get().getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.ExchangeRequest))
+                .entityId(exchangeRequest.get().getId())
+                .build();
+        notificationRepository.save(notificationRenter);
+        String fcmTokenRenter = exchangeRequest.get().getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmTokenRenter,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return exchangeRequestListMapper.toDto(exchangeRequestInDb);
     }
 
@@ -484,7 +587,41 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         }catch (Exception e){
             throw new ErrMessageException("Fail to create transaction wallet ts company");
         }
+        String title = "Yêu cầu trao đổi ";
+        String content = "Xin chào, yêu cầu  trao đổi của bạn đã bị từ chối";
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(exchangeRequest.get().getExchangePosting().getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.ExchangePosting))
+                .entityId(exchangeRequest.get().getExchangePosting().getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = exchangeRequest.get().getExchangePosting().getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
+        String titleRenter = "Yêu cầu trao đổi ";
+        String contentRenter = "Xin chào, yêu cầu  trao đổi của bạn đã bị từ chối ";
+        Notification notificationRenter = Notification.builder()
+                .title(titleRenter)
+                .content(contentRenter)
+                .isRead(false)
+                .userId(exchangeRequest.get().getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.ExchangeRequest))
+                .entityId(exchangeRequest.get().getId())
+                .build();
+        notificationRepository.save(notificationRenter);
+        String fcmTokenRenter = exchangeRequest.get().getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmTokenRenter,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return exchangeRequestListMapper.toDto(exchangePostingInDb);
     }
 
@@ -547,7 +684,23 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
 
         exchangeRequestRepository.save(exchangeRequest);
         exchangePostingRepository.save(exchangePosting);
-
+        String title = "Yêu ầu trao đổi";
+        String content = "Xin chào, yêu cầu trao đổi của bạn đã được người chủ đồng ý";
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(exchangeRequest.getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.ExchangeRequest))
+                .entityId(exchangeRequest.getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = exchangeRequest.getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return exchangeRequestListMapper.toDto(exchangeRequest);
     }
     @Transactional
@@ -595,6 +748,23 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
             throw new ErrMessageException("Must be status pending renter pricing or pending owner");
         }
         ExchangeRequest exchangeRequestInDb = exchangeRequestRepository.save(exchangeRequest);
+        String title = "Yêu ầu trao đổi";
+        String content = "Xin chào, yêu cầu trao đổi của bạn đã được người chủ từ chối ý";
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .isRead(false)
+                .userId(exchangeRequest.getOwner().getUser().getId())
+                .type(String.valueOf(NotificationEnum.ExchangeRequest))
+                .entityId(exchangeRequest.getId())
+                .build();
+        notificationRepository.save(notification);
+        String fcmToken = exchangeRequest.getOwner().getUser().getFcmToken();
+        try{
+            fcmService.pushNotification(fcmToken,title,content);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return exchangeRequestListMapper.toDto(exchangeRequestInDb);
     }
 
@@ -606,10 +776,44 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 exchangeRequest.setPriceValuation(priceValuation);
                 exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.PendingRenterPricing));
                 exchangeRequest.setNote(note);
+                String title = "Yêu cầu trao đổi";
+                String content = "Xin chào, yêu cầu trao đổi của bạn đã được người chủ thảo luận lại về giá tiền";
+                Notification notification = Notification.builder()
+                        .title(title)
+                        .content(content)
+                        .isRead(false)
+                        .userId(exchangeRequest.getOwner().getUser().getId())
+                        .type(String.valueOf(NotificationEnum.ExchangeRequest))
+                        .entityId(exchangeRequest.getId())
+                        .build();
+                notificationRepository.save(notification);
+                String fcmToken = exchangeRequest.getOwner().getUser().getFcmToken();
+                try{
+                    fcmService.pushNotification(fcmToken,title,content);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }else {
                 exchangeRequest.setPriceValuation(priceValuation);
                 exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.PendingOwner));
                 exchangeRequest.setNote(note);
+                String title = "Yêu ầu trao đổi";
+                String content = "Xin chào, yêu cầu trao đổi của bạn đã được người thuê yêu cầu trao đổi lại v giá";
+                Notification notification = Notification.builder()
+                        .title(title)
+                        .content(content)
+                        .isRead(false)
+                        .userId(exchangeRequest.getExchangePosting().getOwner().getUser().getId())
+                        .type(String.valueOf(NotificationEnum.ExchangePosting))
+                        .entityId(exchangeRequest.getId())
+                        .build();
+                notificationRepository.save(notification);
+                String fcmToken = exchangeRequest.getExchangePosting().getOwner().getUser().getFcmToken();
+                try{
+                    fcmService.pushNotification(fcmToken,title,content);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         }else {
             throw new ErrMessageException("Must be status pending renter pricing or pending owner");
