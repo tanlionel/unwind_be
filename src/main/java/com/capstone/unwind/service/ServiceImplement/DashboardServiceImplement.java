@@ -245,8 +245,6 @@ public class DashboardServiceImplement implements DashboardService {
         }
 
         // Tính doanh thu và chi phí cho từng ngày trong khoảng thời gian
-        Double totalRevenue = 0.0;
-        Double totalCosts = 0.0;
         List<Timestamp> allDates = new ArrayList<>();
         Timestamp currentDate = startDate;
 
@@ -270,11 +268,7 @@ public class DashboardServiceImplement implements DashboardService {
             if (cost == null) {
                 cost = 0.0;
             }
-            Double allRevenue = walletTransactionRepository.sumMoneyByCustomerIdAndMoneyGreaterThan(wallet.getId());
-            Double allCosts = walletTransactionRepository.sumMoneyByCustomerIdAndMoneyLessThan(wallet.getId());
 
-            totalRevenue += allRevenue;
-            totalCosts += allCosts;
 
             // Lưu vào map
             revenueMap.put(new Date(date.getTime()), revenue);
@@ -291,10 +285,11 @@ public class DashboardServiceImplement implements DashboardService {
                     .revenueByCosts(cost)
                     .build());
         });
-
+        Double allRevenue = walletTransactionRepository.sumMoneyByCustomerIdAndMoneyGreaterThan(wallet.getId());
+        Double allCosts = walletTransactionRepository.sumMoneyByCustomerIdAndMoneyLessThan(wallet.getId());
         return CustomerMoneyDashboardDto.builder()
-                .totalRevenue(totalRevenue)
-                .totalCosts(totalCosts)
+                .totalRevenue(allRevenue)
+                .totalCosts(allCosts)
                 .revenueCostByDateDtos(revenueCostByDateDtos)
                 .build();
     }
