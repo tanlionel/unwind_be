@@ -15,6 +15,8 @@ import com.capstone.unwind.service.ServiceInterface.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +32,7 @@ import static com.capstone.unwind.config.EmailMessageConfig.*;
 
 @RequiredArgsConstructor
 @Service
+@EnableCaching
 public class ResortServiceImplement implements ResortService {
     @Autowired
     private final ResortRepository resortRepository;
@@ -356,7 +359,7 @@ public class ResortServiceImplement implements ResortService {
 
         return resortDtoList;
     }
-
+    @Cacheable(value = "resorts", key = "#resortId")
     @Override
     public ResortDetailResponseDTO getPublicResortById(Integer resortId) throws EntityDoesNotExistException, UserDoesNotHavePermission {
 

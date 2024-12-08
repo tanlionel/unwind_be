@@ -9,6 +9,7 @@ import com.capstone.unwind.service.ServiceInterface.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,5 +48,17 @@ public class TestController {
     @GetMapping("cdm")
     public TimeShareCompanyStaffDTO timeshareCompanyStaff(){
         return timeShareStaffService.getLoginStaff();
+    }
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    @GetMapping("/test-redis")
+    public String testRedis() {
+        // Lưu giá trị vào Redis
+        stringRedisTemplate.opsForValue().set("testKey", "Hello, Redis!");
+
+        // Lấy giá trị từ Redis
+        String value = stringRedisTemplate.opsForValue().get("testKey");
+        return value;
     }
 }

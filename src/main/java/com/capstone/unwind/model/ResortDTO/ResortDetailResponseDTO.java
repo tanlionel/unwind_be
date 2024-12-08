@@ -8,6 +8,8 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Getter
 @Setter
@@ -29,6 +31,9 @@ public class ResortDetailResponseDTO {
     Float averageRating;
     Long totalRating;
     List<String> imageUrls;
+
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Data
     @Getter
     @Setter
@@ -38,6 +43,8 @@ public class ResortDetailResponseDTO {
         boolean isFree;
         String type;
     }
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Data
     @Getter
     @Setter
@@ -50,6 +57,8 @@ public class ResortDetailResponseDTO {
         Timestamp createdDate;
         Boolean isActive;
     }
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Data
     @Getter
     @Setter
@@ -58,6 +67,8 @@ public class ResortDetailResponseDTO {
         String fullName;
         String avatar;
     }
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Data
     @Getter
     @Setter

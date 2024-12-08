@@ -9,6 +9,8 @@ import java.util.List;
 /**
  * DTO for {@link UnitType}
  */
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Getter
 @Setter
@@ -36,6 +38,8 @@ public class UnitTypeDto implements Serializable {
     Boolean isActive;
     List<UnitTypeAmenities> unitTypeAmenitiesList;
 
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Data
     @Getter
     @Setter
