@@ -26,6 +26,7 @@ public class PostingExchangeDetailResponseDTO {
     private String roomCode;
     private Integer resortId;
     private String resortName;
+    private String resortImage;
     private Boolean isVerify;
     private Integer nights;
     private Integer exchangePackageId;

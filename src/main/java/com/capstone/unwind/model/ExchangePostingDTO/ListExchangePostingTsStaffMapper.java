@@ -23,6 +23,7 @@ public interface ListExchangePostingTsStaffMapper {
     @Mapping(source = "timeshare.roomInfo.roomInfoCode", target = "roomCode")
     @Mapping(source = "timeshare.roomInfo.resort.id", target = "resortId")
     @Mapping(source = "timeshare.roomInfo.resort.resortName", target = "resortName")
+    @Mapping(source = "timeshare.roomInfo.resort.logo", target = "resortImage")
     @Mapping(source = "checkinDate", target = "checkinDate")
     @Mapping(source = "checkoutDate", target = "checkoutDate")
     @Mapping(source = "status", target = "status")
