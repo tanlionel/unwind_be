@@ -657,7 +657,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                     e.printStackTrace();
                 }
             }
-            else {
+            else if(exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPricing))){
                 String title = "Yêu cầu trao đổi";
                 String content = "Xin chào, yêu cầu trao đổi của bạn đã được người thuê đồng ý";
                 Notification notification = Notification.builder()
@@ -783,7 +783,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         if (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPricing)) || exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingOwner))){
             if (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPricing))){
                 exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.RenterReject));
-                String title = "Yêu ầu trao đổi";
+                String title = "Yêu cầu trao đổi";
                 String content = "Xin chào, yêu cầu trao đổi của bạn đã được người thuê từ chối ";
                 Notification notification = Notification.builder()
                         .title(title)
@@ -802,7 +802,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 }
             }else {
                 exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.OwnerReject));
-                String title = "Yêu ầu trao đổi";
+                String title = "Yêu cầu trao đổi";
                 String content = "Xin chào, yêu cầu trao đổi của bạn đã được người chủ từ chối ";
                 Notification notification = Notification.builder()
                         .title(title)
@@ -857,7 +857,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 exchangeRequest.setPriceValuation(priceValuation);
                 exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.PendingOwner));
                 exchangeRequest.setNote(note);
-                String title = "Yêu ầu trao đổi";
+                String title = "Yêu cầu trao đổi";
                 String content = "Xin chào, yêu cầu trao đổi của bạn đã được người thuê yêu cầu trao đổi lại v giá";
                 Notification notification = Notification.builder()
                         .title(title)
