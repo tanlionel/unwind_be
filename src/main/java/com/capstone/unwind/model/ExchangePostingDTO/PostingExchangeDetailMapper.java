@@ -29,6 +29,7 @@ public interface PostingExchangeDetailMapper {
     @Mapping(source = "timeshare.roomInfo.roomInfoCode", target = "roomCode")
     @Mapping(source = "timeshare.roomInfo.resort.id", target = "resortId")
     @Mapping(source = "timeshare.roomInfo.resort.resortName", target = "resortName")
+    @Mapping(source = "timeshare.roomInfo.resort.logo", target = "resortImage")
     @Mapping(source = "nights", target = "nights")
     @Mapping(source = "exchangePackage.id", target = "exchangePackageId")
     @Mapping(source = "exchangePackage.packageName", target = "exchangePackageName")
