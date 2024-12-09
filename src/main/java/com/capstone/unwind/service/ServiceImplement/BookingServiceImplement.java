@@ -311,6 +311,7 @@ public class BookingServiceImplement implements BookingService {
 
         RentalPosting posting = booking.getRentalPosting();
         posting.setStatus("Processing");
+        posting.setIsBookable(false);
         rentalPostingRepository.save(posting);
 
         booking.setStatus(String.valueOf(RentalBookingEnum.Cancelled));

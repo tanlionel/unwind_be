@@ -638,8 +638,47 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
             throw new OptionalNotFoundException("Exchange Posting not found");
         }
         if (exchangePosting.getExchangePackage().getId() == 2 && (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingOwner))||exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPricing)))) {
+            if (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingOwner))){
+                String title = "Yêu cầu trao đổi";
+                String content = "Xin chào, yêu cầu trao đổi của bạn đã được người chủ đồng ý";
+                Notification notification = Notification.builder()
+                        .title(title)
+                        .content(content)
+                        .isRead(false)
+                        .userId(exchangeRequest.getOwner().getUser().getId())
+                        .type(String.valueOf(NotificationEnum.ExchangeRequest))
+                        .entityId(exchangeRequest.getId())
+                        .build();
+                notificationRepository.save(notification);
+                String fcmToken = exchangeRequest.getOwner().getUser().getFcmToken();
+                try{
+                    fcmService.pushNotification(fcmToken,title,content);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+            else {
+                String title = "Yêu cầu trao đổi";
+                String content = "Xin chào, yêu cầu trao đổi của bạn đã được người thuê đồng ý";
+                Notification notification = Notification.builder()
+                        .title(title)
+                        .content(content)
+                        .isRead(false)
+                        .userId(exchangeRequest.getExchangePosting().getOwner().getUser().getId())
+                        .type(String.valueOf(NotificationEnum.ExchangePosting))
+                        .entityId(exchangeRequest.getExchangePosting().getId())
+                        .build();
+                notificationRepository.save(notification);
+                String fcmToken = exchangeRequest.getExchangePosting().getOwner().getUser().getFcmToken();
+                try{
+                    fcmService.pushNotification(fcmToken,title,content);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
             exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.PendingApproval));
             exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Accepted));
+
         } else if (exchangePosting.getExchangePackage().getId() == 1) {
             exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.Complete));
             exchangePosting.setStatus(String.valueOf(ExchangePostingEnum.Completed));
@@ -681,26 +720,29 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         } else {
             throw new ErrMessageException("Invalid request status or package type");
         }
+        if(exchangePosting.getExchangePackage().getId()==2){
+            String titleSystemStaff = "Yêu cầu duyệt yêu cầu trao đổi";
+            String contentSystemStaff = "Xin chào, bạn vừa có một yêu cầu duyệt yêu cầu trao đổi từ một khách hàng";
+            String topicSystemStaff = "resort"+exchangePosting.getRoomInfo().getResort().getId();
+            Notification notificationSystemStaff = Notification.builder()
+                    .title(titleSystemStaff)
+                    .content(contentSystemStaff)
+                    .isRead(false)
+                    .type(String.valueOf(NotificationEnum.ExchangeRequest))
+                    .entityId(exchangeRequest.getId())
+                    .role(topicSystemStaff)
+                    .build();
+            notificationRepository.save(notificationSystemStaff);
+            try{
+                fcmService.pushNotificationTopic(titleSystemStaff,contentSystemStaff,topicSystemStaff);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
 
         exchangeRequestRepository.save(exchangeRequest);
         exchangePostingRepository.save(exchangePosting);
-        String title = "Yêu ầu trao đổi";
-        String content = "Xin chào, yêu cầu trao đổi của bạn đã được người chủ đồng ý";
-        Notification notification = Notification.builder()
-                .title(title)
-                .content(content)
-                .isRead(false)
-                .userId(exchangeRequest.getOwner().getUser().getId())
-                .type(String.valueOf(NotificationEnum.ExchangeRequest))
-                .entityId(exchangeRequest.getId())
-                .build();
-        notificationRepository.save(notification);
-        String fcmToken = exchangeRequest.getOwner().getUser().getFcmToken();
-        try{
-            fcmService.pushNotification(fcmToken,title,content);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+
         return exchangeRequestListMapper.toDto(exchangeRequest);
     }
     @Transactional
@@ -741,30 +783,48 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
         if (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPricing)) || exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingOwner))){
             if (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPricing))){
                 exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.RenterReject));
+                String title = "Yêu ầu trao đổi";
+                String content = "Xin chào, yêu cầu trao đổi của bạn đã được người thuê từ chối ";
+                Notification notification = Notification.builder()
+                        .title(title)
+                        .content(content)
+                        .isRead(false)
+                        .userId(exchangeRequest.getExchangePosting().getOwner().getUser().getId())
+                        .type(String.valueOf(NotificationEnum.ExchangePosting))
+                        .entityId(exchangeRequest.getExchangePosting().getId())
+                        .build();
+                notificationRepository.save(notification);
+                String fcmToken = exchangeRequest.getExchangePosting().getOwner().getUser().getFcmToken();
+                try{
+                    fcmService.pushNotification(fcmToken,title,content);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }else {
                 exchangeRequest.setStatus(String.valueOf(ExchangeRequestEnum.OwnerReject));
+                String title = "Yêu ầu trao đổi";
+                String content = "Xin chào, yêu cầu trao đổi của bạn đã được người chủ từ chối ";
+                Notification notification = Notification.builder()
+                        .title(title)
+                        .content(content)
+                        .isRead(false)
+                        .userId(exchangeRequest.getOwner().getUser().getId())
+                        .type(String.valueOf(NotificationEnum.ExchangeRequest))
+                        .entityId(exchangeRequest.getId())
+                        .build();
+                notificationRepository.save(notification);
+                String fcmToken = exchangeRequest.getOwner().getUser().getFcmToken();
+                try{
+                    fcmService.pushNotification(fcmToken,title,content);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         }else {
             throw new ErrMessageException("Must be status pending renter pricing or pending owner");
         }
         ExchangeRequest exchangeRequestInDb = exchangeRequestRepository.save(exchangeRequest);
-        String title = "Yêu ầu trao đổi";
-        String content = "Xin chào, yêu cầu trao đổi của bạn đã được người chủ từ chối ý";
-        Notification notification = Notification.builder()
-                .title(title)
-                .content(content)
-                .isRead(false)
-                .userId(exchangeRequest.getOwner().getUser().getId())
-                .type(String.valueOf(NotificationEnum.ExchangeRequest))
-                .entityId(exchangeRequest.getId())
-                .build();
-        notificationRepository.save(notification);
-        String fcmToken = exchangeRequest.getOwner().getUser().getFcmToken();
-        try{
-            fcmService.pushNotification(fcmToken,title,content);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+
         return exchangeRequestListMapper.toDto(exchangeRequestInDb);
     }
 
