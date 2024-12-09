@@ -17,4 +17,5 @@ public interface NotificationService {
     Boolean markAllReadByUserId(Integer userId);
 
     Boolean markAllReadByTopic(String topic);
+
 }
