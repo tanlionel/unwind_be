@@ -6,6 +6,7 @@ import com.capstone.unwind.entity.User;
 import com.capstone.unwind.entity.Wallet;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.DashboardDTO.AdminDashboardDto;
 import com.capstone.unwind.model.DashboardDTO.CustomerDashboardDto;
 import com.capstone.unwind.model.DashboardDTO.CustomerMoneyDashboardDto;
 import com.capstone.unwind.model.TotalPackageDTO.PackageDashboardDto;
@@ -20,10 +21,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.*;
 
 @Service
@@ -151,11 +149,9 @@ public class DashboardServiceImplement implements DashboardService {
     public List<PackageDashboardDto> getTotalPackageByDate(Timestamp startDate, Timestamp endDate) throws ErrMessageException {
 
         if (startDate == null) {
-            startDate = Timestamp.valueOf(LocalDateTime.now().toLocalDate().atStartOfDay());
-        }
+            startDate = Timestamp.valueOf(LocalDateTime.now()); }
         if (endDate == null) {
-            endDate = Timestamp.valueOf(LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX));
-        }
+            endDate = Timestamp.valueOf(LocalDateTime.now());}
         if (startDate.after(endDate)) {
             throw new ErrMessageException("The startDate must be less than or equal to the endDate.");
         }
@@ -166,7 +162,7 @@ public class DashboardServiceImplement implements DashboardService {
         List<Timestamp> allDates = new ArrayList<>();
         Timestamp currentDate = startDate;
 
-        while (currentDate.before(endDate) || currentDate.equals(endDate)) {
+        while (!currentDate.toLocalDateTime().toLocalDate().isAfter(endDate.toLocalDateTime().toLocalDate())) {
             allDates.add(currentDate);
             currentDate = Timestamp.valueOf(currentDate.toLocalDateTime().plusDays(1));
         }
@@ -227,10 +223,10 @@ public class DashboardServiceImplement implements DashboardService {
     @Override
     public CustomerMoneyDashboardDto getCustomerMoneyDashboard(Timestamp startDate, Timestamp endDate) throws ErrMessageException {
         if (startDate == null) {
-            startDate = Timestamp.valueOf(LocalDateTime.now().toLocalDate().atStartOfDay());
+            startDate = Timestamp.valueOf(LocalDateTime.now());
         }
         if (endDate == null) {
-            endDate = Timestamp.valueOf(LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX));
+            endDate = Timestamp.valueOf(LocalDateTime.now());
         }
         if (startDate.after(endDate)) {
             throw new ErrMessageException("The startDate must be less than or equal to the endDate.");
@@ -248,7 +244,7 @@ public class DashboardServiceImplement implements DashboardService {
         List<Timestamp> allDates = new ArrayList<>();
         Timestamp currentDate = startDate;
 
-        while (currentDate.before(endDate) || currentDate.equals(endDate)) {
+        while (!currentDate.toLocalDateTime().toLocalDate().isAfter(endDate.toLocalDateTime().toLocalDate())) {
             allDates.add(currentDate);
             currentDate = Timestamp.valueOf(currentDate.toLocalDateTime().plusDays(1));
         }
@@ -291,6 +287,26 @@ public class DashboardServiceImplement implements DashboardService {
                 .totalRevenue(allRevenue)
                 .totalCosts(allCosts)
                 .revenueCostByDateDtos(revenueCostByDateDtos)
+                .build();
+    }
+
+    @Override
+    public AdminDashboardDto getAdminDashboard() {
+
+        Long totalUsers = userRepository.totalUser();
+        Long totalStaffs= timeshareCompanyStaffRepository.totalStaffs();
+        Long totalCustomers = userRepository.getTotalCustomers();
+        Long totalTimeshareCompany= userRepository.totalTimeshareCompany();
+        Long totalSystemStaff=userRepository.totalSystemStaff();
+        Long totalAdmin=userRepository.totalAdmin();
+        Long allUser = totalUsers + totalStaffs;
+        return AdminDashboardDto.builder()
+                .totalUser(allUser)
+                .totalCustomer(totalCustomers)
+                .totalTimeshareCompany(totalTimeshareCompany)
+                .totalTimeshareStaff(totalStaffs)
+                .totalSystemStaff(totalSystemStaff)
+                .totalAdmin(totalAdmin)
                 .build();
     }
 

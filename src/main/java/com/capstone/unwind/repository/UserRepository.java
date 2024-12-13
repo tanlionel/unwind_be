@@ -23,6 +23,16 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findAllByRoleId(Integer roleId);
     boolean existsByEmail(String email);
 
-    @Query("SELECT COUNT(u) FROM User u WHERE u.role.id = 1")
+    @Query("SELECT COUNT(u) FROM User u WHERE u.role.id = 1 AND u.isActive = true ")
     Long getTotalCustomers();
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.isActive = true")
+    Long totalUser();
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.isActive = true AND u.role.id = 2")
+    Long totalTimeshareCompany();
+    @Query("SELECT COUNT(u) FROM User u WHERE u.isActive = true AND u.role.id = 3")
+    Long totalSystemStaff();
+    @Query("SELECT COUNT(u) FROM User u WHERE u.isActive = true AND u.role.id = 4")
+    Long totalAdmin();
 }
