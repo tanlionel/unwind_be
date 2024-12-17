@@ -38,10 +38,10 @@ public interface ExchangeRequestRepository extends JpaRepository<ExchangeRequest
     @Query("SELECT YEAR(r.startDate) FROM ExchangeRequest r " +
             "LEFT JOIN ExchangeBooking rb ON r.id = rb.exchangeRequest.id " +
             "WHERE r.timeshare.id = :timeshareId " +
-            "AND r.isActive = true " +
+            "AND (r.isActive = true " +
             "AND (rb.status IN ('Booked', 'NoShow', 'CheckIn', 'CheckOut') " +
-            "   AND r.status not IN ('Closed'))"+
-            "  and r.status = 'Complete'")
+            "   OR (r.status not IN ('Closed')))"+
+            "  OR (r.status = 'Complete'))")
     List<Integer> findAllNotValidYears(@Param("timeshareId") Integer timeshareId);
 
 

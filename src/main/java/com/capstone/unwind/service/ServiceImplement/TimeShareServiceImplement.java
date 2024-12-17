@@ -250,7 +250,9 @@ public class TimeShareServiceImplement implements TimeShareService {
                 .boxed()
                 .filter(year ->year>=currentYear && !notValidYears.contains(year) && !notExchangeValidYears.contains(year)&& !notRequestValidYears.contains(year))
                 .collect(Collectors.toList());
-
+/*        System.out.println("Not Exchange Valid Years: " + notExchangeValidYears);
+        System.out.println("Not Valid Years: " + notValidYears);
+        System.out.println("Not Request Valid Years: " + notRequestValidYears);*/
         return validYears;
     }
 

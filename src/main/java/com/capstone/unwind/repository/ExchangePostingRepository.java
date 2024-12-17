@@ -26,11 +26,15 @@ public interface ExchangePostingRepository extends JpaRepository<ExchangePosting
     @Query("SELECT YEAR(r.checkinDate) FROM ExchangePosting r " +
             "LEFT JOIN ExchangeBooking rb ON r.id = rb.exchangePosting.id " +
             "WHERE r.timeshare.id = :timeshareId " +
-            "AND r.isActive = true " +
+            "AND (r.isActive = true " +
             "AND (rb.status IN ('Booked', 'NoShow', 'CheckIn', 'CheckOut') " +
-            "   AND r.status not IN ('Closed'))"+
-            "   OR(r.exchangePackage.id = 1 and r.status = 'Completed')")
+            "   OR (r.status not IN ('Closed')))"+
+            "   OR(r.exchangePackage.id = 1 and r.status = 'Completed'))")
     List<Integer> findAllNotValidYears(@Param("timeshareId") Integer timeshareId);
+
+
+
+
 
     @Query("SELECT r FROM ExchangePosting r WHERE r.id = :postingId AND r.isActive = true")
     Optional<ExchangePosting> findByIdAndIsActive(@Param("postingId") Integer postingId);
