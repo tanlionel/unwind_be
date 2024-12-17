@@ -63,6 +63,8 @@ public class TimeShareServiceImplement implements TimeShareService {
     private RoomAmentityRepository roomAmentityRepository;
     @Autowired
     private UpdateTimeshareMapper updateTimeshareMapper;
+    @Autowired
+    private ExchangeRequestRepository exchangeRequestRepository;
 
     @Override
     public TimeShareResponseDTO createTimeShare(TimeShareRequestDTO timeShareRequestDTO) throws EntityDoesNotExistException, ErrMessageException, OptionalNotFoundException {
@@ -243,9 +245,10 @@ public class TimeShareServiceImplement implements TimeShareService {
         int currentYear = Year.now().getValue();
         List<Integer> notExchangeValidYears = exchangePostingRepository.findAllNotValidYears(timeshareId);
         List<Integer> notValidYears = rentalPostingRepository.findAllNotValidYears(timeshareId);
+        List<Integer> notRequestValidYears = exchangeRequestRepository.findAllNotValidYears(timeshareId);
         List<Integer> validYears = IntStream.rangeClosed(startYears, endYears)
                 .boxed()
-                .filter(year ->year>=currentYear && !notValidYears.contains(year) && !notExchangeValidYears.contains(year))
+                .filter(year ->year>=currentYear && !notValidYears.contains(year) && !notExchangeValidYears.contains(year)&& !notRequestValidYears.contains(year))
                 .collect(Collectors.toList());
 
         return validYears;

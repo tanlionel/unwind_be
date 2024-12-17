@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -32,6 +33,16 @@ public interface ExchangeRequestRepository extends JpaRepository<ExchangeRequest
     @Query("UPDATE ExchangeRequest er SET er.status = 'OwnerReject' WHERE er.exchangePosting.id = :exchangePostingId AND er.id <> :excludedRequestId")
     void updateOtherRequestsStatusByExchangePosting(@Param("exchangePostingId") Integer exchangePostingId,
                                                     @Param("excludedRequestId") Integer excludedRequestId);
+
+
+    @Query("SELECT YEAR(r.startDate) FROM ExchangeRequest r " +
+            "LEFT JOIN ExchangeBooking rb ON r.id = rb.exchangeRequest.id " +
+            "WHERE r.timeshare.id = :timeshareId " +
+            "AND r.isActive = true " +
+            "AND (rb.status IN ('Booked', 'NoShow', 'CheckIn', 'CheckOut') " +
+            "   AND r.status not IN ('Closed'))"+
+            "  and r.status = 'Complete'")
+    List<Integer> findAllNotValidYears(@Param("timeshareId") Integer timeshareId);
 
 
 
