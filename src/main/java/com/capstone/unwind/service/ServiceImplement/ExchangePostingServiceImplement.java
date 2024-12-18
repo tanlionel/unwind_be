@@ -865,7 +865,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                         .isRead(false)
                         .userId(exchangeRequest.getExchangePosting().getOwner().getUser().getId())
                         .type(String.valueOf(NotificationEnum.ExchangePosting))
-                        .entityId(exchangeRequest.getId())
+                        .entityId(exchangeRequest.getExchangePosting().getId())
                         .build();
                 notificationRepository.save(notification);
                 String fcmToken = exchangeRequest.getExchangePosting().getOwner().getUser().getFcmToken();
