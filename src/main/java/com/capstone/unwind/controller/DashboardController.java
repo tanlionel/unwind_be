@@ -104,7 +104,7 @@ public class DashboardController {
             CustomerMoneyDashboardDto dashboard = dashboardService.getCustomerMoneyDashboard(startTimestamp, endTimestamp);
             return ResponseEntity.ok(dashboard);
     }
-    @GetMapping("/admin/dashboard/revuenue")
+    @GetMapping("/system-staff/dashboard/revuenue")
     public ResponseEntity<AdminDashboardBalanceDto> getDashboardRevuenue() throws ErrMessageException {
         AdminDashboardBalanceDto adminDashboardBalanceDto = dashboardService.getAdminDashboardRevuenue();
         return ResponseEntity.ok(adminDashboardBalanceDto);
