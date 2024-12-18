@@ -17,12 +17,12 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
 
     @Modifying
     @Transactional
-    @Query("UPDATE Notification n set n.isRead=true where n.userId =: userId")
-    void markAllReadByUserId(@Param("userId") Integer userId);
+    @Query("UPDATE Notification n set n.isRead=true where n.userId = :uId")
+    void markAllReadByUserId(@Param("uId") Integer userId);
 
     @Modifying
     @Transactional
-    @Query("UPDATE Notification n set n.isRead=true where n.role =: topic")
+    @Query("UPDATE Notification n set n.isRead=true where n.role = :topic")
     void markAllReadByTopic(@Param("topic") String topic);
 
 
