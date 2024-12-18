@@ -417,7 +417,7 @@ public class CustomerServiceImplement implements CustomerService {
         ExchangeRequest exchangeRequest = exchangeRequestRepository.findByIdAndIsActive(requestId).orElseThrow(()-> new OptionalNotFoundException("not found exchange request"));
         if (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPayment))){
             Customer owner = exchangeRequest.getExchangePosting().getOwner();
-            owner.getWallet().setAvailableMoney(owner.getWallet().getAvailableMoney()+Math.abs(exchangeRequest.getPriceValuation()));
+            //owner.getWallet().setAvailableMoney(owner.getWallet().getAvailableMoney()+Math.abs(exchangeRequest.getPriceValuation()));
             String descriptionOwner = "Nhận tiền thanh toán bù trừ trao đổi timeshare";
             String transactionTypeOwner = String.valueOf(WalletTransactionEnum.EXCHANGEREQUEST_VALUATION);
             WalletTransaction walletTransactionOwner = walletService.refundMoneyToCustomer(owner.getId(),0,Math.abs(exchangeRequest.getPriceValuation()),"WALLET",descriptionOwner,transactionTypeOwner);
@@ -498,7 +498,7 @@ public class CustomerServiceImplement implements CustomerService {
 
         if (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPayment))){
             Customer owner = exchangeRequest.getExchangePosting().getOwner();
-            owner.getWallet().setAvailableMoney(owner.getWallet().getAvailableMoney()+Math.abs(exchangeRequest.getPriceValuation()));
+            //owner.getWallet().setAvailableMoney(owner.getWallet().getAvailableMoney()+Math.abs(exchangeRequest.getPriceValuation()));
             String descriptionOwner = "Nhận tiền thanh toán bù trừ trao đổi timeshare";
             String transactionTypeOwner = String.valueOf(WalletTransactionEnum.EXCHANGEREQUEST_VALUATION);
             WalletTransaction walletTransactionOwner = walletService.refundMoneyToCustomer(owner.getId(),0,Math.abs(exchangeRequest.getPriceValuation()),"WALLET",descriptionOwner,transactionTypeOwner);
