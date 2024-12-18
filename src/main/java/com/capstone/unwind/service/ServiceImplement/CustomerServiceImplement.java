@@ -444,9 +444,6 @@ public class CustomerServiceImplement implements CustomerService {
                 exchangeRequest.getId()
         );
 
-
-
-
         Period period = Period.between(exchangeRequest.getStartDate(), exchangeRequest.getEndDate());
         int days = period.getDays() + 1;
         ExchangeBooking requesterBooking =  ExchangeBooking.builder()
