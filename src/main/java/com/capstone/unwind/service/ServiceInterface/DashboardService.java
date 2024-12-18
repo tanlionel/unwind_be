@@ -2,6 +2,7 @@ package com.capstone.unwind.service.ServiceInterface;
 
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.DashboardDTO.AdminDashboardBalanceDto;
 import com.capstone.unwind.model.DashboardDTO.AdminDashboardDto;
 import com.capstone.unwind.model.DashboardDTO.CustomerDashboardDto;
 import com.capstone.unwind.model.DashboardDTO.CustomerMoneyDashboardDto;
@@ -29,4 +30,6 @@ public interface DashboardService {
     CustomerMoneyDashboardDto getCustomerMoneyDashboard(Timestamp startDate, Timestamp endDate) throws ErrMessageException;
 
     AdminDashboardDto getAdminDashboard();
+
+    AdminDashboardBalanceDto getAdminDashboardRevuenue() throws ErrMessageException;
 }
