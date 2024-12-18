@@ -331,11 +331,11 @@ public class CustomerServiceImplement implements CustomerService {
         return profileMapper.toDto(customer);
     }
     @Override
-    public WalletTransactionDto paymentExchangePostingWallet(Integer postingId) throws OptionalNotFoundException, ErrMessageException {
+    public WalletTransactionDto paymentExchangePostingWallet(Integer packageId) throws OptionalNotFoundException, ErrMessageException {
         User user = userService.getLoginUser();
         if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
         if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
-        Optional<ExchangePackage> exchangePackage =exchangePackageRepository.findById(postingId);
+        Optional<ExchangePackage> exchangePackage =exchangePackageRepository.findById(packageId);
         if (!exchangePackage.isPresent()) throw new OptionalNotFoundException("Not found exchange package");
 
         if (exchangePackage.get().getPrice()>user.getCustomer().getWallet().getAvailableMoney()) throw new ErrMessageException("not enough money");
@@ -353,12 +353,12 @@ public class CustomerServiceImplement implements CustomerService {
     }
 
     @Override
-    public WalletTransactionDto paymentExchangePostingVNPAY(UUID uuid, Integer postingId) throws OptionalNotFoundException, ErrMessageException {
+    public WalletTransactionDto paymentExchangePostingVNPAY(UUID uuid, Integer packageId) throws OptionalNotFoundException, ErrMessageException {
         User user = userService.getLoginUser();
         if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
         if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
 
-        Optional<ExchangePackage> exchangePackage =exchangePackageRepository.findById(postingId);
+        Optional<ExchangePackage> exchangePackage =exchangePackageRepository.findById(packageId);
         if (!exchangePackage.isPresent()) throw new OptionalNotFoundException("Not found exchange package");
         String description = "Thanh toán đăng bài " + exchangePackage.get().getPackageName();
         String transactionType = "EXCHANGEPOSTING";

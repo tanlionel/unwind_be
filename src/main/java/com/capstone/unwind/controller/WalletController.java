@@ -82,13 +82,13 @@ public class WalletController {
         return ResponseEntity.ok(walletTransactionDto);
     }
     @PostMapping("wallet/exchange/posting")
-    public ResponseEntity<WalletTransactionDto> paymentExchangePostingWallet(@RequestParam Integer postingId) throws ErrMessageException, OptionalNotFoundException {
-        WalletTransactionDto walletTransactionDto = customerService.paymentExchangePostingWallet(postingId);
+    public ResponseEntity<WalletTransactionDto> paymentExchangePostingWallet(@RequestParam Integer packageId) throws ErrMessageException, OptionalNotFoundException {
+        WalletTransactionDto walletTransactionDto = customerService.paymentExchangePostingWallet(packageId);
         return ResponseEntity.ok(walletTransactionDto);
     }
     @PostMapping("vnpay/exchange/posting")
-    public ResponseEntity<WalletTransactionDto> paymentExchangePostingVNPAY(@RequestParam UUID uuid,@RequestParam Integer postingId) throws ErrMessageException, OptionalNotFoundException {
-        WalletTransactionDto walletTransactionDto = customerService.paymentExchangePostingVNPAY(uuid,postingId);
+    public ResponseEntity<WalletTransactionDto> paymentExchangePostingVNPAY(@RequestParam UUID uuid,@RequestParam Integer packageId) throws ErrMessageException, OptionalNotFoundException {
+        WalletTransactionDto walletTransactionDto = customerService.paymentExchangePostingVNPAY(uuid,packageId);
         return ResponseEntity.ok(walletTransactionDto);
     }
     @PostMapping("/vnpay/deposit-wallet")
