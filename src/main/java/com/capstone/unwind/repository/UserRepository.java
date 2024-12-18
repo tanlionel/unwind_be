@@ -21,6 +21,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     User findUserById(Integer userId);
     List<User> findAllByRoleId(Integer roleId);
+    @Query("SELECT u FROM User u WHERE u.id NOT IN (SELECT tc.owner.id FROM TimeshareCompany tc WHERE tc.owner IS NOT NULL) AND u.role.id = 2")
+    List<User> findUsersNotLinkedToTimeshareCompanyWithRole();
+
     boolean existsByEmail(String email);
 
     @Query("SELECT COUNT(u) FROM User u WHERE u.role.id = 1 AND u.isActive = true ")
