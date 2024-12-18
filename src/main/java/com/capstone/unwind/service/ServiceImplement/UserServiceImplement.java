@@ -166,8 +166,7 @@ public class UserServiceImplement implements UserService {
 
     @Override
     public List<UserDto> getAllTimeshareCompanyAccount() {
-        Integer timeshareCompanyRoleId = 2;
-        List<User> users = userRepository.findAllByRoleId(timeshareCompanyRoleId);
+        List<User> users = userRepository.findUsersNotLinkedToTimeshareCompanyWithRole();
         List<UserDto> userDtoList = users.stream().map(userMapper::toDto).toList();
         return userDtoList;
     }

@@ -69,8 +69,23 @@ public interface WalletTransactionRepository extends JpaRepository<WalletTransac
     Page<WalletTransaction> findAll(Pageable pageable);
     Page<WalletTransaction> findAllByTransactionType(String walletTransaction, Pageable pageable);
 
+    @Query("SELECT COALESCE(SUM(w.money), 0) FROM WalletTransaction w WHERE w.transactionType = 'MEMBERSHIP'")
+    Float calculateTotalMembershipTransactions();
 
+    @Query("SELECT COALESCE(SUM(w.money), 0) FROM WalletTransaction w WHERE w.transactionType = 'RENTALPOSTING'")
+    Float calculateTotalRentalPostingTransactions();
 
+    @Query("SELECT COALESCE(SUM(w.money), 0) FROM WalletTransaction w WHERE w.transactionType = 'EXCHANGEPOSTING'and w.money < 0")
+    Float calculateTotalExchangePostingTransactions();
+
+    @Query("SELECT COALESCE(SUM(w.money), 0) " +
+            "FROM WalletTransaction w " +
+            "WHERE w.money < 0 AND w.transactionType IN ('MEMBERSHIP', 'RENTALPOSTING', 'EXCHANGEPOSTING')")
+    float calculateNormalMoneyTotal();
+    @Query("SELECT COALESCE(SUM(w.money), 0) " +
+            "FROM WalletTransaction w " +
+            "WHERE w.money > 0 AND w.transactionType = 'RENTALPACKAGE04'")
+    float calculatePackageFourMoneyTotal();
 
 
 

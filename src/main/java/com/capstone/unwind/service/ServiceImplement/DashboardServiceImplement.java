@@ -6,6 +6,7 @@ import com.capstone.unwind.entity.User;
 import com.capstone.unwind.entity.Wallet;
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.DashboardDTO.AdminDashboardBalanceDto;
 import com.capstone.unwind.model.DashboardDTO.AdminDashboardDto;
 import com.capstone.unwind.model.DashboardDTO.CustomerDashboardDto;
 import com.capstone.unwind.model.DashboardDTO.CustomerMoneyDashboardDto;
@@ -308,6 +309,29 @@ public class DashboardServiceImplement implements DashboardService {
                 .totalSystemStaff(totalSystemStaff)
                 .totalAdmin(totalAdmin)
                 .build();
+    }
+
+    @Override
+    public AdminDashboardBalanceDto getAdminDashboardRevuenue() throws ErrMessageException {
+        Float membership;
+        Float rentalPosting;
+        Float exchangePosting;
+        Float total;
+        try{
+            membership = Math.abs(walletTransactionRepository.calculateTotalMembershipTransactions());
+            rentalPosting = Math.abs(walletTransactionRepository.calculateTotalRentalPostingTransactions());
+            exchangePosting = Math.abs(walletTransactionRepository.calculateTotalExchangePostingTransactions());
+            total = Math.abs(walletTransactionRepository.calculateNormalMoneyTotal()) + walletTransactionRepository.calculatePackageFourMoneyTotal();
+        }catch (Exception e){
+            throw new ErrMessageException("fail for calculate money");
+        }
+        AdminDashboardBalanceDto adminDashboardBalanceDto = AdminDashboardBalanceDto.builder()
+                .membershipRevuenue(membership)
+                .rentalPostingRevuenue(rentalPosting)
+                .exchangePostingRevuenue(exchangePosting)
+                .totalRevuenue(total)
+                .build();
+        return adminDashboardBalanceDto;
     }
 
 

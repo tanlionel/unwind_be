@@ -2,6 +2,7 @@ package com.capstone.unwind.controller;
 
 import com.capstone.unwind.exception.ErrMessageException;
 import com.capstone.unwind.exception.OptionalNotFoundException;
+import com.capstone.unwind.model.DashboardDTO.AdminDashboardBalanceDto;
 import com.capstone.unwind.model.DashboardDTO.AdminDashboardDto;
 import com.capstone.unwind.model.DashboardDTO.CustomerDashboardDto;
 import com.capstone.unwind.model.DashboardDTO.CustomerMoneyDashboardDto;
@@ -102,5 +103,10 @@ public class DashboardController {
 
             CustomerMoneyDashboardDto dashboard = dashboardService.getCustomerMoneyDashboard(startTimestamp, endTimestamp);
             return ResponseEntity.ok(dashboard);
+    }
+    @GetMapping("/admin/dashboard/revuenue")
+    public ResponseEntity<AdminDashboardBalanceDto> getDashboardRevuenue() throws ErrMessageException {
+        AdminDashboardBalanceDto adminDashboardBalanceDto = dashboardService.getAdminDashboardRevuenue();
+        return ResponseEntity.ok(adminDashboardBalanceDto);
     }
 }
