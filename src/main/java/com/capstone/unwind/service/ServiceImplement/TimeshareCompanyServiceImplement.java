@@ -73,7 +73,7 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
                 .owner(user)
                 .build();
         TimeshareCompany timeshareCompanyDB = timeshareCompanyRepository.save(timeshareCompanyRequest);
-        try {
+/*        try {
             for (String imageUrl : timeshareCompanyDto.getImageUrls()) {
                 DocumentStore document = new DocumentStore();
                 document.setType(DocumentStoreEnum.TimeshareCompany.toString());
@@ -84,7 +84,7 @@ public class TimeshareCompanyServiceImplement implements TimeshareCompanyService
             }
         } catch (Exception e) {
             throw new ErrMessageException("Error when saving images");
-        }
+        }*/
         TimeshareCompanyDto timeshareCompanyDtoDB = timeshareCompanyMapper.toDto(timeshareCompanyDB);
         try {
             EmailRequestDto emailRequestDto = new EmailRequestDto();
