@@ -413,7 +413,6 @@ public class CustomerServiceImplement implements CustomerService {
         User user = userService.getLoginUser();
         if (user.getCustomer() == null) throw new OptionalNotFoundException("Not init customer yet");
         if (user.getCustomer().getWallet()==null) throw new OptionalNotFoundException("Not init wallet yet");
-        Customer renter = user.getCustomer();
         ExchangeRequest exchangeRequest = exchangeRequestRepository.findByIdAndIsActive(requestId).orElseThrow(()-> new OptionalNotFoundException("not found exchange request"));
         if (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPayment))){
             Customer owner = exchangeRequest.getExchangePosting().getOwner();
@@ -423,7 +422,7 @@ public class CustomerServiceImplement implements CustomerService {
             WalletTransaction walletTransactionOwner = walletService.refundMoneyToCustomer(owner.getId(),0,Math.abs(exchangeRequest.getPriceValuation()),"WALLET",descriptionOwner,transactionTypeOwner);
             walletRepository.save(owner.getWallet());
         }else {
-            renter = user.getCustomer();
+            Customer renter = exchangeRequest.getOwner();
             //renter.getWallet().setAvailableMoney(renter.getWallet().getAvailableMoney()+Math.abs(exchangeRequest.getPriceValuation()));
             String descriptionRenter = "Nhận tiền thanh toán bù trừ trao đổi timeshare";
             String transactionTypeRenter = String.valueOf(WalletTransactionEnum.EXCHANGEREQUEST_VALUATION);
@@ -491,6 +490,7 @@ public class CustomerServiceImplement implements CustomerService {
 
         WalletTransaction walletTransaction ;
         if (Math.abs(exchangeRequest.getPriceValuation())>user.getCustomer().getWallet().getAvailableMoney()) throw new ErrMessageException("not enough money");
+
         if (exchangeRequest.getStatus().equals(String.valueOf(ExchangeRequestEnum.PendingRenterPayment))) {
             user.getCustomer().getWallet().setAvailableMoney(user.getCustomer().getWallet().getAvailableMoney()-Math.abs(exchangeRequest.getPriceValuation()));
              walletTransaction = walletService.createTransactionWallet(0,Math.abs(exchangeRequest.getPriceValuation()), "WALLET");
@@ -498,7 +498,7 @@ public class CustomerServiceImplement implements CustomerService {
         }
         else {
             exchangeRequest.getExchangePosting().getOwner().getWallet().setAvailableMoney(exchangeRequest.getExchangePosting().getOwner().getWallet().getAvailableMoney()-Math.abs(exchangeRequest.getPriceValuation()));
-             walletTransaction = walletService.createTransactionWallet(0,Math.abs(exchangeRequest.getPriceValuation()), "WALLET");
+            walletTransaction = walletService.createTransactionWallet(0,Math.abs(exchangeRequest.getPriceValuation()), "WALLET");
             walletRepository.save(exchangeRequest.getExchangePosting().getOwner().getWallet());
         }
 
@@ -511,7 +511,7 @@ public class CustomerServiceImplement implements CustomerService {
             WalletTransaction walletTransactionOwner = walletService.refundMoneyToCustomer(owner.getId(),0,Math.abs(exchangeRequest.getPriceValuation()),"WALLET",descriptionOwner,transactionTypeOwner);
             walletRepository.save(owner.getWallet());
         }else {
-            Customer renter = user.getCustomer();
+            Customer renter = exchangeRequest.getOwner();
             //renter.getWallet().setAvailableMoney(renter.getWallet().getAvailableMoney()+Math.abs(exchangeRequest.getPriceValuation()));
             String descriptionRenter = "Nhận tiền thanh toán bù trừ trao đổi timeshare";
             String transactionTypeRenter = String.valueOf(WalletTransactionEnum.EXCHANGEREQUEST_VALUATION);
