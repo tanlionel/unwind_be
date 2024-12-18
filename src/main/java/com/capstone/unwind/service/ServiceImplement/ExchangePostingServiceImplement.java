@@ -377,6 +377,7 @@ public class ExchangePostingServiceImplement implements ExchangePostingService {
                 .status(String.valueOf(ExchangeRequestEnum.PendingOwner))
                 .exchangePosting(exchangePosting)
                 .priceValuation(exchangeRequestDto.getPriceValuation())
+                .exchangePackageId(exchangePosting.getExchangePackage().getId())
                 .isActive(true)
                 .note(exchangeRequestDto.getNote())
                 .build();

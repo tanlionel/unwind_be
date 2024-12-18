@@ -33,6 +33,8 @@ public class ExchangeRequestDetailDto implements Serializable {
     @JsonFormat(pattern = "dd-MM-yyyy", timezone = "Asia/Bangkok")
     Timestamp updatedDate;
     Float priceValuation;
+    Integer exchangePackageId;
+
 
     Boolean isActive;
 

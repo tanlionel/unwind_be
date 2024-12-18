@@ -22,6 +22,7 @@ public interface ExchangeRequestMapper {
     @Mapping(source = "ownerFullName", target = "owner.fullName")
     @Mapping(source = "ownerId", target = "owner.id")
     @Mapping(source = "roomInfo.location", target = "roomInfo.resort.location")
+    @Mapping(source = "exchangePackageId",target = "exchangePackageId")
     ExchangeRequest toEntity(ExchangeRequestDetailDto exchangeRequestDetailDto);
 
     @InheritInverseConfiguration(name = "toEntity")

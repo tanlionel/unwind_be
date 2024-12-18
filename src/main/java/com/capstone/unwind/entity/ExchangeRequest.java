@@ -56,8 +56,13 @@ public class ExchangeRequest {
 
     @Column(name = "is_active")
     private Boolean isActive;
+
     @Column(name = "price_valuation")
     private Float priceValuation;
+
+    @Column(name = "exchange_package_id")
+    private Integer exchangePackageId;
+
     @PrePersist
     protected void onCreate() {
         this.createdDate = Timestamp.from(Instant.now());
