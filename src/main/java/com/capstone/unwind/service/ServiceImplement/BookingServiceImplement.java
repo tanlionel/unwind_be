@@ -177,6 +177,14 @@ public class BookingServiceImplement implements BookingService {
                     String description = "Giao dịch cộng tiền từ khách hàng đã check out";
                     String transactionType = String.valueOf(WalletTransactionEnum.RENTALPACKAGE04);
                     WalletTransaction walletTransaction = walletService.createTransactionSystemPosting(fee,money,paymentMethod,description,transactionType);
+
+                    Customer owner = rentalPosting.getOwner();
+                    if (owner==null) throw new ErrMessageException("Error when refund money to customer but reject successfully");
+                    float moneyCustomer = rentalPosting.getPriceValuation();
+                    String paymentMethodCustomer = "WALLET";
+                    String descriptionCustomer = "Giao dịch cộng tiền từ khách hàng đã check out";
+                    String transactionTypeCustomer = "RENTALPOSTING";
+                    WalletTransaction walletTransactionCustomerPackage04 = walletService.refundMoneyToCustomer(owner.getId(),0,moneyCustomer,paymentMethodCustomer,descriptionCustomer,transactionTypeCustomer);
                 }else {
                     Customer owner = rentalPosting.getOwner();
                     if (owner==null) throw new ErrMessageException("Error when refund money to customer but reject successfully");
