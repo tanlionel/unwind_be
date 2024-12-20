@@ -16,17 +16,17 @@ public class TimeshareCompany {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "timeshare_company_name", length = 45)
+    @Column(name = "timeshare_company_name", length = 300)
     private String timeshareCompanyName;
 
-    @Column(name = "logo", length = 200)
+    @Column(name = "logo", length = 1000)
     private String logo;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "location_id", referencedColumnName = "location_id")
     private Location location;
 
-    @Column(name = "description", length = 500)
+    @Column(name = "description", length = 1000)
     private String description;
 
     @OneToOne(fetch = FetchType.LAZY)

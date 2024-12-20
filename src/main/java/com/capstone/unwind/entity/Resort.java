@@ -17,10 +17,10 @@ public class Resort {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "resort_name", length = 45)
+    @Column(name = "resort_name", length = 100)
     private String resortName;
 
-    @Column(name = "logo", length = 200)
+    @Column(name = "logo", length = 1000)
     private String logo;
 
     @Column(name = "min_price")
@@ -36,7 +36,7 @@ public class Resort {
     @JoinColumn(name = "location_id", referencedColumnName = "location_id")
     private Location location;
 
-    @Column(name = "description",length = 500)
+    @Column(name = "description",length = 1000)
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -18,10 +18,10 @@ public class UnitType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "title", length = 45)
+    @Column(name = "title", length = 200)
     private String title;
 
-    @Column(name = "area", length = 45)
+    @Column(name = "area", length = 100)
     private String area;
 
     @Column(name = "bathrooms")
@@ -48,19 +48,19 @@ public class UnitType {
     @Column(name = "beds_twin")
     private Integer bedsTwin;
 
-    @Column(name = "buildings_option", length = 45)
+    @Column(name = "buildings_option", length = 10)
     private String buildingsOption;
 
     @Column(name = "price")
     private Float price;
 
-    @Column(name = "description", length = 200)
+    @Column(name = "description", length = 1000)
     private String description;
 
     @Column(name = "kitchen", length = 100)
     private String kitchen;
 
-    @Column(name = "photos", length = 100)
+    @Column(name = "photos", length = 1000)
     private String photos;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -70,7 +70,7 @@ public class UnitType {
     @Column(name = "sleeps")
     private Integer sleeps;
 
-    @Column(name = "view", length = 45)
+    @Column(name = "view", length = 1000)
     private String view;
 
     @Column(name = "is_active")

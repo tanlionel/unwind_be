@@ -133,19 +133,35 @@ public class BookingServiceImplement implements BookingService {
 
     @Override
     public Page<MergedBooking> getMergeBookingByDateTsStaff(Integer pageNo, Integer pageSize, LocalDate searchDate, boolean isComing, boolean willGo) {
-        Pageable pageable = PageRequest.of(pageNo,pageSize,Sort.by("checkinDate").ascending());
+        // Tạo Pageable với sắp xếp theo ngày check-in
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("checkinDate").ascending());
         Page<MergedBooking> mergedBookingPage;
+
+        // Lấy thông tin nhân viên đang đăng nhập
         TimeShareCompanyStaffDTO timeShareCompanyStaffDTO = timeShareStaffService.getLoginStaff();
         Integer resortId = timeShareCompanyStaffDTO.getResortId();
-        if (isComing && !willGo){
-            mergedBookingPage = mergedBookingRepository.findAllByCheckinDateAfterAndStatusAndResortId(searchDate,String.valueOf(RentalBookingEnum.Booked),resortId,pageable);
-        }else if (!isComing && willGo){
-            mergedBookingPage = mergedBookingRepository.findAllByCheckinDateBeforeAndCheckoutDateAfterAndStatusAndResortId(searchDate,searchDate,String.valueOf(RentalBookingEnum.CheckIn),resortId,pageable);
-        }else {
-            mergedBookingPage = mergedBookingRepository.findAllByCheckinDateOrCheckoutDateAndResortId(searchDate,searchDate,resortId,pageable);
+
+        // Logic xử lý điều kiện
+        if (isComing && !willGo) {
+            // Tìm booking với check-in sau ngày tìm kiếm và trạng thái là "Booked"
+            mergedBookingPage = mergedBookingRepository.findByResortIdAndCheckinDateAfterAndStatus(
+                    resortId, searchDate, String.valueOf(RentalBookingEnum.Booked), pageable
+            );
+        } else if (!isComing && willGo) {
+            // Tìm booking với check-in trước ngày tìm kiếm và check-out sau ngày tìm kiếm, trạng thái là "CheckIn"
+            mergedBookingPage = mergedBookingRepository.findByResortIdAndCheckinDateBeforeAndCheckoutDateAfterAndStatus(
+                    resortId, searchDate, searchDate, String.valueOf(RentalBookingEnum.CheckIn), pageable
+            );
+        } else {
+            // Tìm booking với check-in hoặc check-out khớp ngày tìm kiếm
+            mergedBookingPage = mergedBookingRepository.findByResortIdAndCheckinOrCheckoutDate(
+                    resortId, searchDate, searchDate, pageable
+            );
         }
+
         return mergedBookingPage;
     }
+
 
     @Override
     public ExchangeBookingDetailDto getExchangeBookingDetailById(Integer bookingId) throws OptionalNotFoundException {

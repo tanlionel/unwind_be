@@ -28,7 +28,7 @@ public class TimeshareCompanyStaff implements UserDetails {
     @Column(name = "user_name", length = 45)
     private String userName;
 
-    @Column(name = "password", length = 100)
+    @Column(name = "password", length = 200)
     private String password;
 
     @ManyToOne(fetch = FetchType.LAZY)
