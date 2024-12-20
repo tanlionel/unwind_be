@@ -180,11 +180,12 @@ public class BookingServiceImplement implements BookingService {
 
                     Customer owner = rentalPosting.getOwner();
                     if (owner==null) throw new ErrMessageException("Error when refund money to customer but reject successfully");
-                    float moneyCustomer = rentalPosting.getPriceValuation();
+                    float feePackageFour = rentalPosting.getPricePerNights()*rentalPosting.getNights() * rentalPosting.getRentalPackage().getCommissionRate() / 100 ;
+                    float moneyCustomer = rentalPosting.getPricePerNights()*rentalPosting.getNights() - feePackageFour;
                     String paymentMethodCustomer = "WALLET";
                     String descriptionCustomer = "Giao dịch cộng tiền từ khách hàng đã check out";
                     String transactionTypeCustomer = "RENTALPOSTING";
-                    WalletTransaction walletTransactionCustomerPackage04 = walletService.refundMoneyToCustomer(owner.getId(),0,moneyCustomer,paymentMethodCustomer,descriptionCustomer,transactionTypeCustomer);
+                    WalletTransaction walletTransactionCustomerPackage04 = walletService.refundMoneyToCustomer(owner.getId(),feePackageFour,moneyCustomer,paymentMethodCustomer,descriptionCustomer,transactionTypeCustomer);
                 }else {
                     Customer owner = rentalPosting.getOwner();
                     if (owner==null) throw new ErrMessageException("Error when refund money to customer but reject successfully");
